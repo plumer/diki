@@ -14,7 +14,7 @@ class User {
 	private String name;
 	private String password;
 	private Inet4Address ip;	// 看这里! 我嫌大小写不统一改了!
-	private int port;			// 哈哈我又改了
+	private int port;
 	
 	User(int id, boolean status, String name, String password, Inet4Address ip, int port){
 		this.id = id;
