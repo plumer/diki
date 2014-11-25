@@ -4,7 +4,7 @@
 package lab02;
 
 /**
- * @author Denny
+ * @author diki
  *
  */
 class Server {

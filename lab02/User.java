@@ -5,7 +5,7 @@ package lab02;
 
 import java.net.*;
 /**
- * @author Denny
+ * @author diki
  *
  */
 class User {
