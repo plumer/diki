@@ -1,5 +1,6 @@
 package lab02;
 
+// ju ge lizi
 import java.awt.*;
 import javax.swing.*;
 public class Client extends JFrame{
