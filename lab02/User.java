@@ -40,6 +40,7 @@ class User {
 
 	/**
 	 * @return the status
+	 * suggestion: change method name to isOnline()
 	 */
 	boolean isStatus() {
 		return status;
@@ -47,6 +48,8 @@ class User {
 
 	/**
 	 * @param status the status to set
+	 * suggestion: split setStatus() method into two methods:
+	 * login() and logout()
 	 */
 	void setStatus(boolean status) {
 		this.status = status;
