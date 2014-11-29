@@ -1,43 +1,178 @@
 package lab02;
 
+// ju ge lizi
 import java.awt.*;
 import javax.swing.*;
 public class Client extends JFrame{
-	private JButton login = new JButton("login");//µÇÂ½°´Å¥
-	private JButton register = new JButton("register");//×¢²á°´Å¥
-	private JLabel title = new JLabel("My Diki");//´ÊµäÃû×Ö
-	private JButton note = new JButton("note");//µ¥´Ê±¾°´Å¥
+	private JButton login = new JButton("login");//ç™»é™†æŒ‰é’®
+	private JButton register = new JButton("register");//æ³¨å†ŒæŒ‰é’®
+	private JLabel title = new JLabel("My Diki");//è¯å…¸åå­—
+	private JButton note = new JButton("note");//å•è¯æœ¬æŒ‰é’®
 	 
-	private JTextField input = new JTextField(); //ÊäÈëÎÄ±¾¿ò
-	private JButton search = new JButton("search");//search °´Å¥
+	private JTextField input = new JTextField(); //è¾“å…¥æ–‡æœ¬æ¡†
+	private JButton search = new JButton("search");//search æŒ‰é’®
 	
-	private JCheckBox baidu = new JCheckBox("°Ù¶È");//Èı¸ö¸´Ñ¡¿ò
-	private JCheckBox youdao = new JCheckBox("ÓĞµÀ");
-	private JCheckBox biying = new JCheckBox("±ØÓ¦");
+	private JCheckBox baidu = new JCheckBox("ç™¾åº¦");//ä¸‰ä¸ªå¤é€‰æ¡†
+	private JCheckBox youdao = new JCheckBox("æœ‰é“");
+	private JCheckBox biying = new JCheckBox("å¿…åº”");
 	
-	private JList onlineUserList = new JList();//ÔÚÏßÓÃ»§ÁĞ±í
-	private JScrollPane scrollPane = new JScrollPane(onlineUserList);//ÁĞ±íµÄ¹öÂÖ
+	private JList onlineUserList = new JList();//åœ¨çº¿ç”¨æˆ·åˆ—è¡¨
+	private JScrollPane scrollPane = new JScrollPane(onlineUserList);//åˆ—è¡¨çš„æ»šè½®
 	
-	private JTextArea resultA = new JTextArea(5,20);//µÚÒ»¸öÍøÕ¾µÄËÑË÷½á¹ûÏÔÊ¾ÎÄ±¾ÇøÓò
-	private JScrollPane scrollPaneA = new JScrollPane(resultA);//¹öÂÖ
-	private JTextField whoToSendA = new JTextField("who to send");//ÏÔÊ¾¸øË­·¢µ¥´Ê¿¨µÄÎÄ±¾¿ò
-	private JButton zanA = new JButton("zan");//µãÔŞ °´Å¥
-	private JButton unzanA = new JButton("unzan");//µã²»ÔŞ °´Å¥
-	private JButton sendCardA = new JButton("send card");//·¢ËÍµ¥´Ê¿¨ °´Å¥
+	private JTextArea resultA = new JTextArea(5,20);//ç¬¬ä¸€ä¸ªç½‘ç«™çš„æœç´¢ç»“æœæ˜¾ç¤ºæ–‡æœ¬åŒºåŸŸ
+	private JScrollPane scrollPaneA = new JScrollPane(resultA);//æ»šè½®
+	private JTextField whoToSendA = new JTextField("who to send");//æ˜¾ç¤ºç»™è°å‘å•è¯å¡çš„æ–‡æœ¬æ¡†
+	private JButton zanA = new JButton("zan");//ç‚¹èµ æŒ‰é’®
+	private JButton unzanA = new JButton("unzan");//ç‚¹ä¸èµ æŒ‰é’®
+	private JButton sendCardA = new JButton("send card");//å‘é€å•è¯å¡ æŒ‰é’®
 	
-	private JTextArea resultB = new JTextArea(5,20);//µÚ¶ş¸öÍøÕ¾µÄËÑË÷½á¹ûÏÔÊ¾ÎÄ±¾ÇøÓò£¨ÓëAÀàËÆ£©
+	private JTextArea resultB = new JTextArea(5,20);//ç¬¬äºŒä¸ªç½‘ç«™çš„æœç´¢ç»“æœæ˜¾ç¤ºæ–‡æœ¬åŒºåŸŸï¼ˆä¸Aç±»ä¼¼ï¼‰
 	private JScrollPane scrollPaneB = new JScrollPane(resultB);
 	private JTextField whoToSendB = new JTextField("who to send");
 	private JButton zanB = new JButton("zan");
 	private JButton unzanB = new JButton("unzan");
 	private JButton sendCardB = new JButton("send card");
 	
-	private JTextArea resultC = new JTextArea(5,20);//µÚÈı¸öÍøÕ¾µÄËÑË÷ÏÔÊ¾ÎÄ±¾ÇøÓò£¨ÓëAÀàËÆ£©
+	private JTextArea resultC = new JTextArea(5,20);//ç¬¬ä¸‰ä¸ªç½‘ç«™çš„æœç´¢æ˜¾ç¤ºæ–‡æœ¬åŒºåŸŸï¼ˆä¸Aç±»ä¼¼ï¼‰
 	private JScrollPane scrollPaneC = new JScrollPane(resultC);
 	private JTextField whoToSendC = new JTextField("who to send");
 	private JButton zanC = new JButton("zan");
 	private JButton unzanC = new JButton("unzan");
 	private JButton sendCardC = new JButton("send card");
+
+	private User currentUser; // current online user
+	private String[] notebook;
+	private Entry currentEntry;
+
+	// pops out another that requires user name and password from user input
+	private boolean login() {
+		/*
+		 * pop out a new frame:
+		 *   2 new textfields, 2 new buttons "cancel" and "Login"
+		 * listener 1 : "cancel"
+		 * 	 return false
+		 * listener 2 : "login"
+		 *   get input(userName and password) from textfield
+		 *   send login request to server
+		 *     details pending
+		 *   wait server to respond
+		 *     succeed asserted
+		 *   refresh currentUser
+		 *   disable visibility of buttons "login" and "register"
+		 *   display username and buttons "logout" and "notes"
+		 *   refresh onlineUserList and display
+		 *   refresh notes
+		 *   close this frame
+		 *   return true
+		* */
+		return false;
+		// if login succeed, change onlineUserList
+	}
+
+	private boolean logout() {
+		/*
+		 * get username from currentUser
+		 * send logout request to server
+		 *   details pending
+		 * wait server to respond
+		 *   succeed asserted
+		 * disable currentUser and button "logout"
+		 * display buttons "login" and "register"
+		 * clear onlineUserList
+		 * clear notes
+		 * disable buttons "notes"
+		 * close this frame
+		 * return true
+		 */
+		return false;
+	}
+
+	// pops out another panel that requires registration information
+	private boolean register() {
+		/*
+		 * pop out a new frame:
+		 *   3 new textfields, 2 new buttons "cancel" and "register"
+		 *
+		 * listener 1 : "cancel"
+		 * 	 return false
+		 * listener 2 : "login"
+		 *   get input(userName and password, recheck-password) from textfield
+		 *   if recheck unsuccess
+		 *     clear password fieldS
+		 *     do not respond
+		 *   else
+		 *     send register request to server
+		 *       details pending
+		 *     wait server to respond
+		 *       succeed asserted
+		 *     clear current frame
+		 *     display message and button "OK"
+		 *     listener 3: "OK"
+		 *       close this frame
+		 *       return true
+		* */
+		return false;
+	}
+
+	// pops out another panel that shows the list of entries received
+	private void showNotes() {
+		/*
+		 * pop a new frame
+		 * display JList(notebook)
+		 */
+	}
+
+	// panelID: which result? A? B? C?
+	private boolean clickZan(int panelID) {
+		/* get explanation id
+		 * send clickZan request to server
+		 *   assert success
+		 * disable button
+		 * change button text to #ofZan
+		 * return true
+		 *
+		 */
+	}
+
+	private boolean clickUnzan(int panelID) {
+		/* get explanation id
+		 * send clickUnzan request to server
+		 *   assert success
+		 * disable button
+		 * change button text to #ofUnzan
+		 * return true
+		 */
+	}
+
+	private boolean sendCard(int panelID) {
+		/* get user name (from textField ? onlineUserList ?)
+		 * get explanation id
+		 * send sendCard request to server
+		 *   assert success
+		 * return true
+		 */
+	}
+
+
+
+	// fills in all result panels
+	private void search() {
+		String keyword; /* = textfield.getinput()*/
+		/*
+		 * if user is online
+		 *   send search request to server
+		 *   wait server to respond
+		 *     assert success
+		 *   extract explanation from packet from server
+		 *   refresh currentEntry
+		 *   display currentEntry according to checkbox
+		 *     in the order of #ofZan
+		 * else
+		 *   send search from online dicts
+		 *   refresh currentEntry
+		 *   display currentEntry according to checkbox
+		 */
+	}
 	
 	public static void main(String[] args){
 		Client frame = new Client();
@@ -48,25 +183,25 @@ public class Client extends JFrame{
     	frame.setVisible(true);
 	}
 	public Client(){
-		//Ö÷ÒªµÄËÄ¸öpanel£¨ÓĞµÄpannelÊÇÓÉ¸üĞ¡µÄpanel¹¹³ÉµÄ£©
-		//¿Ø¼şÓĞ£ºµÇÂ½°´Å¥£¬×¢²á°´Å¥£¬×ÖµäÃû×Ö£¬µ¥´Ê±¾°´Å¥     
+		//ä¸»è¦çš„å››ä¸ªpanelï¼ˆæœ‰çš„pannelæ˜¯ç”±æ›´å°çš„panelæ„æˆçš„ï¼‰
+		//æ§ä»¶æœ‰ï¼šç™»é™†æŒ‰é’®ï¼Œæ³¨å†ŒæŒ‰é’®ï¼Œå­—å…¸åå­—ï¼Œå•è¯æœ¬æŒ‰é’®     
 		//GridLayout
 		JPanel logPanel = new JPanel();
 		
-		//¿Ø¼şÓĞ£º input£¬ÊäÈëµ¥´ÊµÄÎÄ±¾¿ò£¬search °´Å¥£¬
-		//      Èı¸öÍøÕ¾µÄ¸´Ñ¡¿ò(selectSourcePanel (Ê¹ÓÃFlowLayout))
+		//æ§ä»¶æœ‰ï¼š inputï¼Œè¾“å…¥å•è¯çš„æ–‡æœ¬æ¡†ï¼Œsearch æŒ‰é’®ï¼Œ
+		//      ä¸‰ä¸ªç½‘ç«™çš„å¤é€‰æ¡†(selectSourcePanel (ä½¿ç”¨FlowLayout))
 		//BorderLayout
 		JPanel searchPanel = new JPanel();
 		
-		//¿Ø¼şÓĞ£º ÔÚÏßÓÃ»§ÁĞ±í£¬Èı¸öÍøÕ¾µÄËÑË÷½á¹û£¬ÆäÖĞÓĞµ¥´ÊµÄ½âÊÍ¡¢Ñ¡Ôñ¸øË­·¢ËÍµ¥´Ê¿¨¡¢ÔŞ°´Å¥¡¢²»ÔŞ°´Å¥¡¢·¢ËÍµ¥´Ê¿¨°´Å¥
-		  //Èı¸öÍøÕ¾µÄËÑË÷½á¹û(showResultPanel (Ê¹ÓÃ BorderLayout))       
-		  //Ã¿¸öÍøÕ¾µÄËÑË÷½á¹û(showPenelA/B/C (Ê¹ÓÃ BorderLayout))         µ¥´ÊµÄ½âÊÍ¡¢Ñ¡Ôñ¸øË­·¢ËÍµ¥´Ê¿¨¡¢ÔŞ°´Å¥¡¢²»ÔŞ°´Å¥¡¢·¢ËÍµ¥´Ê¿¨°´Å¥
-		  //ÆäÖĞÈı¸ö°´Å¥ºÍÒ»¸öÎÄ±¾¿ò(showSelectPanelA/B/C (Ê¹ÓÃGridLayout)) Ñ¡Ôñ¸øË­·¢ËÍµ¥´Ê¿¨¡¢ÔŞ°´Å¥¡¢²»ÔŞ°´Å¥¡¢·¢ËÍµ¥´Ê¿¨°´Å¥
+		//æ§ä»¶æœ‰ï¼š åœ¨çº¿ç”¨æˆ·åˆ—è¡¨ï¼Œä¸‰ä¸ªç½‘ç«™çš„æœç´¢ç»“æœï¼Œå…¶ä¸­æœ‰å•è¯çš„è§£é‡Šã€é€‰æ‹©ç»™è°å‘é€å•è¯å¡ã€èµæŒ‰é’®ã€ä¸èµæŒ‰é’®ã€å‘é€å•è¯å¡æŒ‰é’®
+		  //ä¸‰ä¸ªç½‘ç«™çš„æœç´¢ç»“æœ(showResultPanel (ä½¿ç”¨ BorderLayout))       
+		  //æ¯ä¸ªç½‘ç«™çš„æœç´¢ç»“æœ(showPenelA/B/C (ä½¿ç”¨ BorderLayout))         å•è¯çš„è§£é‡Šã€é€‰æ‹©ç»™è°å‘é€å•è¯å¡ã€èµæŒ‰é’®ã€ä¸èµæŒ‰é’®ã€å‘é€å•è¯å¡æŒ‰é’®
+		  //å…¶ä¸­ä¸‰ä¸ªæŒ‰é’®å’Œä¸€ä¸ªæ–‡æœ¬æ¡†(showSelectPanelA/B/C (ä½¿ç”¨GridLayout)) é€‰æ‹©ç»™è°å‘é€å•è¯å¡ã€èµæŒ‰é’®ã€ä¸èµæŒ‰é’®ã€å‘é€å•è¯å¡æŒ‰é’®
 		//BorderLayout
 		JPanel showPanel = new JPanel();
 		
-		//ÒÔÏÂÊÇ¸üĞ¡µÄpanelµÄ¶¨Òå£¬ÔÚÉÏÃæÒÑ¾­½âÊÍ¹ıÁË
-		//¿Ø¼şÓĞ£º°Ù¶È¡¢ÓĞµÀ¡¢±ØÓ¦Èı¸ö¸´Ñ¡¿ò 
+		//ä»¥ä¸‹æ˜¯æ›´å°çš„panelçš„å®šä¹‰ï¼Œåœ¨ä¸Šé¢å·²ç»è§£é‡Šè¿‡äº†
+		//æ§ä»¶æœ‰ï¼šç™¾åº¦ã€æœ‰é“ã€å¿…åº”ä¸‰ä¸ªå¤é€‰æ¡† 
 		JPanel selectSourcePanel = new JPanel();
 		
 		JPanel showResultPanel = new JPanel();
@@ -89,7 +224,7 @@ public class Client extends JFrame{
 		selectSourcePanel.add(youdao);
 		selectSourcePanel.add(biying);
 		
-		searchPanel.setLayout(new BorderLayout(20,20));
+		searchPanel.setLayout(new BorderLayout(20,10));
 		searchPanel.add(new JLabel("Input"),BorderLayout.WEST);
 		searchPanel.add(input,BorderLayout.CENTER);
 		searchPanel.add(search,BorderLayout.EAST);
