@@ -15,7 +15,7 @@ class Entry {
 	private static final int BING = 2;
 
 	private String keyword;
-	private class Information{	//内部类，保存来自不同来源的解釄1�7
+	private class Information{	//内部类，保存来自不同来源的解释
 		private String source;
 		private String attribute;
 		private String phonetic;
