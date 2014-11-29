@@ -5,15 +5,15 @@ package lab02;
 
 import java.net.*;
 /**
- * @author diki
+ * @author Diki
  *
  */
 class User {
 	private int id;
-	private boolean status;	// 看这里! 我嫌名字太长改了!
+	private boolean status;
 	private String name;
 	private String password;
-	private Inet4Address ip;	// 看这里! 我嫌大小写不统一改了!
+	private Inet4Address ip;
 	private int port;
 	
 	User(int id, boolean status, String name, String password, Inet4Address ip, int port){

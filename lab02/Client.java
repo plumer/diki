@@ -2,111 +2,206 @@ package lab02;
 
 // ju ge lizi
 import java.awt.*;
-
 import javax.swing.*;
-
-import java.util.*; 
-import java.awt.*;
-import java.io.*; 
-import java.awt.event.*;
-
-import javax.swing.*;
-
-import java.awt.event.KeyEvent;
-
-import javax.swing.plaf.FontUIResource;
-import javax.swing.text.Document;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.border.TitledBorder;
-
 public class Client extends JFrame{
-	private JButton login = new JButton("login");//登陆按钮
-	private JButton register = new JButton("register");//注册按钮
-	private JLabel title = new JLabel("My Diki");//词典名字
-	private JButton note = new JButton("note");//单词本按钮
+	private JButton login = new JButton("login");//鐧婚檰鎸夐挳
+	private JButton register = new JButton("register");//娉ㄥ唽鎸夐挳
+	private JLabel title = new JLabel("My Diki");//璇嶅吀鍚嶅瓧
+	private JButton note = new JButton("note");//鍗曡瘝鏈寜閽�
 	 
-	private JTextField input = new JTextField(); //输入文本框
-	private JButton search = new JButton("search");//search 按钮
+	private JTextField input = new JTextField(); //杈撳叆鏂囨湰妗�
+	private JButton search = new JButton("search");//search 鎸夐挳
 	
-	private JCheckBox baidu = new JCheckBox("百度");//三个复选框
-	private JCheckBox youdao = new JCheckBox("有道");
-	private JCheckBox biying = new JCheckBox("必应");
+	private JCheckBox baidu = new JCheckBox("鐧惧害");//涓変釜澶嶉�夋
+	private JCheckBox youdao = new JCheckBox("鏈夐亾");
+	private JCheckBox biying = new JCheckBox("蹇呭簲");
 	
-	private JList onlineUserList = new JList();//在线用户列表
-	private JScrollPane scrollPane = new JScrollPane(onlineUserList);//列表的滚轮
+	private JList onlineUserList = new JList();//鍦ㄧ嚎鐢ㄦ埛鍒楄〃
+	private JScrollPane scrollPane = new JScrollPane(onlineUserList);//鍒楄〃鐨勬粴杞�
 	
-	private JTextArea resultA = new JTextArea(5,20);//第一个网站的搜索结果显示文本区域
-	private JScrollPane scrollPaneA = new JScrollPane(resultA);//滚轮
-	private JTextField whoToSendA = new JTextField("who to send");//显示给谁发单词卡的文本框
-	private JButton zanA = new JButton("zan");//点赞 按钮
-	private JButton unzanA = new JButton("unzan");//点不赞 按钮
-	private JButton sendCardA = new JButton("send card");//发送单词卡 按钮
+	private JTextArea resultA = new JTextArea(5,20);//绗竴涓綉绔欑殑鎼滅储缁撴灉鏄剧ず鏂囨湰鍖哄煙
+	private JScrollPane scrollPaneA = new JScrollPane(resultA);//婊氳疆
+	private JTextField whoToSendA = new JTextField("who to send");//鏄剧ず缁欒皝鍙戝崟璇嶅崱鐨勬枃鏈
+	private JButton zanA = new JButton("zan");//鐐硅禐 鎸夐挳
+	private JButton unzanA = new JButton("unzan");//鐐逛笉璧� 鎸夐挳
+	private JButton sendCardA = new JButton("send card");//鍙戦�佸崟璇嶅崱 鎸夐挳
 	
-	private JTextArea resultB = new JTextArea(5,20);//第二个网站的搜索结果显示文本区域（与A类似）
+	private JTextArea resultB = new JTextArea(5,20);//绗簩涓綉绔欑殑鎼滅储缁撴灉鏄剧ず鏂囨湰鍖哄煙锛堜笌A绫讳技锛�
 	private JScrollPane scrollPaneB = new JScrollPane(resultB);
 	private JTextField whoToSendB = new JTextField("who to send");
 	private JButton zanB = new JButton("zan");
 	private JButton unzanB = new JButton("unzan");
 	private JButton sendCardB = new JButton("send card");
 	
-	private JTextArea resultC = new JTextArea(5,20);//第三个网站的搜索显示文本区域（与A类似）
+	private JTextArea resultC = new JTextArea(5,20);//绗笁涓綉绔欑殑鎼滅储鏄剧ず鏂囨湰鍖哄煙锛堜笌A绫讳技锛�
 	private JScrollPane scrollPaneC = new JScrollPane(resultC);
 	private JTextField whoToSendC = new JTextField("who to send");
 	private JButton zanC = new JButton("zan");
 	private JButton unzanC = new JButton("unzan");
 	private JButton sendCardC = new JButton("send card");
+
+	private User currentUser; // current online user
+	private String[] notebook;
+	private Entry currentEntry;
+
+	// pops out another that requires user name and password from user input
+	private boolean login() {
+		/*
+		 * pop out a new frame:
+		 *   2 new textfields, 2 new buttons "cancel" and "Login"
+		 * listener 1 : "cancel"
+		 * 	 return false
+		 * listener 2 : "login"
+		 *   get input(userName and password) from textfield
+		 *   send login request to server
+		 *     details pending
+		 *   wait server to respond
+		 *     succeed asserted
+		 *   refresh currentUser
+		 *   disable visibility of buttons "login" and "register"
+		 *   display username and buttons "logout" and "notes"
+		 *   refresh onlineUserList and display
+		 *   refresh notes
+		 *   close this frame
+		 *   return true
+		* */
+		return false;
+		// if login succeed, change onlineUserList
+	}
+
+	private boolean logout() {
+		/*
+		 * get username from currentUser
+		 * send logout request to server
+		 *   details pending
+		 * wait server to respond
+		 *   succeed asserted
+		 * disable currentUser and button "logout"
+		 * display buttons "login" and "register"
+		 * clear onlineUserList
+		 * clear notes
+		 * disable buttons "notes"
+		 * close this frame
+		 * return true
+		 */
+		return false;
+	}
+
+	// pops out another panel that requires registration information
+	private boolean register() {
+		/*
+		 * pop out a new frame:
+		 *   3 new textfields, 2 new buttons "cancel" and "register"
+		 *
+		 * listener 1 : "cancel"
+		 * 	 return false
+		 * listener 2 : "login"
+		 *   get input(userName and password, recheck-password) from textfield
+		 *   if recheck unsuccess
+		 *     clear password fieldS
+		 *     do not respond
+		 *   else
+		 *     send register request to server
+		 *       details pending
+		 *     wait server to respond
+		 *       succeed asserted
+		 *     clear current frame
+		 *     display message and button "OK"
+		 *     listener 3: "OK"
+		 *       close this frame
+		 *       return true
+		* */
+		return false;
+	}
+
+	// pops out another panel that shows the list of entries received
+	private void showNotes() {
+		/*
+		 * pop a new frame
+		 * display JList(notebook)
+		 */
+	}
+
+	// panelID: which result? A? B? C?
+	private boolean clickZan(int panelID) {
+		/* get explanation id
+		 * send clickZan request to server
+		 *   assert success
+		 * disable button
+		 * change button text to #ofZan
+		 * return true
+		 *
+		 */
+	}
+
+	private boolean clickUnzan(int panelID) {
+		/* get explanation id
+		 * send clickUnzan request to server
+		 *   assert success
+		 * disable button
+		 * change button text to #ofUnzan
+		 * return true
+		 */
+	}
+
+	private boolean sendCard(int panelID) {
+		/* get user name (from textField ? onlineUserList ?)
+		 * get explanation id
+		 * send sendCard request to server
+		 *   assert success
+		 * return true
+		 */
+	}
+
+
+
+	// fills in all result panels
+	private void search() {
+		String keyword; /* = textfield.getinput()*/
+		/*
+		 * if user is online
+		 *   send search request to server
+		 *   wait server to respond
+		 *     assert success
+		 *   extract explanation from packet from server
+		 *   refresh currentEntry
+		 *   display currentEntry according to checkbox
+		 *     in the order of #ofZan
+		 * else
+		 *   send search from online dicts
+		 *   refresh currentEntry
+		 *   display currentEntry according to checkbox
+		 */
+	}
 	
 	public static void main(String[] args){
-		EventQueue.invokeLater(new Runnable() 
-		{
-			@Override
-			public void run() {
-				JFrame.setDefaultLookAndFeelDecorated(true);
-				try 
-				{
-					// * 想要修改皮肤的话，只需要更改，下面这个函数的参数，具体改成什么样，
-					// * 可以打开substance.jar, 找到org.jvnet.substance.skin这个包
-					// * 将下面的SubstanceDustCoffeeLookAndFeel替换成刚刚打开的包下的任意一个“Substance....LookAndFeel”即可 
-					UIManager.setLookAndFeel(new org.jvnet.substance.skin.SubstanceEmeraldDuskLookAndFeel());
-				}
-				catch (Exception e)
-				{
-					e.printStackTrace();
-				}
-//----------------如果想删除substance效果，只保留下面部分--------------------------
-				initGlobalFontSetting(new Font("Dialog",Font.PLAIN,12)); 		
-				Client frame = new Client();
-				frame.setSize(600,600);
-				frame.setLocationRelativeTo(null);
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				frame.setTitle("English-Chinese Dictionary");
-				frame.setVisible(true);
-			}
-		});
+		Client frame = new Client();
+    	frame.setSize(600,600);
+    	frame.setLocationRelativeTo(null);
+    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	frame.setTitle("English-Chinese Dictionary");
+    	frame.setVisible(true);
 	}
 	public Client(){
-		//主要的四个panel（有的pannel是由更小的panel构成的）
-		//控件有：登陆按钮，注册按钮，字典名字，单词本按钮     
+		//涓昏鐨勫洓涓猵anel锛堟湁鐨刾annel鏄敱鏇村皬鐨刾anel鏋勬垚鐨勶級
+		//鎺т欢鏈夛細鐧婚檰鎸夐挳锛屾敞鍐屾寜閽紝瀛楀吀鍚嶅瓧锛屽崟璇嶆湰鎸夐挳     
 		//GridLayout
 		JPanel logPanel = new JPanel();
 		
-		//控件有： input，输入单词的文本框，search 按钮，
-		//      三个网站的复选框(selectSourcePanel (使用FlowLayout))
+		//鎺т欢鏈夛細 input锛岃緭鍏ュ崟璇嶇殑鏂囨湰妗嗭紝search 鎸夐挳锛�
+		//      涓変釜缃戠珯鐨勫閫夋(selectSourcePanel (浣跨敤FlowLayout))
 		//BorderLayout
 		JPanel searchPanel = new JPanel();
 		
-		//控件有： 在线用户列表，三个网站的搜索结果，其中有单词的解释、选择给谁发送单词卡、赞按钮、不赞按钮、发送单词卡按钮
-		  //三个网站的搜索结果(showResultPanel (使用 BorderLayout))       
-		  //每个网站的搜索结果(showPenelA/B/C (使用 BorderLayout))         单词的解释、选择给谁发送单词卡、赞按钮、不赞按钮、发送单词卡按钮
-		  //其中三个按钮和一个文本框(showSelectPanelA/B/C (使用GridLayout)) 选择给谁发送单词卡、赞按钮、不赞按钮、发送单词卡按钮
+		//鎺т欢鏈夛細 鍦ㄧ嚎鐢ㄦ埛鍒楄〃锛屼笁涓綉绔欑殑鎼滅储缁撴灉锛屽叾涓湁鍗曡瘝鐨勮В閲娿�侀�夋嫨缁欒皝鍙戦�佸崟璇嶅崱銆佽禐鎸夐挳銆佷笉璧炴寜閽�佸彂閫佸崟璇嶅崱鎸夐挳
+		  //涓変釜缃戠珯鐨勬悳绱㈢粨鏋�(showResultPanel (浣跨敤 BorderLayout))       
+		  //姣忎釜缃戠珯鐨勬悳绱㈢粨鏋�(showPenelA/B/C (浣跨敤 BorderLayout))         鍗曡瘝鐨勮В閲娿�侀�夋嫨缁欒皝鍙戦�佸崟璇嶅崱銆佽禐鎸夐挳銆佷笉璧炴寜閽�佸彂閫佸崟璇嶅崱鎸夐挳
+		  //鍏朵腑涓変釜鎸夐挳鍜屼竴涓枃鏈(showSelectPanelA/B/C (浣跨敤GridLayout)) 閫夋嫨缁欒皝鍙戦�佸崟璇嶅崱銆佽禐鎸夐挳銆佷笉璧炴寜閽�佸彂閫佸崟璇嶅崱鎸夐挳
 		//BorderLayout
 		JPanel showPanel = new JPanel();
 		
-		//以下是更小的panel的定义，在上面已经解释过了
-		//控件有：百度、有道、必应三个复选框 
+		//浠ヤ笅鏄洿灏忕殑panel鐨勫畾涔夛紝鍦ㄤ笂闈㈠凡缁忚В閲婅繃浜�
+		//鎺т欢鏈夛細鐧惧害銆佹湁閬撱�佸繀搴斾笁涓閫夋 
 		JPanel selectSourcePanel = new JPanel();
 		
 		JPanel showResultPanel = new JPanel();
@@ -129,7 +224,7 @@ public class Client extends JFrame{
 		selectSourcePanel.add(youdao);
 		selectSourcePanel.add(biying);
 		
-		searchPanel.setLayout(new BorderLayout(20,20));
+		searchPanel.setLayout(new BorderLayout(20,10));
 		searchPanel.add(new JLabel("Input"),BorderLayout.WEST);
 		searchPanel.add(input,BorderLayout.CENTER);
 		searchPanel.add(search,BorderLayout.EAST);
@@ -178,14 +273,5 @@ public class Client extends JFrame{
 		add(searchPanel,BorderLayout.CENTER);
 		add(showPanel,BorderLayout.SOUTH);
 		
-	}
-	
-	public static void initGlobalFontSetting(Font fnt){
-		FontUIResource fontRes = new FontUIResource(fnt);
-		for(Enumeration keys = UIManager.getDefaults().keys(); keys.hasMoreElements();){
-			Object key = keys.nextElement();
-			Object value = UIManager.get(key);
-			if(value instanceof FontUIResource) UIManager.put(key, fontRes);
-		}
 	}
 }
