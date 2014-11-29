@@ -5,7 +5,7 @@ package lab02;
 
 /**
  * @author diki
- *
+ * ju ge li zi
  */
 class Entry implements Comparable{
 	private String keyword;
