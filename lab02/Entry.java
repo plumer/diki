@@ -3,43 +3,66 @@
  */
 package lab02;
 
+import java.lang.String;
+
 /**
- * @author diki
- * ju ge li zi
+ * @author Diki
+ *
  */
-class Entry implements Comparable{
+class Entry {
+	private static final int BAIDU = 0;
+	private static final int YOUDAO = 1;
+	private static final int BING = 2;
+
 	private String keyword;
-	Information[] satellite;
-	
-	Entry(String keyword){
-		this.keyword = keyword;
-	}
-	
-	/**
-	 * @return the keyword
-	 */
-	String getKeyword() {
-		return keyword;
-	}
+	private class Information{	//内部类，保存来自不同来源的解释
+		private String source;
+		private String attribute;
+		private String phonetic;
+		private String explanation;
+		private int zan;
+		private int unzan;
+		private String[] zanList;
+		private String[] unzanList;
 
-	/**
-	 * @param keyword the keyword to set
-	 */
-	void setKeyword(String keyword) {
-		this.keyword = keyword;
-	}
+		public Information(String source, String attribute, String phonetic, String explanation) {
+			this.source = source;
+			this.attribute = attribute;
+			this.phonetic = phonetic;
+			this.explanation = explanation;
+		}
 
-	/**
-	 * @return the satellite
-	 */
-	Information[] getSatellite() {
-		return satellite;
-	}
+		public String getSource() {
+			return source;
+		}
 
-	/**
-	 * @param satellite the satellite to set
-	 */
-	void setSatellite(Information[] satellite) {
-		this.satellite = satellite;
+		public String getAttribute() {
+			return attribute;
+		}
+
+		public String getPhonetic() {
+			return phonetic;
+		}
+
+		public String getExplanation() {
+			return explanation;
+		}
+
+		public void setSource(String source) {
+			this.source = source;
+		}
+
+		public void setAttribute(String attribute) {
+			this.attribute = attribute;
+		}
+
+		public void setPhonetic(String phonetic) {
+			this.phonetic = phonetic;
+		}
+
+		public void setExplanation(String explanation) {
+			this.explanation = explanation;
+		}
 	}
+	private Information[] informations = new Information[3];
 }
