@@ -2,7 +2,26 @@ package lab02;
 
 // ju ge lizi
 import java.awt.*;
+
 import javax.swing.*;
+
+import java.util.*; 
+import java.awt.*;
+import java.io.*; 
+import java.awt.event.*;
+
+import javax.swing.*;
+
+import java.awt.event.KeyEvent;
+
+import javax.swing.plaf.FontUIResource;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.border.TitledBorder;
+
 public class Client extends JFrame{
 	private JButton login = new JButton("login");//登陆按钮
 	private JButton register = new JButton("register");//注册按钮
@@ -41,12 +60,32 @@ public class Client extends JFrame{
 	private JButton sendCardC = new JButton("send card");
 	
 	public static void main(String[] args){
-		Client frame = new Client();
-    	frame.setSize(600,600);
-    	frame.setLocationRelativeTo(null);
-    	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    	frame.setTitle("English-Chinese Dictionary");
-    	frame.setVisible(true);
+		EventQueue.invokeLater(new Runnable() 
+		{
+			@Override
+			public void run() {
+				JFrame.setDefaultLookAndFeelDecorated(true);
+				try 
+				{
+					// * 想要修改皮肤的话，只需要更改，下面这个函数的参数，具体改成什么样，
+					// * 可以打开substance.jar, 找到org.jvnet.substance.skin这个包
+					// * 将下面的SubstanceDustCoffeeLookAndFeel替换成刚刚打开的包下的任意一个“Substance....LookAndFeel”即可 
+					UIManager.setLookAndFeel(new org.jvnet.substance.skin.SubstanceEmeraldDuskLookAndFeel());
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+//----------------如果想删除substance效果，只保留下面部分--------------------------
+				initGlobalFontSetting(new Font("Dialog",Font.PLAIN,12)); 		
+				Client frame = new Client();
+				frame.setSize(600,600);
+				frame.setLocationRelativeTo(null);
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setTitle("English-Chinese Dictionary");
+				frame.setVisible(true);
+			}
+		});
 	}
 	public Client(){
 		//主要的四个panel（有的pannel是由更小的panel构成的）
@@ -139,5 +178,14 @@ public class Client extends JFrame{
 		add(searchPanel,BorderLayout.CENTER);
 		add(showPanel,BorderLayout.SOUTH);
 		
+	}
+	
+	public static void initGlobalFontSetting(Font fnt){
+		FontUIResource fontRes = new FontUIResource(fnt);
+		for(Enumeration keys = UIManager.getDefaults().keys(); keys.hasMoreElements();){
+			Object key = keys.nextElement();
+			Object value = UIManager.get(key);
+			if(value instanceof FontUIResource) UIManager.put(key, fontRes);
+		}
 	}
 }
