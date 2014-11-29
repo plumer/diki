@@ -7,13 +7,19 @@ package lab02;
  * @author diki
  *
  */
+
+import java.net.*;
+
 class Server {
 	private final int MAX_USER_NUMBER = 128;
 	private final int MAX_ENTRY_NUMBER = 65536;
-	private User [MAX_USER_NUMBER] userDB;
-	private Entry [MAX_ENTRY_NUMBER] entryDB;
+	private User[] userDB = new User[MAX_USER_NUMBER];
+	private Entry[] entryDB = new Entry[MAX_USER_NUMBER];
 
+	private static void init() {
 
+	}
+	
 	public static void main() {
 		init();
 		/*
@@ -25,9 +31,7 @@ class Server {
 		 */
 	}
 
-	private void init() {
 
-	}
 
 	// invoke me when register request is received
 	private boolean register(String userName, String password) {
@@ -38,6 +42,7 @@ class Server {
          *   add to userDB
          *   return true
          */
+		return false;
 	}
 
 	// invoke me when login request is received
@@ -50,6 +55,7 @@ class Server {
          *     return true
          * return false
          */
+		return false;
 	}
 
 	private boolean logout(String userName) {
@@ -60,6 +66,7 @@ class Server {
          * else
          *   return false
          */
+		return false;
 	}
 
 	//
@@ -67,6 +74,7 @@ class Server {
 		/*
 		 *
 		 */
+		return null;
 	}
 
 
@@ -81,6 +89,7 @@ class Server {
 		 *   add the userName into the zanList
 		 *   return true
 		 */
+		return false;
 	}
 
 	private boolean clickUnzan(String userName, String keyword, String source) {
@@ -94,6 +103,7 @@ class Server {
 		 *   add the userName into the unzanList
 		 *   return true
 		 */
+		return false;
 	}
 
 	private boolean sendCard(String sourceUser, String destinationUser, String keyword, String source) {
@@ -103,5 +113,6 @@ class Server {
 		 * send to destinationUser
 		 * return true
 		 */
+		return false;
 	}
 }
