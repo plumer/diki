@@ -8,9 +8,9 @@ package lab02;
  *
  */
 class Information {
-	private String source;		// ÄÄ¸ö´Êµä
-	private String phonetic;	// Òô±ê
-	private String attribute;	// ´ÊĞÔ
+	private String source;		// æ¥æº
+	private String phonetic;	// éŸ³æ ‡
+	private String attribute;	// è¯æ€§
 	private String explanation;
 	private int zan;
 	private int unzan;
