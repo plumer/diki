@@ -18,9 +18,7 @@ class Information {
 	/**
 	 * @Constructor
 	 */
-	public Information(
-		String source, String phonetic, String attribute, String explanation
-	) {
+	public Information(String source, String phonetic, String attribute, String explanation) {
 		this.source = source;
 		this.phonetic = phonetic;
 		this.attribute = attribute;

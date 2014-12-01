@@ -22,6 +22,7 @@ public class Vote {
 		} else {
 			voters.add(voter);
 			count++;
+			return true;
 		}
 	}
 	
