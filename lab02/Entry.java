@@ -40,4 +40,11 @@ class Entry {
 		else
 			return informations[source];
 	}
+	
+	public boolean clickZan(int source, String user) {
+		if (source > 0 || source < 2)
+			return false;
+		else
+			return informations[source].poll(user);
+	}
 }
