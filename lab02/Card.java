@@ -12,12 +12,12 @@ import java.lang.String;
 class Card {
 	private String keyword;
 	private int explanationSource;
-	private int userSource;
+	private String sender;
 
-	Card(String keyword, int explanationSource, int userSource) {
+	Card(String keyword, int explanationSource, String sender) {
 		this.keyword = keyword;
 		this.explanationSource = explanationSource;
-		this.userSource = userSource;
+		this.sender = sender;
 	}
 
 	public String getKeyword() {
@@ -28,19 +28,11 @@ class Card {
 		return explanationSource;
 	}
 
-	public int getUserSource() {
-		return userSource;
-	}
-
-	public void setKeyword(String keyword) {
-		this.keyword = keyword;
+	public String getSender() {
+		return sender;
 	}
 
 	public void setExplanationSource(int explanationSource) {
 		this.explanationSource = explanationSource;
-	}
-
-	public void setUserSource(int userSource) {
-		this.userSource = userSource;
 	}
 }

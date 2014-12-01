@@ -35,19 +35,20 @@ class Server {
 
 	// invoke me when register request is received
 	private boolean register(String userName, String password) {
-        /*
+        /**
          * if the username exists in the userDB
          *   return false
          * else
          *   add to userDB
          *   return true
          */
+        
 		return false;
 	}
 
 	// invoke me when login request is received
 	private boolean login(String userName, String password, Inet4Address ip, int port) {
-        /*
+        /**
          * if the username exists int userDB
          *   check password
          *   if match
