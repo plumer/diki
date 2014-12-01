@@ -6,43 +6,33 @@ package lab02;
 import java.net.*;
 /**
  * @author Diki
- *
+ * removed user id field [since it seems useless]
+ * changed constructor
  */
 class User {
-	private int id;
+	private static boolean ONLINE = true;
+	private static boolean OFFLINE = false;
 	private boolean status;
 	private String name;
 	private String password;
 	private Inet4Address ip;
 	private int port;
 	
-	User(int id, boolean status, String name, String password, Inet4Address ip, int port){
-		this.id = id;
-		this.status = status;
+	User(String name, String password){
+		this.name = name;
+//		this.status = status;
 		this.password = password;
-		this.ip = ip;
-		this.port = port;
+		// only password and nameis necessary in creating (i.e. registering) a new user
+//		this.ip = ip;
+//		this.port = port;
 	}
 	
-	/**
-	 * @return the id
-	 */
-	int getId() {
-		return id;
-	}
-
-	/**
-	 * @param id the id to set
-	 */
-	void setId(int id) {
-		this.id = id;
-	}
 
 	/**
 	 * @return the status
 	 * suggestion: change method name to isOnline()
 	 */
-	boolean isStatus() {
+	boolean isOnline() {
 		return status;
 	}
 
@@ -50,6 +40,7 @@ class User {
 	 * @param status the status to set
 	 * suggestion: split setStatus() method into two methods:
 	 * login() and logout()
+	 * suggestion adopted in Server
 	 */
 	void setStatus(boolean status) {
 		this.status = status;

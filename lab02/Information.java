@@ -12,19 +12,26 @@ class Information {
 	private String phonetic;	// 音标
 	private String attribute;	// 词性
 	private String explanation;
-	private int zan;
-	private int unzan;
+	private Vote zan;
+	private Vote unzan;
+	
+	/**
+	 * @Constructor
+	 */
+	public Information(String source, String phonetic, String attribute, String explanation) {
+		this.source = source;
+		this.phonetic = phonetic;
+		this.attribute = attribute;
+		this.explanation = explanation;
+		zan = new Vote();
+		unzan = new Vote();
+	}
+	
 	/**
 	 * @return the source
 	 */
 	String getSource() {
 		return source;
-	}
-	/**
-	 * @param source the source to set
-	 */
-	void setSource(String source) {
-		this.source = source;
 	}
 	/**
 	 * @return the phonetic
@@ -33,22 +40,10 @@ class Information {
 		return phonetic;
 	}
 	/**
-	 * @param phonetic the phonetic to set
-	 */
-	void setPhonetic(String phonetic) {
-		this.phonetic = phonetic;
-	}
-	/**
 	 * @return the attribute
 	 */
 	String getAttribute() {
 		return attribute;
-	}
-	/**
-	 * @param attribute the attribute to set
-	 */
-	void setAttribute(String attribute) {
-		this.attribute = attribute;
 	}
 	/**
 	 * @return the explanation
@@ -56,44 +51,20 @@ class Information {
 	String getExplanation() {
 		return explanation;
 	}
-	/**
-	 * @param explanation the explanation to set
-	 */
-	void setExplanation(String explanation) {
-		this.explanation = explanation;
+	
+	boolean clickZan(String devil) {
+		return zan.poll(devil);
 	}
-	/**
-	 * @return the zan
-	 */
+	
+	boolean clickUnzan(String devil) {
+		return unzan.poll(devil);
+	}
+	
 	int getZan() {
-		return zan;
+		return zan.getCount();
 	}
-	/**
-	 * @param zan the zan to set
-	 */
-	void setZan(int zan) {
-		this.zan = zan;
-	}
-	/**
-	 * @return the unzan
-	 */
+	
 	int getUnzan() {
-		return unzan;
-	}
-	/**
-	 * @param unzan the unzan to set
-	 */
-	void setUnzan(int unzan) {
-		this.unzan = unzan;
-	}
-	
-	int clickZan(){
-		zan ++;
-		return zan;
-	}
-	
-	int clickUnzan() {
-		unzan ++;
-		return unzan;
+		return unzan.getCount();
 	}
 }
