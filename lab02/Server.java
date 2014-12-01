@@ -4,8 +4,15 @@
 package lab02;
 
 /**
- * @author diki
- *
+ *	@author diki
+ *	modified by vocryan Dec 1 2014 19:30
+ *		implemented methods:
+ *			register
+ *			login, logout
+ *			clickZan, clickUnzan
+ * 		remain unimplemented:
+ *			search for an Explanation
+ *			send card
  */
 
 import java.net.*;
@@ -44,7 +51,8 @@ class Server {
          *   return true
          */
         if (userDB.get(userName) == null) {
-			userDB.put(userName, password);
+			userDB.put(userName, new User(userName, password));
+			return true;
 		} else {
 			return false;
 		}
@@ -60,7 +68,14 @@ class Server {
          *     return true
          * return false
          */
-		return false;
+        User quester = userDB.get(userName);
+        if (quester != null && quester.getPassword() == password) {
+			quester.setStatus(ONLINE);
+			quester.setIp(ip);
+			quester.setPort(port);
+		} else {
+			return false;
+		}
 	}
 
 	private boolean logout(String userName) {
@@ -71,7 +86,13 @@ class Server {
          * else
          *   return false
          */
-		return false;
+        User quester = userDB.get(userName);
+        if (quester != null) {
+			quester.setStatus(OFFLINE);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	//
@@ -79,6 +100,11 @@ class Server {
 		/**
 		 *
 		 */
+		Entry entry = entryDB.get(keyword);
+		if (entry == null)
+			// yes!
+		else
+			// uh-oh. we have to search the Internet.
 		return null;
 	}
 
@@ -86,19 +112,26 @@ class Server {
 	private boolean clickZan(String userName, String keyword, String source) {
 		/**
 		 * find the entry according to the keyword
-		 * allocate the source
+		 * locate the source
 		 * if the userName exists in the zanList
 		 *   return false
 		 * else
 		 *   add number of zan
 		 *   add the userName into the zanList
 		 *   return true
+		 * !! checking zanList is done in Vote
 		 */
-		return false;
+		User devil = userDB.get(userName);
+		if ( devil == null )
+			return false;
+		Entry entry = entryDB.get(keyword);
+		if ( entry == null )
+			return false;
+		return entry.getInformation(source).clickZan(UserName);
 	}
 
 	private boolean clickUnzan(String userName, String keyword, String source) {
-		/*
+		/**
 		 * find the entry according to the keyword
 		 * allocate the source
 		 * if the userName exists in the unzanList
@@ -108,16 +141,28 @@ class Server {
 		 *   add the userName into the unzanList
 		 *   return true
 		 */
+		User devil = userDB.get(userName);
+		if ( devil == null )
+			return false;
+		Entry entry = entryDB.get(keyword);
+		if ( entry == null )
+			return false;
+		return entry.getInformation(source).clickUnzan(userName);
 		return false;
 	}
 
 	private boolean sendCard(String sourceUser, String destinationUser, String keyword, String source) {
-		/*
+		/**
 		 * find the entry according to the keyword
 		 * new Card with sourceUser and keyword and source
 		 * send to destinationUser
 		 * return true
 		 */
+		Entry entry = entryDB.get(keyword);
+		if (entry == null)
+			return false;
+		Card card = new Card(keyword, sourceUser, source);
+		
 		return false;
 	}
 }
