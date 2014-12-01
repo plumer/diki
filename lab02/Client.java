@@ -5,26 +5,34 @@ import java.util.*;
 import java.awt.*;
 import java.io.*; 
 import java.awt.event.*;
+
 import javax.swing.*;
+
 import java.awt.event.KeyEvent;
+
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.FontUIResource;
+
+import java.io.IOException;
 
 public class Client extends JFrame{
 	private JButton login = new JButton("login");			//登陆按钮
 	private JButton register = new JButton("register");	//注册按钮
 	private JLabel title = new JLabel("My Diki");			//词典名字
 	private JButton note = new JButton("note");			//单词本按钮
+	private JButton logout = new JButton("logout");
 	 
 	private JTextField input = new JTextField(); 			//输入文本框
 	private JButton search = new JButton("search");		//search 按钮
 	
-	private JCheckBox baidu = new JCheckBox("百度");		//三个复选框
-	private JCheckBox youdao = new JCheckBox("有道");
-	private JCheckBox biying = new JCheckBox("必应");
+	private JCheckBox baidu = new JCheckBox("百度",true);		//三个复选框
+	private JCheckBox youdao = new JCheckBox("有道",true);
+	private JCheckBox biying = new JCheckBox("必应",true);
 	
 	private JList onlineUserList = new JList();			//在线用户列表
 	private JScrollPane scrollPane = new JScrollPane(onlineUserList);		//列表的滚动
@@ -53,7 +61,25 @@ public class Client extends JFrame{
 	private User currentUser; // current online user
 	private String[] notebook;
 	private Entry currentEntry;
-
+    
+	//登陆面板
+	JFrame loginFrame = new JFrame();//登陆窗口
+	JButton lfLogin = new JButton("login");//登陆面板的登陆按钮
+	JButton lfCancel = new JButton("cancel");//登陆面板的取消按钮
+	
+	//注册面板
+	JFrame registerFrame = new JFrame();
+	JButton rfRegister = new JButton("register");
+	JButton rfCancel = new JButton("cancel");
+	
+	//shownote面板
+	JFrame shownoteFrame = new JFrame();
+	JList noteList = new JList();
+	private JScrollPane scrollPaneOfNoteList = new JScrollPane(noteList);	//滚轮
+	JTextArea wordExplaination = new JTextArea();
+	private JScrollPane scrollPaneOfWordEx = new JScrollPane(wordExplaination);	//滚轮
+	
+	
 	// pops out another that requires user name and password from user input
 	private boolean login() {
 		/*
@@ -75,8 +101,24 @@ public class Client extends JFrame{
 		 *   close this frame
 		 *   return true
 		* */
-		return false;
+		//return false;
 		// if login succeed, change onlineUserList
+		
+		//实现如下
+		loginFrame.setVisible(true);
+		lfLogin.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+                //?????????
+				
+			}
+		});
+		lfCancel.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				loginFrame.setVisible(false);//登陆面板不可见
+			}
+		});
+	
+		return true;//不知道如何返回false或者true？
 	}
 
 	private boolean logout() {
@@ -105,7 +147,7 @@ public class Client extends JFrame{
 		 *
 		 * listener 1 : "cancel"
 		 * 	 return false
-		 * listener 2 : "login"
+		 * listener 2 : "register"
 		 *   get input(userName and password, recheck-password) from textfield
 		 *   if recheck unsuccess
 		 *     clear password fieldS
@@ -121,7 +163,22 @@ public class Client extends JFrame{
 		 *       close this frame
 		 *       return true
 		* */
-		return false;
+		//return false;
+		
+		//实现如下
+		registerFrame.setVisible(true);
+		rfRegister.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+		        //?????????
+						
+			   }
+		});
+		rfCancel.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				registerFrame.setVisible(false);//登陆面板不可见
+			}
+		});	
+		return true;
 	}
 
 	// pops out another panel that shows the list of entries received
@@ -157,7 +214,7 @@ public class Client extends JFrame{
 	}
 
 	private boolean sendCard(int panelID) {
-		/* get user name (from textField ? onlineUserList ?)
+		/* get user name (from textField)
 		 * get explanation id
 		 * send sendCard request to server
 		 *   assert success
@@ -208,6 +265,7 @@ public class Client extends JFrame{
 				}
 				//----------------如果想删除substance效果，只保留下面部分--------------------------
 				Client frame = new Client();
+				frame.setResizable(false);
 				frame.setSize(600,600);
 				frame.setLocationRelativeTo(null);
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -254,9 +312,12 @@ public class Client extends JFrame{
 		
 		logPanel.setLayout(new GridLayout(1,5,40,40));
 		logPanel.add(login);
+		logPanel.add(logout);
+		logout.setEnabled(false);
 		logPanel.add(register);
 		logPanel.add(title);
 		logPanel.add(note);
+		note.setEnabled(false);
         
 		selectSourcePanel.setLayout(new FlowLayout());
         selectSourcePanel.add(baidu);
@@ -312,5 +373,143 @@ public class Client extends JFrame{
 		add(searchPanel,BorderLayout.CENTER);
 		add(showPanel,BorderLayout.SOUTH);
 		
+		//添加login的监听事件，调用login函数
+		login.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				login();
+			}
+		});
+		
+		//添加register的监听事件
+		register.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				register();
+			}
+		});
+		
+		//添加note的监听事件
+		note.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				showNotes();
+			}
+		});
+		
+		//添加输入框监听事件
+		input.addKeyListener(new KeyAdapter() {
+    		public void keyReleased(KeyEvent e){
+    			String word = input.getText();
+    			if(e.getKeyCode() == 10){//按下enter键就进行单词查询
+    				search();
+    			}
+    		}
+    	}); 
+		
+		//添加search按钮的监听事件
+		search.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				search();
+			}
+		});
+		
+		//添加在线用户列表框的监听事件
+		onlineUserList.addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged(ListSelectionEvent e){
+                //选中要发送的用户之后，显示在左边三个textfield中
+            	 String sendUserName = (String)onlineUserList.getSelectedValue();
+            	 whoToSendA.setText(sendUserName);
+            	 whoToSendB.setText(sendUserName);
+            	 whoToSendC.setText(sendUserName);
+            }     
+        });
+		
+		//添加zan的监听事件（三个panel）
+		zanA.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				clickZan(0);
+			}
+		});
+		
+		zanB.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				clickZan(1);
+			}
+		});
+		
+		zanC.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				clickZan(2);
+			}
+		});
+		
+		//添加unzan的监听事件（三个panel）
+		unzanA.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				clickUnzan(0);
+			}
+		});
+		
+		unzanB.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				clickUnzan(1);
+			}
+		});
+		
+		unzanC.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				clickUnzan(2);
+			}
+		});
+		
+		//添加sendCard的监听事件（三个panel）
+		sendCardA.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				sendCard(0);
+			}
+		});
+		
+		sendCardB.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				sendCard(1);
+			}
+		});
+		
+		sendCardC.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				sendCard(2);
+			}
+		});
+		
+		//登陆面板设置
+		loginFrame.setResizable(false);
+		loginFrame.setSize(300,150);
+		loginFrame.setLocationRelativeTo(null);
+		loginFrame.setTitle("login");
+		loginFrame.setLayout(new GridLayout(3,2,5,5));
+		loginFrame.add(new JLabel("UserName"));
+		loginFrame.add(new TextField(8));
+		loginFrame.add(new JLabel("Password"));
+		loginFrame.add(new TextField(8));
+		loginFrame.add(lfLogin);
+		loginFrame.add(lfCancel);
+		
+		//注册面板设置
+		registerFrame.setResizable(false);
+		registerFrame.setSize(300,150);
+		registerFrame.setLocationRelativeTo(null);
+		registerFrame.setTitle("register");
+		registerFrame.setLayout(new GridLayout(4,2,5,5));
+		registerFrame.add(new JLabel("UserName"));
+		registerFrame.add(new TextField(8));
+		registerFrame.add(new JLabel("Password"));
+		registerFrame.add(new TextField(8));
+		registerFrame.add(new JLabel("Confirm Password"));
+		registerFrame.add(new TextField(8));
+		registerFrame.add(rfRegister);
+		registerFrame.add(rfCancel);
+		
+		//note面板设置
+		
+		
 	}
+	
 }
