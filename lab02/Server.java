@@ -9,12 +9,13 @@ package lab02;
  */
 
 import java.net.*;
+import java.util.*;
 
 class Server {
 	private final int MAX_USER_NUMBER = 128;
 	private final int MAX_ENTRY_NUMBER = 65536;
-	private User[] userDB = new User[MAX_USER_NUMBER];
-	private Entry[] entryDB = new Entry[MAX_USER_NUMBER];
+	private HashMap<String, User> userDB = new HashMap<String, User>();
+	private HashMap<String, Entry> entryDB = new HashMap<String, Entry>();
 
 	private static void init() {
 
@@ -22,7 +23,7 @@ class Server {
 	
 	public static void main() {
 		init();
-		/*
+		/**
 		 * while (true)
 		 *   receive a packet from user port
 		 *   get type from packet content
@@ -35,19 +36,23 @@ class Server {
 
 	// invoke me when register request is received
 	private boolean register(String userName, String password) {
-        /*
+        /**
          * if the username exists in the userDB
          *   return false
          * else
          *   add to userDB
          *   return true
          */
-		return false;
+        if (userDB.get(userName) == null) {
+			userDB.put(userName, password);
+		} else {
+			return false;
+		}
 	}
 
 	// invoke me when login request is received
 	private boolean login(String userName, String password, Inet4Address ip, int port) {
-        /*
+        /**
          * if the username exists int userDB
          *   check password
          *   if match
@@ -59,7 +64,7 @@ class Server {
 	}
 
 	private boolean logout(String userName) {
-        /*
+        /**
          * if the username exists in the userDB
          *   modify user status
          *   return true
@@ -71,7 +76,7 @@ class Server {
 
 	//
 	private String request(String keyword) {
-		/*
+		/**
 		 *
 		 */
 		return null;
@@ -79,7 +84,7 @@ class Server {
 
 
 	private boolean clickZan(String userName, String keyword, String source) {
-		/*
+		/**
 		 * find the entry according to the keyword
 		 * allocate the source
 		 * if the userName exists in the zanList

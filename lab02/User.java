@@ -9,7 +9,6 @@ import java.net.*;
  *
  */
 class User {
-	private int id;
 	private boolean status;
 	private String name;
 	private String password;
@@ -17,26 +16,12 @@ class User {
 	private int port;
 	
 	User(int id, boolean status, String name, String password, Inet4Address ip, int port){
-		this.id = id;
 		this.status = status;
 		this.password = password;
 		this.ip = ip;
 		this.port = port;
 	}
 	
-	/**
-	 * @return the id
-	 */
-	int getId() {
-		return id;
-	}
-
-	/**
-	 * @param id the id to set
-	 */
-	void setId(int id) {
-		this.id = id;
-	}
 
 	/**
 	 * @return the status
