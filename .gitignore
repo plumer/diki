@@ -2,6 +2,8 @@
 *target*
 *.jar
 *.war
+.classpath
+/.classpath
 
 # eclipse specific git ignore
 *.pydevproject
@@ -16,6 +18,7 @@ tmp/**/*
 *~.nib
 local.properties
 .classpath
+.gitignore
 .settings/
 .loadpath
 lab02/*.class
@@ -25,3 +28,4 @@ lab02/*.class
 
 # Locally stored "Eclipse launch configurations"
 *.launch
+/lab02/

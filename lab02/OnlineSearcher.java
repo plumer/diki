@@ -3,166 +3,144 @@ package lab02;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
+
+import org.jsoup.*;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
- * 百度的查词好了, 但是速度太慢..
+ * get到神器jsoup
+ * 可以百度到jar包然后import一下嗯
+ * 最后还是没有用多线程来实现【我太弱了Orz
+ * 
+ * 注意：
+ * '#'来分开两种发音、词性和解释
+ * 例如：查 hello
+ * 音标: 美 [heˈləʊ]#英 [hə'ləʊ]
+ * 词性: int.#n.
+ * 解释: 你好；喂；您好；哈喽#你好；嘿；（表示惊讶）嘿
+ * 保证词性个数和解释个数一一对应
  * */
 class OnlineSearcher {
-	private ExecutorService searchThreads;
+	private String baidu;
+	private String youdao;
+	private String bing;
 	
-	public OnlineSearcher() {
-		 searchThreads = Executors.newFixedThreadPool(3);
-	}
-	
-	private class getBaiduInformation implements Runnable {
-		private URL baidu;
-		private Information baiduInfo;
-		private String keyword;
-		
-		getBaiduInformation(String keyword) {
-			this.keyword = keyword;
-		}
-		
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			try {
-				baidu = new URL("http://cidian.baidu.com/s?wd=" + keyword);
-				InputStream urlInput = baidu.openStream();
-				StringBuffer webtemp = new StringBuffer();
-				Scanner input = new Scanner(urlInput);
-				while (input.hasNext()) {
-					webtemp.append(input.nextLine());
-				}
-				String weball = webtemp.toString();
-				
-				String src = "baidu";
-				String phonetic = null;
-				String[] temp = weball.split("<b lang=\"EN-US\" xml:lang=\"EN-US\">");
-				if (temp.length < 1) System.out.println("baidu error");
-				else  phonetic = temp[1].split("</b><a href=\"#\"")[0];
-				
-				String tp = ((weball.split("<p><strong>")).length < 1)? null:(weball.split("<p><strong>"))[1];
-				String attribute = tp.split("</strong><span>")[0];
-				String explanation = tp.split("</strong><span>").length < 1 ? null: tp.split("</strong><span>")[1].split("</span></p>")[0];
-				
-				baiduInfo = new Information(src, phonetic, attribute, explanation);
-				input.close();
-			} catch (IOException e) {
-				System.out.println("baidu url wrong or url open wrong!");
-			}
-		}
-		Information getInformation() {
-			return baiduInfo;
-		}
-	}
-	
-	private class getYoudaoInformation implements Runnable {
-		private URL youdao;
-		private Information youdaoInfo;
-		private String keyword;
-		
-		getYoudaoInformation(String keyword) {
-			this.keyword = keyword;
-		}
-		
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			try {
-				youdao = new URL("http://dict.youdao.com/search?le=eng&q=" + keyword + "&keyfrom=dict.top");
-				InputStream urlInput = youdao.openStream();
-				StringBuffer webtemp = new StringBuffer();
-				Scanner input = new Scanner(urlInput);
-				while (input.hasNext()) {
-					webtemp.append(input.nextLine());
-				}
-				String weball = webtemp.toString();
-				
-				String src = "youdao";
-				String phonetic = ((weball.split("<span class=\"phonetic\">")).length < 1)? null:(weball.split("<span class=\"phonetic\">"))[1].split("</span>")[0];
-				String tp = (weball.split("<li>")).length < 1? null:(weball.split("<li>"))[1];
-				String attribute = tp == null ? null: (tp.split(". ")[0] + '.');
-				String explanation = tp == null ? null : (tp.split(". ").length < 1? null:tp.split(". ")[1].split("<")[0]);
-				youdaoInfo = new Information(src, phonetic, attribute, explanation);
-				input.close();
-			} catch (IOException e) {
-				System.out.println("youdao url wrong or url open wrong!");
-			}
-		}
-		Information getInformation() {
-			return youdaoInfo;
-		}
-	}
-	private class getBingInformation implements Runnable {
-		private URL bing;
-		private Information bingInfo;
-		private String keyword;
-		
-		getBingInformation(String keyword) {
-			this.keyword = keyword;
-		}
-		
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			try {
-				bing = new URL("http://cidian.baidu.com/s?wd=" + keyword);
-				InputStream urlInput = bing.openStream();
-				StringBuffer webtemp = new StringBuffer();
-				Scanner input = new Scanner(urlInput);
-				while (input.hasNext()) {
-					webtemp.append(input.nextLine());
-				}
-				String weball = webtemp.toString();
-				
-				String src = "bing";
-				String phonetic = (weball.split("<div class=\"hd_prUS\">"))[1].split("</div>")[0].split(";")[1];
-				String tp = weball.split("<ul>")[1];
-				String attribute = tp.split("<li><span class=\"pos\">")[1].split("</span>")[0];
-				String explanation = tp.split("<span>")[1].split("<")[0];
-				bingInfo = new Information(src, phonetic, attribute, explanation);
-				input.close();
-			} catch (IOException e) {
-				System.out.println("baidu url wrong or url open wrong!");
-			}
-		}
-		Information getInformation() {
-			return bingInfo;
-		}
-	}
 	Entry search(String keyword) {
 		Entry result = new Entry(keyword);
-		getBaiduInformation getbaidu = new getBaiduInformation(keyword);
-		getYoudaoInformation getyoudao = new getYoudaoInformation(keyword);
-		getBingInformation getbing = new getBingInformation(keyword);
-		
-		searchThreads.execute(getbaidu);
-		searchThreads.execute(getyoudao);
-		searchThreads.execute(getbing);
-		
-		searchThreads.shutdown();
-		
 		try {
-			searchThreads.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-		} catch (InterruptedException e) {
-			System.out.println("threads error");
+			baidu = "http://cidian.baidu.com/s?wd=" + keyword;
+			youdao = "http://dict.youdao.com/search?le=eng&q=" + keyword + "&keyfrom=dict.top";
+			bing = "http://cn.bing.com/dict/search?q=" + keyword + "&go=&qs=bs&form=CM";
+			
+			String src = null, phonetic = null, attribute = null, explanation = null;
+			
+			src = "baidu";
+			Document baidudoc = Jsoup.connect(baidu).get();
+			//System.out.println("baidu");
+			
+			/* 获取音标 */
+			Elements temp = baidudoc.getElementsByTag("b");
+			for (Element i:temp) {
+				if (i.hasAttr("lang")) {
+					if (phonetic == null) phonetic = i.text();
+					else phonetic = phonetic + '#' + i.text();
+				}
+			}
+			/* 获取词性 */
+			temp = baidudoc.getElementById("en-simple-means").getElementsByTag("strong");
+			for (Element i:temp) {
+				if (attribute == null) attribute = i.text();
+				else attribute = attribute + '#' + i.text();
+			}
+			/* 获取解释 */
+			temp = baidudoc.getElementById("en-simple-means").getElementsByTag("span");
+			for (int i = 0; i < attribute.split("#").length; i ++) {
+				if (explanation == null) explanation = temp.get(i).text();
+				else explanation = explanation + '#' + temp.get(i).text();
+			}
+			/*System.out.println(phonetic);
+			System.out.println(attribute);
+			System.out.println(explanation);*/
+			result.setInformation(src, new Information(src, phonetic, attribute, explanation));
+			
+			src = "youdao";
+			phonetic = null;
+			attribute = null;
+			explanation = null;
+			//System.out.println("youdao");
+			Document youdaodoc = Jsoup.connect(youdao).get();
+			/* 获取音标 */
+			temp = youdaodoc.getElementsByClass("phonetic");
+			for (int i = 0; i < temp.size() && i < 2; i ++) {
+				if (phonetic == null) phonetic = temp.get(i).text();
+				else phonetic = phonetic + '#' + temp.get(i).text();
+			}
+			/* 获取词性和解释 */
+			temp = youdaodoc.getElementsByClass("trans-container").get(0).getElementsByTag("li");
+			for (Element i:temp) {
+				if (attribute == null) {
+					if (i.text().contains(". ")){
+						attribute = i.text().split(". ")[0];
+						explanation = i.text().split(". ")[1];
+					} else {
+						explanation = i.text();
+					}
+				}
+				else {
+					if (i.text().contains(". ")){
+						attribute = attribute + '#' + i.text().split(". ")[0];
+						explanation = explanation + '#' + i.text().split(". ")[1];
+					} else {
+						explanation = explanation + '#' + i.text();
+					}
+				}
+			}
+			/*System.out.println(phonetic);
+			System.out.println(attribute);
+			System.out.println(explanation);*/
+			result.setInformation(src, new Information(src, phonetic, attribute, explanation));
+			
+			src = "bing";
+			phonetic = null;
+			attribute = null;
+			explanation = null;
+			//System.out.println("bing");
+			Document bingdoc = Jsoup.connect(bing).get();
+			/* 获取音标 */
+			temp = bingdoc.getElementsByClass("hd_prUS");
+			if (temp.size() > 0) phonetic = temp.text();
+			temp = bingdoc.getElementsByClass("hd_pr");
+			if (temp.size() > 0) phonetic = phonetic + '#' + temp.text();
+			/* 获取词性和解释 */
+			temp = bingdoc.getElementsByClass("qdef").get(0).getElementsByTag("ul").get(0).getElementsByTag("li");
+			for (Element i:temp) {
+				Element j = i.getElementsByClass("pos").get(0);
+				if (j.className().equals("pos")){
+					if (attribute == null) attribute = j.text();
+					else attribute = attribute + '#' + j.text();
+					Element k = i.getElementsByClass("def").get(0);
+					if (explanation == null) explanation = k.text();
+					else explanation = explanation + '#' + k.text();
+				}
+			}
+			/*System.out.println(phonetic);
+			System.out.println(attribute);
+			System.out.println(explanation);*/
+			result.setInformation(src, new Information(src, phonetic, attribute, explanation));
+			
+		} catch (IOException e) {
+			System.out.println("url wrong or url open wrong!");
+			e.printStackTrace();
 		}
-		
-		result.setInformation("baidu", getbaidu.getInformation());
-		result.setInformation("youdao", getyoudao.getInformation());
-		result.setInformation("bing", getbing.getInformation());
 		return result;
 	}
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		OnlineSearcher oser = new OnlineSearcher();
-		//oser.search("hjhjhj");
 		oser.search("hello");
-		oser.search("world");
-	}
+		oser.search("Amy");
+		oser.search("Amily");
+	}*/
 }
