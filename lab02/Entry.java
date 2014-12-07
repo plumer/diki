@@ -70,6 +70,10 @@ class Entry {
 	}
 
 	public String toString() {
-		String result = keyword;
+		return 
+			keyword + "^" + informations[BAIDU].toString() +
+			"^" + informations[YOUDAO].toString() +
+			"^" + informations[BING].toString();
 	}
+	
 }

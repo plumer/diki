@@ -10,8 +10,8 @@ package lab02;
  *			register
  *			login, logout
  *			clickZan, clickUnzan
+ *			search
  * 		remain unimplemented:
- *			search for an Explanation
  *			send card
  */
 
@@ -75,12 +75,24 @@ class Database {
 	}
 
 	// invoke me when register request is received
+<<<<<<< HEAD
 	private boolean register(String userName, String password) {
 		/**
 		 * if the username exists in the userDB return false else add to userDB
 		 * return true
 		 */
 		if (userDB.get(userName) == null) {
+=======
+	public boolean register(String userName, String password) {
+        /**
+         * if the username exists in the userDB
+         *   return false
+         * else
+         *   add to userDB
+         *   return true
+         */
+        if (userDB.get(userName) == null) {
+>>>>>>> branch 'dev' of https://github.com/plumer/diki
 			userDB.put(userName, new User(userName, password));
 			return true;
 		} else {
@@ -89,6 +101,7 @@ class Database {
 	}
 
 	// invoke me when login request is received
+<<<<<<< HEAD
 	private boolean login(String userName, String password, Inet4Address ip,
 			int port) {
 		/**
@@ -97,15 +110,29 @@ class Database {
 		 */
 		User quester = userDB.get(userName);
 		if (quester != null && quester.getPassword() == password) {
+=======
+	public boolean login(String userName, String password, InetAddress ip, int port) {
+        /**
+         * if the username exists int userDB
+         *   check password
+         *   if match
+         *     modify user status,ip,port
+         *     return true
+         * return false
+         */
+        User quester = userDB.get(userName);
+        if (quester != null && quester.getPassword() == password) {
+>>>>>>> branch 'dev' of https://github.com/plumer/diki
 			quester.setStatus(User.ONLINE);
 			quester.setIp(ip);
 			quester.setPort(port);
+			return true;
 		} else {
 			return false;
 		}
-		return false;
 	}
 
+<<<<<<< HEAD
 	private boolean logout(String userName) {
 		/**
 		 * if the username exists in the userDB modify user status return true
@@ -113,6 +140,18 @@ class Database {
 		 */
 		User quester = userDB.get(userName);
 		if (quester != null) {
+=======
+	public boolean logout(String userName) {
+        /**
+         * if the username exists in the userDB
+         *   modify user status
+         *   return true
+         * else
+         *   return false
+         */
+        User quester = userDB.get(userName);
+        if (quester != null) {
+>>>>>>> branch 'dev' of https://github.com/plumer/diki
 			quester.setStatus(User.OFFLINE);
 			return true;
 		} else {
@@ -121,7 +160,7 @@ class Database {
 	}
 
 	//
-	private String request(String keyword) {
+	public String request(String keyword) {
 		/**
 		 *
 		 */
@@ -129,9 +168,14 @@ class Database {
 		String[] buf2;
 		OnlineSearcher oser = new OnlineSearcher();
 		Entry result = oser.search(keyword);
+<<<<<<< HEAD
 		Information info = result.getInformation("baidu");
 		System.out.println(info.getSource() + " " + info.getZan() + " likes "
 				+ info.getUnzan() + " unlikes");
+=======
+/*		Information info = result.getInformation("baidu");
+		System.out.println(info.getSource() + " " + info.getZan() + " likes " + info.getUnzan() + " unlikes");
+>>>>>>> branch 'dev' of https://github.com/plumer/diki
 		buf1 = info.getPhonetic().split("#");
 		for (int i = 0; i < buf1.length; ++i) {
 			System.out.print(buf1[i] + "\t");
@@ -179,10 +223,16 @@ class Database {
 			for (int i = 0; i < buf1.length; ++i)
 				System.out.println("\t" + buf1[i] + "\t" + buf2[i]);
 		}
-		return null;
+		*/
+		return result.toString();
 	}
 
+<<<<<<< HEAD
 	private boolean clickZan(String userName, String keyword, String source) {
+=======
+
+	public boolean clickZan(String userName, String keyword, String source) {
+>>>>>>> branch 'dev' of https://github.com/plumer/diki
 		/**
 		 * find the entry according to the keyword locate the source if the
 		 * userName exists in the zanList return false else add number of zan
@@ -198,7 +248,7 @@ class Database {
 		return entry.getInformation(source).clickZan(userName);
 	}
 
-	private boolean clickUnzan(String userName, String keyword, String source) {
+	public boolean clickUnzan(String userName, String keyword, String source) {
 		/**
 		 * find the entry according to the keyword allocate the source if the
 		 * userName exists in the unzanList return false else add number of
@@ -213,8 +263,12 @@ class Database {
 		return entry.getInformation(source).clickUnzan(userName);
 	}
 
+<<<<<<< HEAD
 	private boolean sendCard(String sourceUser, String destinationUser,
 			String keyword, String source) {
+=======
+	public boolean sendCard(String sourceUser, String destinationUser, String keyword, String source) {
+>>>>>>> branch 'dev' of https://github.com/plumer/diki
 		/**
 		 * find the entry according to the keyword new Card with sourceUser and
 		 * keyword and source send to destinationUser return true
