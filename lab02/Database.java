@@ -18,27 +18,17 @@ package lab02;
 import java.net.*;
 import java.util.*;
 
-class Server {
+class Database {
 	private final int MAX_USER_NUMBER = 128;
 	private final int MAX_ENTRY_NUMBER = 65536;
 	private HashMap<String, User> userDB = new HashMap<String, User>();
 	private HashMap<String, Entry> entryDB = new HashMap<String, Entry>();
 
-	private static void init() {
-
+	public static void main(String[] args) {
+		// only for testing
+		Database db = new Database();
+		db.request("document");
 	}
-	
-	public static void main() {
-		init();
-		/**
-		 * while (true)
-		 *   receive a packet from user port
-		 *   get type from packet content
-		 *   switch (type)
-		 *     register: a new
-		 */
-	}
-
 
 
 	// invoke me when register request is received
@@ -70,12 +60,13 @@ class Server {
          */
         User quester = userDB.get(userName);
         if (quester != null && quester.getPassword() == password) {
-			quester.setStatus(ONLINE);
+			quester.setStatus(User.ONLINE);
 			quester.setIp(ip);
 			quester.setPort(port);
 		} else {
 			return false;
 		}
+		return false;
 	}
 
 	private boolean logout(String userName) {
@@ -88,7 +79,7 @@ class Server {
          */
         User quester = userDB.get(userName);
         if (quester != null) {
-			quester.setStatus(OFFLINE);
+			quester.setStatus(User.OFFLINE);
 			return true;
 		} else {
 			return false;
@@ -100,11 +91,57 @@ class Server {
 		/**
 		 *
 		 */
-		Entry entry = entryDB.get(keyword);
-		if (entry == null)
-			// yes!
-		else
-			// uh-oh. we have to search the Internet.
+		String [] buf1;
+		String [] buf2;
+		OnlineSearcher oser = new OnlineSearcher();
+		Entry result = oser.search(keyword);
+		Information info = result.getInformation("baidu");
+		System.out.println(info.getSource() + " " + info.getZan() + " likes " + info.getUnzan() + " unlikes");
+		buf1 = info.getPhonetic().split("#");
+		for (int i = 0; i < buf1.length; ++i) {
+			System.out.print(buf1[i] + "\t");
+		}
+		System.out.print("\n");
+		buf1 = info.getAttribute().split("#");
+		buf2 = info.getExplanation().split("#");
+		if (buf1.length != buf2.length) {
+			System.out.println("uh-oh");
+		} else {
+			for (int i = 0; i < buf1.length; ++i) 
+				System.out.println("\t" + buf1[i] + "\t" + buf2[i]);
+		}
+
+		info = result.getInformation("youdao");
+		System.out.println(info.getSource() + " " + info.getZan() + " likes " + info.getUnzan() + " unlikes");
+		buf1 = info.getPhonetic().split("#");
+		for (int i = 0; i < buf1.length; ++i) {
+			System.out.print(buf1[i] + "\t");
+		}
+		System.out.print("\n");
+		buf1 = info.getAttribute().split("#");
+		buf2 = info.getExplanation().split("#");
+		if (buf1.length != buf2.length) {
+			System.out.println("uh-oh");
+		} else {
+			for (int i = 0; i < buf1.length; ++i) 
+				System.out.println("\t" + buf1[i] + "\t" + buf2[i]);
+		}
+
+		info = result.getInformation("bing");
+		System.out.println(info.getSource() + " " + info.getZan() + " likes " + info.getUnzan() + " unlikes");
+		buf1 = info.getPhonetic().split("#");
+		for (int i = 0; i < buf1.length; ++i) {
+			System.out.print(buf1[i] + "\t");
+		}
+		System.out.print("\n");
+		buf1 = info.getAttribute().split("#");
+		buf2 = info.getExplanation().split("#");
+		if (buf1.length != buf2.length) {
+			System.out.println("uh-oh");
+		} else {
+			for (int i = 0; i < buf1.length; ++i) 
+				System.out.println("\t" + buf1[i] + "\t" + buf2[i]);
+		}
 		return null;
 	}
 
@@ -127,7 +164,7 @@ class Server {
 		Entry entry = entryDB.get(keyword);
 		if ( entry == null )
 			return false;
-		return entry.getInformation(source).clickZan(UserName);
+		return entry.getInformation(source).clickZan(userName);
 	}
 
 	private boolean clickUnzan(String userName, String keyword, String source) {
@@ -148,7 +185,6 @@ class Server {
 		if ( entry == null )
 			return false;
 		return entry.getInformation(source).clickUnzan(userName);
-		return false;
 	}
 
 	private boolean sendCard(String sourceUser, String destinationUser, String keyword, String source) {

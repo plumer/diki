@@ -10,8 +10,8 @@ import java.net.*;
  * changed constructor
  */
 class User {
-	private static boolean ONLINE = true;
-	private static boolean OFFLINE = false;
+	public static boolean ONLINE = true;
+	public static boolean OFFLINE = false;
 	private boolean status;
 	private String name;
 	private String password;

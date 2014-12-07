@@ -11,10 +11,10 @@ import java.lang.String;
  */
 class Card {
 	private String keyword;
-	private int explanationSource;
+	private String explanationSource;
 	private String sender;
 
-	Card(String keyword, int explanationSource, String sender) {
+	Card(String keyword, String explanationSource, String sender) {
 		this.keyword = keyword;
 		this.explanationSource = explanationSource;
 		this.sender = sender;
@@ -24,7 +24,7 @@ class Card {
 		return keyword;
 	}
 
-	public int getExplanationSource() {
+	public String getExplanationSource() {
 		return explanationSource;
 	}
 
@@ -32,7 +32,7 @@ class Card {
 		return sender;
 	}
 
-	public void setExplanationSource(int explanationSource) {
+	public void setExplanationSource(String explanationSource) {
 		this.explanationSource = explanationSource;
 	}
 }

@@ -7,7 +7,7 @@ package lab02;
  * @author diki
  *
  */
-class Information {
+public class Information {
 	private String source;		// 来源
 	private String phonetic;	// 音标
 	private String attribute;	// 词性
@@ -66,5 +66,15 @@ class Information {
 	
 	int getUnzan() {
 		return unzan.getCount();
+	}
+
+	public String toString() {
+		return
+			getSource() + "$" +
+			getPhonetic() + "$" +
+			getAttribute() + "$" +
+			getExplanation() + "$" +
+			getZan() + "$" +
+			getUnzan() + "$";
 	}
 }
