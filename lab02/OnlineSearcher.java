@@ -26,9 +26,9 @@ class OnlineSearcher {
 	 */
 
 	public OnlineSearcher() {
-		 executor = Executors.newFixedThreadPool(3);
+		executor = Executors.newFixedThreadPool(3);
 	}
-	
+
 	private class searchBaidu implements Runnable {
 		private String baidu;
 		private String keyword;
@@ -91,6 +91,7 @@ class OnlineSearcher {
 		}
 
 		public Information getInformation() {
+			// System.out.println(info.toString());
 			return info;
 		}
 
@@ -160,6 +161,7 @@ class OnlineSearcher {
 		}
 
 		public Information getInformation() {
+			// System.out.println(info.toString());
 			return info;
 		}
 
@@ -222,6 +224,7 @@ class OnlineSearcher {
 		}
 
 		public Information getInformation() {
+			// System.out.println(info.toString());
 			return info;
 		}
 
@@ -229,17 +232,17 @@ class OnlineSearcher {
 
 	Entry search(String keyword) {
 		Entry result = new Entry(keyword);
-		
-		executor = Executors.newFixedThreadPool(3);
-		
+
+		// executor = Executors.newFixedThreadPool(3);
+
 		searchBaidu baidu = new searchBaidu(keyword);
 		searchYoudao youdao = new searchYoudao(keyword);
 		searchBing bing = new searchBing(keyword);
-		
+
 		executor.execute(baidu);
 		executor.execute(youdao);
 		executor.execute(bing);
-		
+
 		executor.shutdown();
 		try {
 			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
@@ -248,17 +251,16 @@ class OnlineSearcher {
 			e.printStackTrace();
 			System.out.println("thread error");
 		}
-		
+
 		result.setInformation("baidu", baidu.getInformation());
 		result.setInformation("youdao", youdao.getInformation());
 		result.setInformation("bing", bing.getInformation());
 		return result;
 	}
 
-	public static void main(String[] args) {
-		OnlineSearcher oser = new OnlineSearcher();
-		oser.search("hello");
-		oser.search("Amy");
-		oser.search("Amily");
-	}
+	/*
+	 * public static void main(String[] args) { OnlineSearcher oser = new
+	 * OnlineSearcher(); oser.search("hello"); oser.search("Amy");
+	 * oser.search("Amily"); }
+	 */
 }
