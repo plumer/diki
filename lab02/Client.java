@@ -4,10 +4,11 @@ package lab02;
 import java.util.*; 
 import java.awt.*;
 import java.io.*; 
-import java.awt.event.*;
 
 import javax.swing.*;
 
+import java.awt.event.*;
+import java.net.*;
 import java.awt.event.KeyEvent;
 
 import javax.swing.text.Document;
@@ -19,6 +20,8 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.FontUIResource;
 
 import java.io.IOException;
+
+
 
 public class Client extends JFrame{
 	private JButton login = new JButton("login");			//登陆按钮
@@ -34,6 +37,7 @@ public class Client extends JFrame{
 	private JCheckBox youdao = new JCheckBox("有道",true);
 	private JCheckBox biying = new JCheckBox("必应",true);
 	
+	DefaultListModel defaultListModel = new DefaultListModel();
 	private JList onlineUserList = new JList();			//在线用户列表
 	private JScrollPane scrollPane = new JScrollPane(onlineUserList);		//列表的滚动
 	
@@ -64,21 +68,36 @@ public class Client extends JFrame{
     
 	//登陆面板
 	JFrame loginFrame = new JFrame();//登陆窗口
+	JLabel loginUserName = new JLabel("User Name");
+	JTextField jtfLoginUserName = new JTextField(8);
+	JLabel loginPassword = new JLabel("Password");
+	JTextField jtfLoginPassword = new JTextField(8);
 	JButton lfLogin = new JButton("login");//登陆面板的登陆按钮
 	JButton lfCancel = new JButton("cancel");//登陆面板的取消按钮
 	
 	//注册面板
 	JFrame registerFrame = new JFrame();
+	JLabel regUserName = new JLabel("User Name");
+	JTextField jtfRegUserName = new JTextField(8);
+	JLabel regPassword = new JLabel("Password");
+	JTextField jtfRegPassword = new JTextField(8);
+	JLabel regPasswordConfirm = new JLabel("Password Confirm");
+	JTextField jtfRegPasswordConfirm = new JTextField(8);
 	JButton rfRegister = new JButton("register");
 	JButton rfCancel = new JButton("cancel");
 	
 	//shownote面板
-	JFrame shownoteFrame = new JFrame();
+	JFrame showNoteFrame = new JFrame();
+	JLabel noteTitle = new JLabel("1234567890");
 	JList noteList = new JList();
 	private JScrollPane scrollPaneOfNoteList = new JScrollPane(noteList);	//滚轮
 	JTextArea wordExplaination = new JTextArea();
 	private JScrollPane scrollPaneOfWordEx = new JScrollPane(wordExplaination);	//滚轮
 	
+	private Socket socket;
+	//net IO stream
+	private DataOutputStream toServer;
+	private DataInputStream fromServer;
 	
 	// pops out another that requires user name and password from user input
 	private boolean login() {
@@ -104,11 +123,55 @@ public class Client extends JFrame{
 		//return false;
 		// if login succeed, change onlineUserList
 		
-		//实现如下
+		//实现
 		loginFrame.setVisible(true);
 		lfLogin.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-                //?????????
+				String userName = jtfLoginUserName.getText();
+				System.out.println("username: " + userName);
+				String userPassword = jtfLoginPassword.getText();
+				System.out.println("password: " + userPassword);
+				//发送请求登陆数据包
+				StringBuilder requestLoginPackage = new StringBuilder();
+				requestLoginPackage.append("q");
+				requestLoginPackage.append("li");
+				requestLoginPackage.append(userName);
+				requestLoginPackage.append("^");
+				requestLoginPackage.append(userPassword);
+				String replyLoginPackage;
+				try {
+					//send package to server
+					toServer.writeUTF(requestLoginPackage.toString());
+					toServer.flush();
+					System.out.println("send package!" + requestLoginPackage.toString());
+					
+					
+					//get package from server
+					replyLoginPackage = fromServer.readUTF();
+					System.out.println("receive pavkage!");
+					//fresh the onlineUserList
+					defaultListModel.clear();
+	    			onlineUserList.setModel(defaultListModel);
+	    			if((replyLoginPackage.toCharArray())[0] == 'r' && (replyLoginPackage.toCharArray())[1] == 'l' && (replyLoginPackage.toCharArray())[2] == 'i'){
+	    				//说明收到的是回复登陆数据包
+	    				String temp = replyLoginPackage.substring(3);//获取用户名字符串
+	    				
+	    				String [] usersName = temp.split("\\^");
+	    				for(int i = 0; i < usersName.length; i++){
+	    					if(usersName[i].length() > 0){System.out.println(usersName[i]);
+	    						defaultListModel.addElement(usersName[i]);//添加在线用户
+	    					}
+	    				}
+	    				//更新当前用户信息
+	    				currentUser = new User(0,true,userName,userPassword,(Inet4Address) socket.getLocalAddress(),socket.getLocalPort());//去掉用户id
+	    				
+	    			}
+					
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 				
 			}
 		});
@@ -187,6 +250,9 @@ public class Client extends JFrame{
 		 * pop a new frame
 		 * display JList(notebook)
 		 */
+		
+		//实现如下
+		showNoteFrame.setVisible(true);
 	}
 
 	// panelID: which result? A? B? C?
@@ -244,7 +310,9 @@ public class Client extends JFrame{
 		 */
 	}
 	
+	
 	public static void main(String[] args){
+		
 		/* 下面的这个函数完全从陈冬杰的代码那里复制来的 */
 		EventQueue.invokeLater(new Runnable() 
 		{
@@ -317,7 +385,7 @@ public class Client extends JFrame{
 		logPanel.add(register);
 		logPanel.add(title);
 		logPanel.add(note);
-		note.setEnabled(false);
+		//note.setEnabled(false);
         
 		selectSourcePanel.setLayout(new FlowLayout());
         selectSourcePanel.add(baidu);
@@ -372,6 +440,49 @@ public class Client extends JFrame{
 		add(logPanel,BorderLayout.NORTH);
 		add(searchPanel,BorderLayout.CENTER);
 		add(showPanel,BorderLayout.SOUTH);
+		
+		//以下是其他窗口的部件设置
+		//登陆面板设置
+		loginFrame.setResizable(false);//禁用最大化
+		loginFrame.setSize(300,150);
+		loginFrame.setLocationRelativeTo(null);
+		loginFrame.setTitle("login");
+		loginFrame.setLayout(new GridLayout(3,2,5,5));
+		loginFrame.add(loginUserName);
+		loginFrame.add(jtfLoginUserName);
+		loginFrame.add(loginPassword);
+		loginFrame.add(jtfLoginPassword);
+		loginFrame.add(lfLogin);
+		loginFrame.add(lfCancel);
+		
+		//注册面板设置
+		registerFrame.setResizable(false);//禁用最大化
+		registerFrame.setSize(300,150);
+		registerFrame.setLocationRelativeTo(null);
+		registerFrame.setTitle("register");
+		registerFrame.setLayout(new GridLayout(4,2,5,5));
+		registerFrame.add(regUserName);
+		registerFrame.add(jtfRegUserName);
+		registerFrame.add(regPassword);
+		registerFrame.add(jtfRegPassword);
+		registerFrame.add(regPasswordConfirm);
+		registerFrame.add(jtfRegPasswordConfirm);
+		registerFrame.add(rfRegister);
+		registerFrame.add(rfCancel);
+		
+		
+		//note面板设置
+		showNoteFrame.setResizable(false);//禁用最大化
+		showNoteFrame.setSize(300,300);
+		showNoteFrame.setLocationRelativeTo(null);
+		showNoteFrame.setTitle("My note");
+		showNoteFrame.setLayout(new BorderLayout(5,5));
+		noteList.setFixedCellWidth(100);
+		noteList.setFixedCellHeight(50);
+		noteTitle.setHorizontalAlignment(JLabel.CENTER);
+		showNoteFrame.add(noteTitle,BorderLayout.NORTH);
+		showNoteFrame.add(scrollPaneOfNoteList,BorderLayout.WEST);
+		showNoteFrame.add(scrollPaneOfWordEx,BorderLayout.CENTER);
 		
 		//添加login的监听事件，调用login函数
 		login.addActionListener(new ActionListener(){
@@ -479,36 +590,24 @@ public class Client extends JFrame{
 			}
 		});
 		
-		//登陆面板设置
-		loginFrame.setResizable(false);
-		loginFrame.setSize(300,150);
-		loginFrame.setLocationRelativeTo(null);
-		loginFrame.setTitle("login");
-		loginFrame.setLayout(new GridLayout(3,2,5,5));
-		loginFrame.add(new JLabel("UserName"));
-		loginFrame.add(new TextField(8));
-		loginFrame.add(new JLabel("Password"));
-		loginFrame.add(new TextField(8));
-		loginFrame.add(lfLogin);
-		loginFrame.add(lfCancel);
-		
-		//注册面板设置
-		registerFrame.setResizable(false);
-		registerFrame.setSize(300,150);
-		registerFrame.setLocationRelativeTo(null);
-		registerFrame.setTitle("register");
-		registerFrame.setLayout(new GridLayout(4,2,5,5));
-		registerFrame.add(new JLabel("UserName"));
-		registerFrame.add(new TextField(8));
-		registerFrame.add(new JLabel("Password"));
-		registerFrame.add(new TextField(8));
-		registerFrame.add(new JLabel("Confirm Password"));
-		registerFrame.add(new TextField(8));
-		registerFrame.add(rfRegister);
-		registerFrame.add(rfCancel);
-		
-		//note面板设置
-		
+		try{//create a socket to connect to the server
+			
+			socket = new Socket("114.212.129.39",23333);
+			System.out.println(socket.getInetAddress().getAddress());
+			
+			//create an input stream to receive data from the server
+			fromServer = new DataInputStream(socket.getInputStream());
+			
+			//create an output stream to send data to the server
+			toServer = new DataOutputStream(socket.getOutputStream());
+			//toServer.write(123);
+			//toServer.write(123);
+			
+			
+		}
+		catch(IOException ex){
+			System.out.println(ex.toString());
+		}
 		
 	}
 	
