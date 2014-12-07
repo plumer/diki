@@ -10,12 +10,12 @@ import java.net.*;
  * changed constructor
  */
 class User {
-	private static boolean ONLINE = true;
-	private static boolean OFFLINE = false;
+	public static boolean ONLINE = true;
+	public static boolean OFFLINE = false;
 	private boolean status;
 	private String name;
 	private String password;
-	private Inet4Address ip;
+	private InetAddress ip;
 	private int port;
 	
 	User(String name, String password){
@@ -77,14 +77,14 @@ class User {
 	/**
 	 * @return the ip
 	 */
-	Inet4Address getIp() {
+	InetAddress getIp() {
 		return ip;
 	}
 
 	/**
 	 * @param ip the ip to set
 	 */
-	void setIp(Inet4Address ip) {
+	void setIp(InetAddress ip) {
 		this.ip = ip;
 	}
 

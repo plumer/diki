@@ -68,4 +68,12 @@ class Entry {
 		if (source.equals("bing")) return informations[BING].clickUnzan(user);
 		return false;
 	}
+
+	public String toString() {
+		return 
+			keyword + "^" + informations[BAIDU].toString() +
+			"^" + informations[YOUDAO].toString() +
+			"^" + informations[BING].toString();
+	}
+	
 }
