@@ -75,14 +75,6 @@ class Database {
 	}
 
 	// invoke me when register request is received
-<<<<<<< HEAD
-	private boolean register(String userName, String password) {
-		/**
-		 * if the username exists in the userDB return false else add to userDB
-		 * return true
-		 */
-		if (userDB.get(userName) == null) {
-=======
 	public boolean register(String userName, String password) {
         /**
          * if the username exists in the userDB
@@ -92,7 +84,6 @@ class Database {
          *   return true
          */
         if (userDB.get(userName) == null) {
->>>>>>> branch 'dev' of https://github.com/plumer/diki
 			userDB.put(userName, new User(userName, password));
 			return true;
 		} else {
@@ -101,7 +92,6 @@ class Database {
 	}
 
 	// invoke me when login request is received
-<<<<<<< HEAD
 	private boolean login(String userName, String password, Inet4Address ip,
 			int port) {
 		/**
