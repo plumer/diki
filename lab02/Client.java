@@ -62,9 +62,9 @@ public class Client extends JFrame{
 	private JButton unzanC = new JButton("unzan");
 	private JButton sendCardC = new JButton("send card");
 
-	private User currentUser; // current online user
-	private String[] notebook;
-	private Entry currentEntry;
+	private User currentUser; // 当前用户
+	private String[] notebook; // 单词本
+	private Entry currentEntry; //当前词条
     
 	//登陆面板
 	JFrame loginFrame = new JFrame();//登陆窗口
@@ -116,7 +116,7 @@ public class Client extends JFrame{
 		 *   disable visibility of buttons "login" and "register"
 		 *   display username and buttons "logout" and "notes"
 		 *   refresh onlineUserList and display
-		 *   refresh notes
+		 *   refresh notes                  这个在后面点击note按钮之后再考虑
 		 *   close this frame
 		 *   return true
 		* */
@@ -138,6 +138,7 @@ public class Client extends JFrame{
 				requestLoginPackage.append(userName);
 				requestLoginPackage.append("^");
 				requestLoginPackage.append(userPassword);
+				System.out.println("send package:" + requestLoginPackage.toString());
 				String replyLoginPackage;
 				try {
 					//send package to server
@@ -151,20 +152,43 @@ public class Client extends JFrame{
 					System.out.println("receive pavkage!");
 					//fresh the onlineUserList
 					defaultListModel.clear();
-	    			onlineUserList.setModel(defaultListModel);
+	    			//onlineUserList.setModel(defaultListModel);
 	    			if((replyLoginPackage.toCharArray())[0] == 'r' && (replyLoginPackage.toCharArray())[1] == 'l' && (replyLoginPackage.toCharArray())[2] == 'i'){
 	    				//说明收到的是回复登陆数据包
 	    				String temp = replyLoginPackage.substring(3);//获取用户名字符串
 	    				
 	    				String [] usersName = temp.split("\\^");
-	    				for(int i = 0; i < usersName.length; i++){
-	    					if(usersName[i].length() > 0){System.out.println(usersName[i]);
-	    						defaultListModel.addElement(usersName[i]);//添加在线用户
+	    				if(usersName[1].equalsIgnoreCase("true")){//登陆成功
+	    					for(int i = 1; i < usersName.length; i++){
+	    						if(usersName[i].length() > 0){System.out.println(usersName[i]);
+	    							//添加在线用户
+	    							defaultListModel.addElement(usersName[i]);
+	    						}
 	    					}
-	    				}
-	    				//更新当前用户信息
-	    				currentUser = new User(0,true,userName,userPassword,(Inet4Address) socket.getLocalAddress(),socket.getLocalPort());//去掉用户id
+	    					//更新当前用户信息
+	    					currentUser = new User(userName,userPassword);
+	    					currentUser.setStatus(true);//在线状态
+	    					currentUser.setIp(socket.getLocalAddress());
+	    					currentUser.setPort(socket.getLocalPort());
+	    					
+	    					//logout和note可以使用
+	    					logout.setEnabled(true);
+	    					note.setEnabled(false);
 	    				
+	    					//login和register禁用
+	    					login.setEnabled(false);
+	    					login.setEnabled(false);
+	    					
+	    					//关闭登陆面板
+	    					loginFrame.setVisible(false);
+	    					
+	    				}
+	    				else{//登录失败，提示信息用户名或者密码错误
+	    					jtfLoginUserName.setText("");
+	    					jtfLoginPassword.setText("");
+	    					//弹出提示框
+	    					JOptionPane.showMessageDialog(null,"登陆失败，请重新输入！");
+	    				}
 	    			}
 					
 				} catch (IOException e1) {
@@ -175,6 +199,7 @@ public class Client extends JFrame{
 				
 			}
 		});
+		
 		lfCancel.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				loginFrame.setVisible(false);//登陆面板不可见
@@ -196,10 +221,47 @@ public class Client extends JFrame{
 		 * clear onlineUserList
 		 * clear notes
 		 * disable buttons "notes"
-		 * close this frame
 		 * return true
 		 */
-		return false;
+		
+		//实现
+		String userNameString = currentUser.getName();
+		StringBuilder requestLogoutPackage = new StringBuilder();
+		String replyLogoutPackage;
+		requestLogoutPackage.append("qlo");
+		requestLogoutPackage.append("^");
+		requestLogoutPackage.append(userNameString);
+		System.out.println("send request package: " + requestLogoutPackage.toString());
+		
+		
+		try {//send
+			toServer.writeUTF(requestLogoutPackage.toString());toServer.flush();
+			
+			//receive
+			replyLogoutPackage = fromServer.readUTF();
+			
+			if(replyLogoutPackage.substring(0, 2).equalsIgnoreCase("rlo")){//判断如果是logout的回复数据包
+				if(replyLogoutPackage.substring(3).equalsIgnoreCase("true")){//如果服务器允许退出，一般也不会不允许的啊= =
+					//用户注销，将状态置为false，其他应该可以不用管
+					currentUser.setStatus(false);
+					//disable currentUser and button "logout" 还没有实现可以再用户登陆之后显示用户姓名的功能？？？？？？
+					logout.setEnabled(false);
+					//display buttons "login" and "register"
+					login.setEnabled(true);register.setEnabled(true);
+					//clear onlineUserList
+					defaultListModel.clear();
+					//clear notes 需要将notebook数组清空吗？？？？？？
+					//disable buttons "notes"
+					note.setEnabled(false);
+				}
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return true;
 	}
 
 	// pops out another panel that requires registration information
@@ -232,9 +294,51 @@ public class Client extends JFrame{
 		registerFrame.setVisible(true);
 		rfRegister.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-		        //?????????
-						
-			   }
+		        String userName = jtfRegUserName.getText();
+		        String password = jtfRegPassword.getText();
+		        String passwordConfirm = jtfRegPasswordConfirm.getText();
+		        
+		        //判断输入的密码跟确认密码是否一致
+		        if(!password.equals(passwordConfirm)){
+		        	//不一致，就提示说重新输入密码
+		        	jtfRegPassword.setText("Please input again!");
+		        	jtfRegPasswordConfirm.setText("Please input again!");
+		        	
+		        }
+		        else{
+		        	StringBuilder requestRegPackage = new StringBuilder();
+		        	String replyRegPackage;
+		        	requestRegPackage.append("qrg");
+		        	requestRegPackage.append(userName);
+		        	requestRegPackage.append("^");
+		        	requestRegPackage.append(password);
+		        	System.out.println("send package: " + requestRegPackage.toString());
+		        
+		        	try {//send
+		        		toServer.writeUTF(requestRegPackage.toString());
+					
+		        		//receive
+		        		replyRegPackage = fromServer.readUTF();
+		        		if(replyRegPackage.substring(0, 2).equalsIgnoreCase("rrg")){//判断是login的回复数据报
+		        			if(replyRegPackage.substring(3).equalsIgnoreCase("true")){//判断是否成功，一般也是成功的吧 = =
+		        				registerFrame.setVisible(false);
+		        				//弹出提示框，已经注册成功
+		        				JOptionPane.showMessageDialog(null,"注册成功！");
+		        			}
+		        			else{//没有成功
+		        				//clear password fieldS
+		        				jtfRegUserName.setText("Failed!Please try again!");
+		        				jtfRegPassword.setText("");
+		        				jtfRegPasswordConfirm.setText("");
+		        			}
+		        		}
+					
+		        	} catch (IOException e1) {
+		        		// TODO Auto-generated catch block
+		        		e1.printStackTrace();
+		        	}
+		        }
+			}
 		});
 		rfCancel.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
@@ -245,7 +349,7 @@ public class Client extends JFrame{
 	}
 
 	// pops out another panel that shows the list of entries received
-	private void showNotes() {
+	private void showNotes() { //待实现
 		/*
 		 * pop a new frame
 		 * display JList(notebook)
@@ -293,7 +397,7 @@ public class Client extends JFrame{
 
 	// fills in all result panels
 	private void search() {
-		String keyword; /* = textfield.getinput()*/
+		//String keyword; /* = textfield.getinput()*/
 		/*
 		 * if user is online
 		 *   send search request to server
@@ -308,6 +412,44 @@ public class Client extends JFrame{
 		 *   refresh currentEntry
 		 *   display currentEntry according to checkbox
 		 */
+		
+		//实现
+		String keyword = input.getText();
+		StringBuilder requestSearchPackage = new StringBuilder();
+		String replySearchPackage;
+		System.out.println("input: " + keyword);
+		if(currentUser !=null && currentUser.isOnline()){//用户不为空并且用户在线
+			requestSearchPackage.append("qse");
+			requestSearchPackage.append(keyword);
+			
+			try {//send
+				toServer.writeUTF(requestSearchPackage.toString());
+				
+				//receive
+				replySearchPackage = fromServer.readUTF();
+				if(replySearchPackage.substring(0, 2).equalsIgnoreCase("rse")){//判断是search回复数据报
+					String [] tempStr = replySearchPackage.substring(3).split("\\^");
+					String []info = new String[3];
+					int index = 0;
+					currentEntry = new Entry(tempStr[0]);
+					System.out.println("reply: keyword" + tempStr[0]);
+					for(int i = 1; i < tempStr.length; i++){
+						if(tempStr[i].length() > 0){//判断非空
+							info[index] = tempStr[i];
+							index++;
+						}
+					}
+					//............................................拆了又合，合了又拆 = =
+				}
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		else{//用户未创建或者用户不在线
+			
+		}
 	}
 	
 	
@@ -381,11 +523,11 @@ public class Client extends JFrame{
 		logPanel.setLayout(new GridLayout(1,5,40,40));
 		logPanel.add(login);
 		logPanel.add(logout);
-		logout.setEnabled(false);
+		logout.setEnabled(false);//未登陆时不能使用logout
 		logPanel.add(register);
 		logPanel.add(title);
 		logPanel.add(note);
-		//note.setEnabled(false);
+		note.setEnabled(false);//未登录时不能使用note
         
 		selectSourcePanel.setLayout(new FlowLayout());
         selectSourcePanel.add(baidu);
@@ -433,6 +575,7 @@ public class Client extends JFrame{
 		showPanel.setLayout(new BorderLayout());
 		onlineUserList.setFixedCellWidth(100);
 		onlineUserList.setFixedCellHeight(50);
+		onlineUserList.setModel(defaultListModel);
 		showPanel.add(scrollPane,BorderLayout.WEST);
 		showPanel.add(showResultPanel,BorderLayout.CENTER);
 		
