@@ -19,7 +19,7 @@ import org.jsoup.select.Elements;
  * 你好；喂；您好；哈喽#你好；嘿；（表示惊讶）嘿 保证词性个数和解释个数一一对应
  * */
 class OnlineSearcher {
-	private ExecutorService executor;;
+	private ExecutorService executor;
 
 	/*
 	 * private String baidu; private String youdao; private String bing;
@@ -255,6 +255,9 @@ class OnlineSearcher {
 		result.setInformation("baidu", baidu.getInformation());
 		result.setInformation("youdao", youdao.getInformation());
 		result.setInformation("bing", bing.getInformation());
+		/*System.out.println(result.getInformation("baidu"));
+		System.out.println(result.getInformation("youdao"));
+		System.out.println(result.getInformation("bing"));*/
 		return result;
 	}
 
