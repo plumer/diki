@@ -87,13 +87,49 @@ class Database {
 	public Database(String host, String database, String user, String password) {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			connect = DriverManager.getConnection("jdbc:mysql://" + host + "/"
-					+ database + "?useUnicode=true&characterEncoding=UTF-8",
-					user, password);
-
-			if (!connect.isClosed())
-				System.out.println("connect ok!");
-
+			connect = DriverManager
+					.getConnection(
+							"jdbc:mysql://" + host + "/test?useUnicode=true&characterEncoding=UTF-8",
+							user, password);
+			// 检查连接是否成功
+			if (!connect.isClosed()) {
+				//System.out.println("connect ok!");
+				Statement stm = connect.createStatement();
+				
+				// 检查entry表是否存在
+				// entry表: keyword
+				ResultSet rs = stm.executeQuery("select * from user_all_tables where table_name = 'entry';");
+				if (!rs.next()) {
+					stm.execute("create table entry(keyword char(50) primary key not null)default charset=utf8;");
+				}
+				// 检查information表是否存在
+				// information表: keyword | source | phonetic | attribute | zancount | unzancount
+				rs = stm.executeQuery("select * from user_all_tables where table_name = 'information';");
+				if (!rs.next()) {
+					stm.execute("create table information(keyword char(50) primary key not null references entry(keyword), source char(20) not null, phonetic char(20), attribute char(20), explanation char(200), zan int, unzan int)default charset=utf8;");
+				}
+				// 检查user表是否存在
+				// user表: username | passowrd | ip | port | status
+				rs = stm.executeQuery("select * from user_all_tables where table_name = 'user';");
+				if (!rs.next()) {
+					stm.execute("create table user(username char(20) primary key not null, password char(20) not null, ip char(20), port int, status bit);");
+				}
+				// 检查zanlog表是否存在
+				// zanlog表: keyword | username | source
+				rs = stm.executeQuery("select * from user_all_tables where table_name = 'zanlog';");
+				if (!rs.next()) {
+					stm.execute("create table zanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
+				}
+				// 检查unzanlog表是否存在
+				// unzanlog表: keyword | username | source
+				rs = stm.executeQuery("select * from user_all_tables where table_name = 'unzanlog';");
+				if (!rs.next()) {
+					stm.execute("create table unzanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
+				}
+			} else {
+				System.out.println("error connect to database!(check whether database " + database + " is exist!)");
+				throw(new SQLException());
+			}
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
