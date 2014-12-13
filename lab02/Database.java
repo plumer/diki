@@ -137,11 +137,25 @@ class Database {
 	}
 
 	boolean insertEntry(Entry entry) {
-		
+		try {
+			Statement stm = connect.createStatement();
+			if (entry.getKeyword() == null) return false;
+			else return stm.execute("insert into entry values(" + entry.getKeyword() + ");");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return false;
 	}
 	
 	boolean insertUser(User user) {
+		try {
+			Statement stm = connect.createStatement();
+			return stm.execute("insert into user values(" + user.getName() + ", " + user.getPassword() + user.getIp() + ", " + user.getPort() + ", " + user.isOnline() + ");");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return false;
 	}
 
