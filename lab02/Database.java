@@ -25,6 +25,7 @@ class Database {
 	private final int MAX_ENTRY_NUMBER = 65536;
 	private HashMap<String, User> userDB = new HashMap<String, User>();
 	private HashMap<String, Entry> entryDB = new HashMap<String, Entry>();
+	private static OnlineSearcher oser = new OnlineSearcher();
 
 	public static void main(String[] args) {
 		// only for testing
@@ -105,7 +106,7 @@ class Database {
          *     return true
          * return false
          */
-		System.out.println("logging in: check all users");
+		log("info", "logging in: check all users");
 		Set <Map.Entry<String, User>> entrySet = userDB.entrySet();
 		for (Map.Entry<String, User> entry:entrySet) 
 			System.out.println(entry.getKey() + "\t" + entry.getValue().getName() +
@@ -113,9 +114,8 @@ class Database {
 		
         User quester = userDB.get(userName);
         if (quester != null) {
-			System.out.println("user "+ userName+"'s password: **"
-					+quester.getPassword()+"**");
-			System.out.println("quester's password: **" + password + "**");
+			log("info", "user ["+ userName+"]'s password: ["+quester.getPassword()+"]");
+			log("info", "quester's password: **" + password + "**");
 			if (quester.getPassword().equals(password)) {
 				//					  ^
 				//					java 你没有操作符重载机制是干嘛啊！！！
@@ -126,11 +126,11 @@ class Database {
 				quester.setPort(port);
 				return userDB.keySet();
 			} else {
-				System.out.println("logging in: password incorrect");
+				log("error", "logging in: password incorrect");
 				return null;
 			}
 		} else {
-			System.out.println("logging in: user" + userName + "does not exist");
+			log("error", "logging in: user" + userName + "does not exist");
 			return null;
 		}
 	}
@@ -143,26 +143,38 @@ class Database {
          * else
          *   return false
          */
+		log("info", "logging out on user [" + userName + "]");
         User quester = userDB.get(userName);
         if (quester != null) {
-			quester.setStatus(User.OFFLINE);
-			return true;
+			if (quester.isOnline()) {
+				quester.setStatus(User.OFFLINE);
+				return true;
+			} else {
+				log("error", "user [" + userName + "] is not online. fail.");
+				return false;
+			}
 		} else {
+			log("error", " user [" + userName + "] not found");
 			return false;
 		}
 	}
 
 	//
-	public String request(String keyword) {
+	public Entry request(String keyword) {
 		/**
 		 *
 		 */
-		String[] buf1;
-		String[] buf2;
-		OnlineSearcher oser = new OnlineSearcher();
-		Entry result = oser.search(keyword);
+		Entry result = entryDB.get(keyword);
+		if (result == null) {
+			log("exception", "requesting keyword [" + keyword + "]: not cached in database");
+			result = oser.search(keyword);
+			entryDB.put(keyword, result);
+		}
 
-/*		Information info = result.getInformation("baidu");
+		return result;
+/*		String[] buf1;
+		String[] buf2;
+ 		Information info = result.getInformation("baidu");
 		System.out.println(info.getSource() + " " + info.getZan() + " likes " + info.getUnzan() + " unlikes");
 		buf1 = info.getPhonetic().split("#");
 		for (int i = 0; i < buf1.length; ++i) {
@@ -212,7 +224,6 @@ class Database {
 				System.out.println("\t" + buf1[i] + "\t" + buf2[i]);
 		}
 		*/
-		return result.toString();
 	}
 
 	public boolean clickZan(String userName, String keyword, String source) {
@@ -257,5 +268,9 @@ class Database {
 		Card card = new Card(keyword, sourceUser, source);
 
 		return false;
+	}
+	
+	private void log(String type, String message) {
+		System.out.println("Database " + type + ": " + message);
 	}
 }
