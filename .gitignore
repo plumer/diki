@@ -1,6 +1,5 @@
 *.class
 *target*
-*.jar
 *.war
 .classpath
 /.classpath
