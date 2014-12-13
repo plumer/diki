@@ -52,10 +52,6 @@ class Entry {
 		return false;
 	}
 	
-	public String getKeyword(){
-		return keyword;
-	}
-	
 	public Information getInformation(String source) {
 		if (source.equals("baidu")) return informations[BAIDU];
 		if (source.equals("youdao")) return informations[YOUDAO];
