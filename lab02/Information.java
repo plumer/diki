@@ -5,7 +5,7 @@ package lab02;
 
 /**
  * @author diki
- *
+ * updated on 2014-12-13: added method isZannedBy(String) and isUnzannedBy(String)
  */
 public class Information {
 	private String source;		// 来源
@@ -76,5 +76,15 @@ public class Information {
 			getExplanation() + "$" +
 			getZan() + "$" +
 			getUnzan() + "$";
+	}
+
+	// return if a certain user has zanned this info
+	public boolean isZannedBy(String userName) {
+		return zan.polledBy(userName);
+	}
+
+	// return if a certain user has unzanned this info
+	public boolean isUnzannedBy(String userName) {
+		return unzan.polledBy(userName);
 	}
 }

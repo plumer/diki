@@ -54,7 +54,13 @@ class Entry {
 		if (source.equals("bing")) return informations[BING];
 		return null;
 	}
-	
+
+	public Information getInformation(int sourceNumber) {
+		if (sourceNumber >= 0 && sourceNumber <= 2)
+			return informations[sourceNumber];
+		else
+			return null;
+	}
 	public boolean clickZan(String source, String user) {
 		if (source.equals("baidu")) return informations[BAIDU].clickZan(user);
 		if (source.equals("youdao")) return informations[YOUDAO].clickZan(user);

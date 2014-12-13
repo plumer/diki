@@ -25,6 +25,7 @@ class Database {
 	private final int MAX_ENTRY_NUMBER = 65536;
 	private HashMap<String, User> userDB = new HashMap<String, User>();
 	private HashMap<String, Entry> entryDB = new HashMap<String, Entry>();
+	private static OnlineSearcher oser = new OnlineSearcher();
 
 	public static void main(String[] args) {
 		// only for testing
@@ -85,6 +86,10 @@ class Database {
          */
         if (userDB.get(userName) == null) {
 			userDB.put(userName, new User(userName, password));
+			Set <Map.Entry<String, User>> entrySet = userDB.entrySet();
+			for (Map.Entry<String, User> entry:entrySet) 
+				System.out.println(entry.getKey() + "\t" + entry.getValue().getName() +
+						"\t" + entry.getValue().getPassword());
 			return true;
 		} else {
 			return false;
@@ -92,7 +97,7 @@ class Database {
 	}
 
 	// invoke me when login request is received
-	public boolean login(String userName, String password, InetAddress ip, int port) {
+	public Set<String> login(String userName, String password, InetAddress ip, int port) {
         /**
          * if the username exists int userDB
          *   check password
@@ -101,14 +106,32 @@ class Database {
          *     return true
          * return false
          */
+		log("info", "logging in: check all users");
+		Set <Map.Entry<String, User>> entrySet = userDB.entrySet();
+		for (Map.Entry<String, User> entry:entrySet) 
+			System.out.println(entry.getKey() + "\t" + entry.getValue().getName() +
+					"\t" + entry.getValue().getPassword());
+		
         User quester = userDB.get(userName);
-        if (quester != null && quester.getPassword() == password) {
-			quester.setStatus(User.ONLINE);
-			quester.setIp(ip);
-			quester.setPort(port);
-			return true;
+        if (quester != null) {
+			log("info", "user ["+ userName+"]'s password: ["+quester.getPassword()+"]");
+			log("info", "quester's password: **" + password + "**");
+			if (quester.getPassword().equals(password)) {
+				//					  ^
+				//					java 你没有操作符重载机制是干嘛啊！！！
+				//					非得用个equals函数是闹哪样啊！！！
+				//					害我用了==符号一直不对debug大半天啊！！！
+				quester.setStatus(User.ONLINE);
+				quester.setIp(ip);
+				quester.setPort(port);
+				return userDB.keySet();
+			} else {
+				log("error", "logging in: password incorrect");
+				return null;
+			}
 		} else {
-			return false;
+			log("error", "logging in: user" + userName + "does not exist");
+			return null;
 		}
 	}
 
@@ -120,26 +143,38 @@ class Database {
          * else
          *   return false
          */
+		log("info", "logging out on user [" + userName + "]");
         User quester = userDB.get(userName);
         if (quester != null) {
-			quester.setStatus(User.OFFLINE);
-			return true;
+			if (quester.isOnline()) {
+				quester.setStatus(User.OFFLINE);
+				return true;
+			} else {
+				log("error", "user [" + userName + "] is not online. fail.");
+				return false;
+			}
 		} else {
+			log("error", " user [" + userName + "] not found");
 			return false;
 		}
 	}
 
 	//
-	public String request(String keyword) {
+	public Entry request(String keyword) {
 		/**
 		 *
 		 */
-		String[] buf1;
-		String[] buf2;
-		OnlineSearcher oser = new OnlineSearcher();
-		Entry result = oser.search(keyword);
+		Entry result = entryDB.get(keyword);
+		if (result == null) {
+			log("exception", "requesting keyword [" + keyword + "]: not cached in database");
+			result = oser.search(keyword);
+			entryDB.put(keyword, result);
+		}
 
-/*		Information info = result.getInformation("baidu");
+		return result;
+/*		String[] buf1;
+		String[] buf2;
+ 		Information info = result.getInformation("baidu");
 		System.out.println(info.getSource() + " " + info.getZan() + " likes " + info.getUnzan() + " unlikes");
 		buf1 = info.getPhonetic().split("#");
 		for (int i = 0; i < buf1.length; ++i) {
@@ -189,7 +224,6 @@ class Database {
 				System.out.println("\t" + buf1[i] + "\t" + buf2[i]);
 		}
 		*/
-		return result.toString();
 	}
 
 	public boolean clickZan(String userName, String keyword, String source) {
@@ -234,5 +268,9 @@ class Database {
 		Card card = new Card(keyword, sourceUser, source);
 
 		return false;
+	}
+	
+	private void log(String type, String message) {
+		System.out.println("Database " + type + ": " + message);
 	}
 }
