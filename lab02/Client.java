@@ -460,7 +460,7 @@ public class Client extends JFrame{
 		{
 			@Override
 			public void run() {
-				JFrame.setDefaultLookAndFeelDecorated(true);
+		/*		JFrame.setDefaultLookAndFeelDecorated(true);
 				try 
 				{
 					//* 想要修改皮肤的话，只需要更改，下面这个函数的参数，具体改成什么样，
@@ -473,7 +473,7 @@ public class Client extends JFrame{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				//----------------如果想删除substance效果，只保留下面部分--------------------------
+		*/		//----------------如果想删除substance效果，只保留下面部分--------------------------
 				Client frame = new Client();
 				frame.setResizable(false);
 				frame.setSize(600,600);

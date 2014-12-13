@@ -85,6 +85,10 @@ class Database {
          */
         if (userDB.get(userName) == null) {
 			userDB.put(userName, new User(userName, password));
+			Set <Map.Entry<String, User>> entrySet = userDB.entrySet();
+			for (Map.Entry<String, User> entry:entrySet) 
+				System.out.println(entry.getKey() + "\t" + entry.getValue().getName() +
+						"\t" + entry.getValue().getPassword());
 			return true;
 		} else {
 			return false;
@@ -92,7 +96,7 @@ class Database {
 	}
 
 	// invoke me when login request is received
-	public boolean login(String userName, String password, InetAddress ip, int port) {
+	public Set<String> login(String userName, String password, InetAddress ip, int port) {
         /**
          * if the username exists int userDB
          *   check password
@@ -101,14 +105,33 @@ class Database {
          *     return true
          * return false
          */
+		System.out.println("logging in: check all users");
+		Set <Map.Entry<String, User>> entrySet = userDB.entrySet();
+		for (Map.Entry<String, User> entry:entrySet) 
+			System.out.println(entry.getKey() + "\t" + entry.getValue().getName() +
+					"\t" + entry.getValue().getPassword());
+		
         User quester = userDB.get(userName);
-        if (quester != null && quester.getPassword() == password) {
-			quester.setStatus(User.ONLINE);
-			quester.setIp(ip);
-			quester.setPort(port);
-			return true;
+        if (quester != null) {
+			System.out.println("user "+ userName+"'s password: **"
+					+quester.getPassword()+"**");
+			System.out.println("quester's password: **" + password + "**");
+			if (quester.getPassword().equals(password)) {
+				//					  ^
+				//					java 你没有操作符重载机制是干嘛啊！！！
+				//					非得用个equals函数是闹哪样啊！！！
+				//					害我用了==符号一直不对debug大半天啊！！！
+				quester.setStatus(User.ONLINE);
+				quester.setIp(ip);
+				quester.setPort(port);
+				return userDB.keySet();
+			} else {
+				System.out.println("logging in: password incorrect");
+				return null;
+			}
 		} else {
-			return false;
+			System.out.println("logging in: user" + userName + "does not exist");
+			return null;
 		}
 	}
 
