@@ -144,23 +144,27 @@ public class Client extends JFrame{
 					//send package to server
 					toServer.writeUTF(requestLoginPackage.toString());
 					toServer.flush();
-					System.out.println("send package!" + requestLoginPackage.toString());
+					//System.out.println("send package!" + requestLoginPackage.toString());
 					
 					
 					//get package from server
 					replyLoginPackage = fromServer.readUTF();
-					System.out.println("receive pavkage!");
+					System.out.println("receive pavkage: " + replyLoginPackage);
 					//fresh the onlineUserList
 					defaultListModel.clear();
+					System.out.println("0");
 	    			//onlineUserList.setModel(defaultListModel);
-	    			if((replyLoginPackage.toCharArray())[0] == 'r' && (replyLoginPackage.toCharArray())[1] == 'l' && (replyLoginPackage.toCharArray())[2] == 'i'){
+	    			if(replyLoginPackage.substring(0, 3).equalsIgnoreCase("rli")){
 	    				//说明收到的是回复登陆数据包
+	    				System.out.println("1");
 	    				String temp = replyLoginPackage.substring(3);//获取用户名字符串
-	    				
+	    				System.out.println("2");
 	    				String [] usersName = temp.split("\\^");
-	    				if(usersName[1].equalsIgnoreCase("true")){//登陆成功
+	    				System.out.println("username[0]： " + usersName[0].toString());
+	    				if(usersName[0].equalsIgnoreCase("true")){//登陆成功
 	    					for(int i = 1; i < usersName.length; i++){
-	    						if(usersName[i].length() > 0){System.out.println(usersName[i]);
+	    						if(usersName[i].length() > 0){
+	    							System.out.println(usersName[i]);
 	    							//添加在线用户
 	    							defaultListModel.addElement(usersName[i]);
 	    						}
@@ -301,9 +305,9 @@ public class Client extends JFrame{
 		        //判断输入的密码跟确认密码是否一致
 		        if(!password.equals(passwordConfirm)){
 		        	//不一致，就提示说重新输入密码
-		        	jtfRegPassword.setText("Please input again!");
-		        	jtfRegPasswordConfirm.setText("Please input again!");
-		        	
+		        	jtfRegPassword.setText("");
+		        	jtfRegPasswordConfirm.setText("");
+		        	JOptionPane.showMessageDialog(null, "注册失败", "请重新注册！", JOptionPane.ERROR_MESSAGE);
 		        }
 		        else{
 		        	StringBuilder requestRegPackage = new StringBuilder();
@@ -316,18 +320,21 @@ public class Client extends JFrame{
 		        
 		        	try {//send
 		        		toServer.writeUTF(requestRegPackage.toString());
-					
+		        		
 		        		//receive
 		        		replyRegPackage = fromServer.readUTF();
-		        		if(replyRegPackage.substring(0, 2).equalsIgnoreCase("rrg")){//判断是login的回复数据报
+		        		System.out.println("recv package: " + replyRegPackage);
+		        		if(replyRegPackage.substring(0, 3).equalsIgnoreCase("rrg")){//判断是login的回复数据报
 		        			if(replyRegPackage.substring(3).equalsIgnoreCase("true")){//判断是否成功，一般也是成功的吧 = =
 		        				registerFrame.setVisible(false);
 		        				//弹出提示框，已经注册成功
-		        				JOptionPane.showMessageDialog(null,"注册成功！");
+		        				//System.out.println("弹出提示框！");
+		        				JOptionPane.showMessageDialog(null,"注册成功","欢迎您加入diki！",JOptionPane.OK_OPTION);
 		        			}
 		        			else{//没有成功
 		        				//clear password fieldS
-		        				jtfRegUserName.setText("Failed!Please try again!");
+		        				JOptionPane.showMessageDialog(null, "注册失败", "请重新注册！", JOptionPane.ERROR_MESSAGE);
+		        				jtfRegUserName.setText("");
 		        				jtfRegPassword.setText("");
 		        				jtfRegPasswordConfirm.setText("");
 		        			}
@@ -460,7 +467,11 @@ public class Client extends JFrame{
 		{
 			@Override
 			public void run() {
+<<<<<<< HEAD
 		/*		JFrame.setDefaultLookAndFeelDecorated(true);
+=======
+			/*	JFrame.setDefaultLookAndFeelDecorated(true);
+>>>>>>> d16c0355fe32aaaf13b4388abd17ecff568919ce
 				try 
 				{
 					//* 想要修改皮肤的话，只需要更改，下面这个函数的参数，具体改成什么样，
@@ -473,7 +484,11 @@ public class Client extends JFrame{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+<<<<<<< HEAD
 		*/		//----------------如果想删除substance效果，只保留下面部分--------------------------
+=======
+			*/	//----------------如果想删除substance效果，只保留下面部分--------------------------
+>>>>>>> d16c0355fe32aaaf13b4388abd17ecff568919ce
 				Client frame = new Client();
 				frame.setResizable(false);
 				frame.setSize(600,600);
@@ -490,6 +505,7 @@ public class Client extends JFrame{
 		 * 控件有：登陆按钮，注册按钮，字典名字，单词本按钮
 		 * GridLayout 
 		 */
+		JOptionPane.showMessageDialog(null, "alert", "alert", JOptionPane.ERROR_MESSAGE);
 		JPanel logPanel = new JPanel();
 		
 		/* 控件有： input，输入单词的文本框，search 按钮
@@ -736,7 +752,7 @@ public class Client extends JFrame{
 		try{//create a socket to connect to the server
 			
 			socket = new Socket("114.212.129.39",23333);
-			System.out.println(socket.getInetAddress().getAddress());
+			//System.out.println(socket.getInetAddress().getAddress());
 			
 			//create an input stream to receive data from the server
 			fromServer = new DataInputStream(socket.getInputStream());
