@@ -339,6 +339,7 @@ public class Client extends JFrame{
 
 	// fills in all result panels
 	private void search() {
+		System.out.println("Start search");
 		onlineSearcher = new OnlineSearcher();
 		String keyword = input.getText();
 		StringBuilder requestSearchPackage = new StringBuilder();
@@ -347,12 +348,16 @@ public class Client extends JFrame{
 		if(currentUser !=null && currentUser.isOnline()){//用户不为空并且用户在线
 			requestSearchPackage.append("qse");
 			requestSearchPackage.append(keyword);
-			
+			System.out.println("q:search online: " + requestSearchPackage.toString());
 			try {//send
 				toServer.writeUTF(requestSearchPackage.toString());
 				
 				//receive
-				replySearchPackage = fromServer.readUTF();
+				if(fromServer.available() > 0)
+				   replySearchPackage = fromServer.readUTF();
+				else 
+					return;
+				System.out.println("r:search online: " + replySearchPackage.toString());
 				if(replySearchPackage.substring(0, 3).equalsIgnoreCase("rse")){//判断是search回复数据报
 					String [] tempStr = replySearchPackage.substring(3).split("\\^");
 					String []info = new String[3];
@@ -368,7 +373,7 @@ public class Client extends JFrame{
 					//............................................拆了又合，合了又拆 = =
 					//现在来处理3个info,就当做没有空格吧
 					for(int i = 0; i < 3; i++){
-						String [] ex = info[i].split("\\$");//?
+						String [] ex = info[i].split("$");//?
 						//for(int j = 0; j < 6; j++){
 							//还有赞和不赞的初始化没有写？
 							Information information = new Information(ex[0],ex[1],ex[2],ex[3]);
@@ -436,10 +441,10 @@ public class Client extends JFrame{
 			    }
 			    if(currentUser!= null && currentUser.isOnline()){
 			    	//zan
-			    	int currentZan = currentEntry.getInformation(disOrder[0]).getZan();
+			    	int currentZan = currentEntry.getInformation(disOrder[i]).getZan();
 			    	result[index].append("zan: " + currentZan + "\n");
 			    	//unzan
-			    	int currentUnzan = currentEntry.getInformation(disOrder[0]).getUnzan();
+			    	int currentUnzan = currentEntry.getInformation(disOrder[i]).getUnzan();
 			    	result[index].append("zan: " + currentUnzan + "\n");
 			    }
 				//下一次要显示哪一块面板
@@ -822,7 +827,7 @@ public class Client extends JFrame{
 		
 		try{//create a socket to connect to the server
 			
-			socket = new Socket("114.212.132.146",23333);//yushen:114.212.129.39
+			socket = new Socket("114.212.129.39",23333);//yushen:114.212.129.39
 			//System.out.println(socket.getInetAddress().getAddress());
 			
 			//create an input stream to receive data from the server
@@ -830,10 +835,7 @@ public class Client extends JFrame{
 			
 			//create an output stream to send data to the server
 			toServer = new DataOutputStream(socket.getOutputStream());
-			//toServer.write(123);
-			//toServer.write(123);
-			
-			
+
 		}
 		catch(IOException ex){
 			System.out.println(ex.toString());
