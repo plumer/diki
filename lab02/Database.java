@@ -152,7 +152,27 @@ class Database {
 		try {
 			Statement stm = connect.createStatement();
 			if (entry.getKeyword() == null) return false;
-			else return stm.execute("insert into entry values(" + entry.getKeyword() + ");");
+			else {
+				return stm.execute("insert into entry values('"
+						+ entry.getKeyword() + "');")
+						&& insertInformation(entry.getKeyword(), entry.getInformation(0))
+						&& insertInformation(entry.getKeyword(), entry.getInformation(1))
+						&& insertInformation(entry.getKeyword(), entry.getInformation(2));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	boolean insertInformation(String keyword, Information info) {
+		try {
+			Statement stm = connect.createStatement();
+			//keyword | source | phonetic | attribute | zancount | unzancount
+			return stm.execute("insert into information values('" + keyword
+					+ "', '" + info.getSource() + "', '" + info.getPhonetic()
+					+ "', '" + info.getAttribute() + "', 0, 0);");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -163,7 +183,9 @@ class Database {
 	boolean insertUser(User user) {
 		try {
 			Statement stm = connect.createStatement();
-			return stm.execute("insert into user values(" + user.getName() + ", " + user.getPassword() + user.getIp() + ", " + user.getPort() + ", " + user.isOnline() + ");");
+			return stm.execute("insert into user values(" + user.getName()
+					+ ", " + user.getPassword() + user.getIp() + ", "
+					+ user.getPort() + ", " + user.isOnline() + ");");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -222,7 +244,7 @@ class Database {
 	
 	/** login 需要用到的功能 */
 	// 1. nameIsExist -> 用户名不存在
-	// 2. get User -> 如果密码校验通过
+	// 2. get User -> 如果密码校验通过[get到的是只有name和password的user]
 	// 3. update status
 	// 4. online list 获取
 	User getUserByName(String username) {
@@ -231,7 +253,7 @@ class Database {
 			Statement stm = connect.createStatement();
 			ResultSet rs = stm.executeQuery("select * from user where username = '" + username + "';");
 			if (rs.next()) {
-				
+				result = new User(rs.getString(1), rs.getString(2));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -239,10 +261,35 @@ class Database {
 		}
 		return result;
 	}
-	boolean updateUserStatus(String username, int status) {
+	boolean updateUserStatus(String username, boolean status) {
+		try {
+			Statement stm = connect.createStatement();
+			return status ? stm
+					.execute("update user set status = 1 where username = '"
+							+ username + "'") : stm
+					.execute("update user set status = 0 where username = '"
+							+ username + "'");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return false;
 	}
-	User[] getOnlineUser() {//是User[]好呢, 还是String[]好呢?
+	/** 返回所有online user[比如有两个人(hello和hi)在线, 就返回"hello#hi"]*/
+	String getOnlineUser() {
+		try {
+			Statement stm = connect.createStatement();
+			ResultSet rs = stm.executeQuery("select * from user where status = 1;");
+			StringBuffer result = null;
+			while (rs.next()) {
+				if (result == null) result = new StringBuffer(rs.getString(1));
+				else result.append("#" + rs.getString(1));
+			}
+			return result.toString();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return null;
 	}
 	
@@ -250,8 +297,9 @@ class Database {
 	// 1. update status
 	
 	/** 查询需要用到的功能 */
-	// 1. getEntry(keyword)
-	// 2. online search -> insert entry, insert information
+	// 1. EntryIsExist(keyword) 
+	// 2. getEntry(keyword)
+	// 3. online search -> insert entry, insert information
 	Entry getEntry(String keyword) {
 		return null;
 	}
