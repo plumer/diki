@@ -32,6 +32,10 @@ class Entry {
 		this.keyword = keyword;
 	}
 	
+	String getKeyword() {
+		return keyword;
+	}
+	
 	public boolean setInformation(String source, Information info) {
 		if (source.equals("baidu")) {
 			informations[BAIDU] = info;
@@ -46,10 +50,6 @@ class Entry {
 			return true;
 		}
 		return false;
-	}
-	
-	public String getKeyword(){
-		return keyword;
 	}
 	
 	public Information getInformation(String source) {

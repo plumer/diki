@@ -605,6 +605,7 @@ public class Client extends JFrame{
 	public static void main(String[] args){
 		
 		/* 下面的这个函数完全从陈冬杰的代码那里复制来的 */
+
 		/*		JFrame.setDefaultLookAndFeelDecorated(true);
 				try 
 				{
