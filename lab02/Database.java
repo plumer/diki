@@ -74,6 +74,12 @@ class Database {
 				if (!rs.next()) {
 					stm.execute("create table unzanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
 				}
+				// 检查card表是否存在
+				// card表: sender | owner | keyword | source
+				rs = stm.executeQuery("select * from user_all_tables where table_name = 'card';");
+				if (!rs.next()) {
+					stm.execute("create table card(sender char(20) references user(username), owner char(20) references user(username), keyword char(50) references entry(keyword), source char(20) references information(source))default charset=utf8;");
+				}
 			} else {
 				System.out.println("error connect to database!(check whether database " + database + " is exist!)");
 				throw(new SQLException());
@@ -126,6 +132,12 @@ class Database {
 				if (!rs.next()) {
 					stm.execute("create table unzanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
 				}
+				// 检查card表是否存在
+				// card表: sender | owner | keyword | source
+				rs = stm.executeQuery("select * from user_all_tables where table_name = 'card';");
+				if (!rs.next()) {
+					stm.execute("create table card(sender char(20) references user(username), owner char(20) references user(username), keyword char(50) references entry(keyword), source char(20) references information(source))default charset=utf8;");
+				}
 			} else {
 				System.out.println("error connect to database!(check whether database " + database + " is exist!)");
 				throw(new SQLException());
@@ -158,37 +170,111 @@ class Database {
 		}
 		return false;
 	}
-
-	User[] getAllUser() {//是User[]好呢, 还是String[]好呢?
-		return null;
+	
+	boolean insertZanLog(String keyword, String name, String source) {
+		try {
+			Statement stm = connect.createStatement();
+			return stm.execute("insert into zanlog values(" + keyword + ", " + name + ", " + source + ")");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
+	boolean insertUnzanLog(String keyword, String name, String source) {
+		try {
+			Statement stm = connect.createStatement();
+			return stm.execute("insert into unzanlog values(" + keyword + ", " + name + ", " + source + ")");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	boolean insertCard(String sender, String owner, String keyword, String source) {
+		try {
+			Statement stm = connect.createStatement();
+			return stm.execute("insert into unzanlog values(" + sender + ", " + owner + ", " + keyword + ", " + source +")");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/** regist 需要用到的功能 */
+	// 1. nameIsExist
+	// 2. insert user
+	boolean nameIsExist(String username) {
+		try {
+			Statement stm = connect.createStatement();
+			ResultSet rs = stm.executeQuery("select * from user where username == " + username + ";");
+			if (rs.next()) return true;
+			else return false;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	/** login 需要用到的功能 */
+	// 1. nameIsExist -> 用户名不存在
+	// 2. get User -> 如果密码校验通过
+	// 3. update status
+	// 4. online list 获取
+	User getUserByName(String username) {
+		User result = null;
+		try {
+			Statement stm = connect.createStatement();
+			ResultSet rs = stm.executeQuery("select * from user where username == " + username + ";");
+			if (rs.next()) {
+				//result = new User(rs.)
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result;
+	}
+	boolean updateUserStatus(String username, int status) {
+		return false;
+	}
 	User[] getOnlineUser() {//是User[]好呢, 还是String[]好呢?
 		return null;
 	}
 	
-	User getUser(String username) {
-		return null;
-	}
+	/** 注销需要用到的功能 */
+	// 1. update status
 	
-	String[] getZanList(String keyword, String source) {
-		return null;
-	}
-	
-	String[] getUnzanList(String keyword, String source) {
-		return null;
-	}
-
+	/** 查询需要用到的功能 */
+	// 1. getEntry(keyword)
+	// 2. online search -> insert entry, insert information
 	Entry getEntry(String keyword) {
 		return null;
 	}
-
-	boolean insertZanLog(String name, String keyword, String source) {
+	
+	/** 赞和不赞需要用到的功能 */
+	// 1. haveZaned
+	// 2. insertZanlog
+	boolean ZanlogIsExist(String username, String keyword, String source) {
+		return false;
+	}
+	boolean UnzanlogIsExist(String username, String keyword, String source) {
 		return false;
 	}
 	
-	boolean insertUnzanLog(String name, String keyword, String source) {
+	/** 发卡需要用到的功能 */
+	// 1. haveSent
+	// 2. insertCard
+	// 3. my cards
+	boolean CardIsExist(String sender, String owner, String keyword, String source) {
 		return false;
+	}
+	String[] getMyCard(String owner) {
+		return null;
 	}
 
 //	public static void main(String[] args) {
