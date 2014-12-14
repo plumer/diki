@@ -46,37 +46,37 @@ class Database {
 				
 				// 检查entry表是否存在
 				// entry表: keyword
-				ResultSet rs = stm.executeQuery("select * from user_all_tables where table_name = 'entry';");
+				ResultSet rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='entry';");
 				if (!rs.next()) {
 					stm.execute("create table entry(keyword char(50) primary key not null)default charset=utf8;");
 				}
 				// 检查information表是否存在
 				// information表: keyword | source | phonetic | attribute | zancount | unzancount
-				rs = stm.executeQuery("select * from user_all_tables where table_name = 'information';");
+				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='information';");
 				if (!rs.next()) {
 					stm.execute("create table information(keyword char(50) primary key not null references entry(keyword), source char(20) not null, phonetic char(20), attribute char(20), explanation char(200), zan int, unzan int)default charset=utf8;");
 				}
 				// 检查user表是否存在
 				// user表: username | passowrd | ip | port | status
-				rs = stm.executeQuery("select * from user_all_tables where table_name = 'user';");
+				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='user';");
 				if (!rs.next()) {
 					stm.execute("create table user(username char(20) primary key not null, password char(20) not null, ip char(20), port int, status bit);");
 				}
 				// 检查zanlog表是否存在
 				// zanlog表: keyword | username | source
-				rs = stm.executeQuery("select * from user_all_tables where table_name = 'zanlog';");
+				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='zanlog';");
 				if (!rs.next()) {
 					stm.execute("create table zanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
 				}
 				// 检查unzanlog表是否存在
 				// unzanlog表: keyword | username | source
-				rs = stm.executeQuery("select * from user_all_tables where table_name = 'unzanlog';");
+				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='unzanlog';");
 				if (!rs.next()) {
 					stm.execute("create table unzanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
 				}
 				// 检查card表是否存在
 				// card表: sender | owner | keyword | source
-				rs = stm.executeQuery("select * from user_all_tables where table_name = 'card';");
+				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='card';");
 				if (!rs.next()) {
 					stm.execute("create table card(sender char(20) references user(username), owner char(20) references user(username), keyword char(50) references entry(keyword), source char(20) references information(source))default charset=utf8;");
 				}
@@ -104,37 +104,37 @@ class Database {
 				
 				// 检查entry表是否存在
 				// entry表: keyword
-				ResultSet rs = stm.executeQuery("select * from user_all_tables where table_name = 'entry';");
+				ResultSet rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='entry';");
 				if (!rs.next()) {
 					stm.execute("create table entry(keyword char(50) primary key not null)default charset=utf8;");
 				}
 				// 检查information表是否存在
 				// information表: keyword | source | phonetic | attribute | zancount | unzancount
-				rs = stm.executeQuery("select * from user_all_tables where table_name = 'information';");
+				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='information';");
 				if (!rs.next()) {
 					stm.execute("create table information(keyword char(50) primary key not null references entry(keyword), source char(20) not null, phonetic char(20), attribute char(20), explanation char(200), zan int, unzan int)default charset=utf8;");
 				}
 				// 检查user表是否存在
 				// user表: username | passowrd | ip | port | status
-				rs = stm.executeQuery("select * from user_all_tables where table_name = 'user';");
+				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='user';");
 				if (!rs.next()) {
 					stm.execute("create table user(username char(20) primary key not null, password char(20) not null, ip char(20), port int, status bit);");
 				}
 				// 检查zanlog表是否存在
 				// zanlog表: keyword | username | source
-				rs = stm.executeQuery("select * from user_all_tables where table_name = 'zanlog';");
+				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='zanlog';");
 				if (!rs.next()) {
 					stm.execute("create table zanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
 				}
 				// 检查unzanlog表是否存在
 				// unzanlog表: keyword | username | source
-				rs = stm.executeQuery("select * from user_all_tables where table_name = 'unzanlog';");
+				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='unzanlog';");
 				if (!rs.next()) {
 					stm.execute("create table unzanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
 				}
 				// 检查card表是否存在
 				// card表: sender | owner | keyword | source
-				rs = stm.executeQuery("select * from user_all_tables where table_name = 'card';");
+				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='card';");
 				if (!rs.next()) {
 					stm.execute("create table card(sender char(20) references user(username), owner char(20) references user(username), keyword char(50) references entry(keyword), source char(20) references information(source))default charset=utf8;");
 				}
@@ -142,7 +142,7 @@ class Database {
 				System.out.println("error connect to database!(check whether database " + database + " is exist!)");
 				throw(new SQLException());
 			}
-		} catch (ClassNotFoundException | SQLException e) {
+		}catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -210,7 +210,7 @@ class Database {
 	boolean nameIsExist(String username) {
 		try {
 			Statement stm = connect.createStatement();
-			ResultSet rs = stm.executeQuery("select * from user where username == " + username + ";");
+			ResultSet rs = stm.executeQuery("select * from user where username = '" + username + "';");
 			if (rs.next()) return true;
 			else return false;
 		} catch (SQLException e) {
@@ -229,9 +229,9 @@ class Database {
 		User result = null;
 		try {
 			Statement stm = connect.createStatement();
-			ResultSet rs = stm.executeQuery("select * from user where username == " + username + ";");
+			ResultSet rs = stm.executeQuery("select * from user where username = '" + username + "';");
 			if (rs.next()) {
-				//result = new User(rs.)
+				
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -277,27 +277,11 @@ class Database {
 		return null;
 	}
 
-//	public static void main(String[] args) {
-//		// only for testing
-//		Database db = new Database();
-//		db.request("document");
-//
-//		// database test
-//		/*
-//		 * try { try { Class.forName("com.mysql.jdbc.Driver"); Connection conn =
-//		 * DriverManager .getConnection(
-//		 * "jdbc:mysql://127.0.0.1:3306/java_try?useUnicode=true&characterEncoding=UTF-8"
-//		 * , "root", ""); if (!conn.isClosed())
-//		 * System.out.println("connect ok!"); Statement statement =
-//		 * conn.createStatement(); ResultSet rs = statement
-//		 * .executeQuery("select * from Employee;"); while (rs.next()) {
-//		 * System.out.println(rs.getString(1) + "\t" + rs.getString(2) + "\t" +
-//		 * rs.getString(3) + "\t" + rs.getString(4) + "\t" + rs.getString(5)); }
-//		 * } catch (ClassNotFoundException e) { // TODO Auto-generated catch
-//		 * block e.printStackTrace(); } } catch (SQLException e) { // TODO
-//		 * Auto-generated catch block e.printStackTrace(); }
-//		 */
-//	}
+	public static void main(String[] args) {
+		// only for testing
+		Database db = new Database();
+		System.out.println("db is normal");
+	}
 //
 //	// invoke me when register request is received
 //	public boolean register(String userName, String password) {
