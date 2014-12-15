@@ -56,9 +56,18 @@ public class Server {
 					for (int i = 0; i < s.length; ++i) 
 						System.out.print("\t"+s[i]);
 					System.out.print("\n");
-
+					/*
+					 * operands are stored in String array s[] (line 52)
+					 * server respond to request packages depending on the opcode
+					 */
 					if (buf.charAt(0) == 'q') {
-						if (opcode.equals("li")) {					// login
+						if (opcode.equals("li")) {					
+							// login request
+							// s[0] - username, s[1] - password
+							// assumption: the user is currently offline
+							// if username exists in the database, and password matches
+							//   return true
+							// else return false
 							if (s.length != 2) {
 								log("error", "login request invalid");
 								osToClient.writeUTF("rlifalse");
@@ -67,8 +76,15 @@ public class Server {
 								String userNames = new String();
 								Set<String> onlineUserList =
 									db.login(s[0], s[1],
-									connectionSocket.getInetAddress(),
-									connectionSocket.getPort());
+									connectionSocket.getInetAddress(), // to be deprecated
+									connectionSocket.getPort());		// to be deprecated
+								/////////////////////////
+								// 数据库提供了以下函数:
+								// 1. boolean NameIsExist(String username); 返回用户名是否存在
+								// 2. User getUserByName(String username); 返回一个用户名/密码/IP/PORT/STATUS都有的User对象[可以根据status判断是否在线]
+								// 3. boolean updateUserStatus(String username, boolean status); 将用户username的状态修改为status
+								// 4. String getOnlineUser(); 返回在线用户的用户名串[例如: user1#user2#user3 ]
+								/////////////////////////
 								if (onlineUserList == null)
 									osToClient.writeUTF("rli"+false);
 								else {
@@ -82,10 +98,21 @@ public class Server {
 								log("info", "reply login: "+onlineUserList);
 							}
 
-						} else if (opcode.equals("rg")) {			// register
-
+						} else if (opcode.equals("rg")) {			
+							// register request
+							// s[0] - username, s[1] - password
+							// if username CONFLICTS with some existing user
+							//   return false
+							// else 
+							//   insert a new user to the database
+							//   return true
 							boolean result = false;
 							if (s.length == 2) {
+								/////////////////////////////
+								// 用户的注册, 数据库提供如下函数:
+								// 1. boolean NameIsExist(String username); 返回用户名是否存在
+								// 2. boolean insertUser(User user); 将user对象加入user表, 返回是否插入成功
+								/////////////////////////////
 								result = db.register(s[0], s[1]);
 								osToClient.writeUTF("rrg" + result);
 							} else {
@@ -97,15 +124,39 @@ public class Server {
 							osToClient.flush();
 							log("info", "reply register: "+result);
 
-						} else if (opcode.equals("lo")) {			// logout
+						} else if (opcode.equals("lo")) {
+							// logout request
+							// s[0] - username
+							// if user exists in the database and is currently online
+							//   return true
+							// else return false
+							/////////////////////////
+							// 数据库提供了以下函数:
+							// 1. User getUserByName(String username); 返回一个用户名/密码/IP/PORT/STATUS都有的User对象[可以根据status判断是否在线]
+							// 2. boolean updateUserStatus(String username, boolean status); 将用户username的状态修改为status
+							// 3. String getOnlineUser(); 返回在线用户的用户名串[例如: user1#user2#user3 ]
+							/////////////////////////
 							log("info", "logging out request on user [" + s[0] + "]");
 							boolean result = db.logout(s[0]);
 							osToClient.writeUTF("rlo" + result);
 							osToClient.flush();
 							log("info", "reply logout: "+result);
 
-						} else if (opcode.equals("se")) {			// search
+						} else if (opcode.equals("se")) {			
+							// search request
+							// s[0] - keyword
+							// if keyword exists in the database
+							//   make an entry and return
+							// else
+							//   search it online and insert it into the database
+							//   return the entry
 
+							/////////////////////////
+							// 数据库提供了以下函数:
+							// 1. boolean EntryIsExist(String keyword); 返回keyword是否在数据库中
+							// 2. Entry getEntry(String keyword); 返回keyword的Entry[包含三个information, 且information里zan和unzan数值正常]
+							// 3. boolean insertEntry(Entry entry); 插入一个Entry到数据库中[并不检查这个entry是否存在, 所以如果插入失败就返回false]
+							/////////////////////////
 							Entry result = db.request(s[0]);
 							boolean [] zanFlag = new boolean[3];
 							boolean [] unzanFlag = new boolean[3];
@@ -120,8 +171,19 @@ public class Server {
 							osToClient.flush();
 							log("info", "reply search: "+result+"^"+flags);
 
-						} else if (opcode.equals("za")) {			// zan
-							
+						} else if (opcode.equals("za")) {			
+							// zan request
+							// s[0] username, s[1] keyword, s[2] source
+							// if this record already exists in the database
+							//   return false
+							// else write this record into the database
+							//   return true
+							//////////////////////////
+							// 数据库提供了以下函数:
+							// 1. boolean ZanlogIsExist(String username, String keyword, String source); 返回这个人是否点过赞
+							// 2. boolean insertZanlog(String keyword, String name, String source); 插入一条记录到zanlog里[这时不会检查记录是否已经存在, 所以可能会返回false]
+							// 3. boolean updateZancount(String keyword, String source); 更新keyword的source的赞计数
+							//////////////////////////
 							log("info", "zan on word [" + s[1] + "] on source [" +
 								s[2] +"] by user [" + s[0] +"]");
 							boolean result = db.clickZan(s[0],s[1],s[2]);
@@ -130,14 +192,28 @@ public class Server {
 							log("info", "reply zan: "+result);
 
 						} else if (opcode.equals("uz")) {			// unzan
-						
+							// similar to zan
+							////////////////////////
+							// 数据库提供了以下函数:
+							// 1. boolean UnzanlogIsExist(String username, String keyword, String source); 返回这个人是否点过不赞
+							// 2. boolean insertUnzanlog(String keyword, String name, String source); 插入一条记录到unzanlog里[这时不会检查记录是否已经存在, 所以可能会返回false]
+							// 3. boolean updateUnzancount(String keyword, String source); 更新keyword的source的不赞计数
+							//////////////////////////
 							log("info", "unzan on word [" + s[1] + "] on source [" +
 								s[2] +"] by user [" + s[0] +"]");
 							boolean result = db.clickUnzan(s[0], s[1], s[2]);
 							osToClient.writeUTF("ruz" + result);
 							osToClient.flush();
 							log("info", "reply unzan: "+result);
-						} else if (opcode.equals("ou")) {			// get online users
+						} else if (opcode.equals("ou")) {			
+							// get online users request
+							// s[0] - requester
+							// return all users that are online
+							// should we exclude the requester?
+								/////////////////////////
+								// 数据库提供了以下函数:
+								// 1. String getOnlineUser(); 返回在线用户的用户名串[例如: username1#username2#username3 ]
+								/////////////////////////
 							log("info", "request online users except [" + s[0] + "]");
 							Set<String> onlineUserList = db.getOnlineUsers(null);
 							String userNames = new String();
@@ -149,7 +225,17 @@ public class Server {
 							osToClient.writeUTF("rou"+userNames);
 							osToClient.flush();
 							log("info", "reply qou: " + userNames);
-						} else if (opcode.equals("sc")) {			// send card
+						} else if (opcode.equals("sc")) {			
+							// send card
+							// s[0] - sender, s[1] - receiver, s[2] - keyword, s[3] - provider
+							// insert this to the database....
+							// BTW, [fetch cards] function unimplemented
+							/////////////////////////
+							// 数据库提供了以下函数:
+							// 1. boolean CardIsExist(String sender, String owner, String keyword, String source); 返回sender是否已经给owner发过这个卡了
+							// 2. boolean insertCard(String sender, String owner, String keyword, String source); 插入一条发卡记录[因为不会检测是否存在, 所以可能会返回false]
+							// 3. String getMyCard(String owner); 返回我的所有的卡片[比如我有两张卡[card1#card2] card1的格式是[keyword^sender^ownder^information]]
+							/////////////////////////
 							log("info", "sending card from [" + s[0] + "] to [" +
 								s[1] + "] on word [" + s[2] + "] provided by [" + s[3] + "]");
 							boolean result = db.sendCard(s[0], s[1], s[2], s[3]);
