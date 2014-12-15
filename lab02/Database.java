@@ -415,8 +415,48 @@ class Database {
 	}
 	/** 获取我的所有单词卡, 比如我有两张卡[card1#card2] card1的格式是[keyword^sender^ownder^information] */
 	String sqlGetMyCard(String owner) {
-		
-		return null;
+		StringBuffer result = null;
+		try {
+			Statement stm = connect.createStatement();
+			ResultSet rs = stm.executeQuery("select * from card where owner = '" + owner + "';");
+			while (rs.next()) {
+				// card表: sender | owner | keyword | source
+				if (result == null) {
+					StringBuffer temp = new StringBuffer(rs.getString(3) + "^" + rs.getString(1) + "^" + rs.getString(2) + "^");
+					Statement infostm = connect.createStatement();
+					ResultSet infors = infostm
+							.executeQuery("select * from information where keyword = '"
+									+ rs.getString(3)
+									+ "' and source = '"
+									+ rs.getString(4) + "'");
+					// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
+					temp.append(new Information(infors.getString(2), infors
+							.getString(3), infors.getString(4), infors
+							.getString(5), infors.getInt(6), infors.getInt(7))
+							.toString());
+					result = new StringBuffer(temp);
+				} else {
+					StringBuffer temp = new StringBuffer(rs.getString(3) + "^" + rs.getString(1) + "^" + rs.getString(2) + "^");
+					Statement infostm = connect.createStatement();
+					ResultSet infors = infostm
+							.executeQuery("select * from information where keyword = '"
+									+ rs.getString(3)
+									+ "' and source = '"
+									+ rs.getString(4) + "'");
+					// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
+					temp.append(new Information(infors.getString(2), infors
+							.getString(3), infors.getString(4), infors
+							.getString(5), infors.getInt(6), infors.getInt(7))
+							.toString());
+					result.append("#" + temp);
+				}
+			}
+			return result.toString();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result.toString();
 	}
 
 //	public static void main(String[] args) {
