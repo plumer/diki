@@ -209,6 +209,15 @@ public class Client extends JFrame{
 					//clear notes 需要将notebook数组清空吗？？？？？？
 					//disable buttons "notes"
 					note.setEnabled(false);
+					for(int i = 0; i < 3; i++){
+						whoToSend[i].setText("");
+						zan[i].setEnabled(false);
+						unzan[i].setEnabled(false);
+						sendCard[i].setEnabled(false);
+						result[i].setText("");
+						input.setText("");;
+					}
+					refreshOnlineUserList.setEnabled(false);
 					JOptionPane.showMessageDialog(null,"注销成功，goodbye~","注销",JOptionPane.OK_OPTION);
 				}
 			}
@@ -552,25 +561,30 @@ public class Client extends JFrame{
 							System.out.println(ex[3]);//jieshi
 							Information information = new Information(ex[0],ex[1],ex[2],ex[3]);
 							currentEntry.setInformation(ex[0],information);
-							zanSum[displayOrder[i]] = Integer.parseInt(ex[4]);
-							unzanSum[displayOrder[i]] = Integer.parseInt(ex[5]);
+							//给zan、unzan数目赋值
+							zanSum[i] = Integer.parseInt(ex[4]);
+							unzanSum[i] = Integer.parseInt(ex[5]);
 					}
-					
+					//设置默认显示顺序
+					displayOrder[0] = 0;
+					displayOrder[1] = 1;
+					displayOrder[2] = 2;
+					displayOrderSort();
 					//下面控制zan和unzan按钮是否能够使用，就是用户是否已经点过这个单词的zan或者unzan
-					if(tempStr[4].equalsIgnoreCase("true"))  zan[0].setEnabled(false);
-					else									  zan[0].setEnabled(true);
-					if(tempStr[5].equalsIgnoreCase("true"))  zan[1].setEnabled(false);
-					else									  zan[1].setEnabled(true);
-					if(tempStr[6].equalsIgnoreCase("true"))  zan[2].setEnabled(false);
-					else									  zan[2].setEnabled(true);
-					if(tempStr[7].equalsIgnoreCase("true"))  unzan[0].setEnabled(false);
-					else									  unzan[0].setEnabled(true);
-					if(tempStr[8].equalsIgnoreCase("true"))  unzan[1].setEnabled(false);
-					else									  unzan[1].setEnabled(true);
-					if(tempStr[9].equalsIgnoreCase("true"))  unzan[2].setEnabled(false);
-					else									  unzan[2].setEnabled(true);
+					if(tempStr[4].equalsIgnoreCase("true"))  zan[displayOrder[0]].setEnabled(false);
+					else									  zan[displayOrder[0]].setEnabled(true);
+					if(tempStr[5].equalsIgnoreCase("true"))  zan[displayOrder[1]].setEnabled(false);
+					else									  zan[displayOrder[1]].setEnabled(true);
+					if(tempStr[6].equalsIgnoreCase("true"))  zan[displayOrder[2]].setEnabled(false);
+					else									  zan[displayOrder[2]].setEnabled(true);
+					if(tempStr[7].equalsIgnoreCase("true"))  unzan[displayOrder[0]].setEnabled(false);
+					else									  unzan[displayOrder[0]].setEnabled(true);
+					if(tempStr[8].equalsIgnoreCase("true"))  unzan[displayOrder[1]].setEnabled(false);
+					else									  unzan[displayOrder[1]].setEnabled(true);
+					if(tempStr[9].equalsIgnoreCase("true"))  unzan[displayOrder[2]].setEnabled(false);
+					else									  unzan[displayOrder[2]].setEnabled(true);
 					//解释显示在面板上
-					displayExplaination();
+					displayThreePanel();
 				}
 				
 			} catch (Exception e) {
@@ -580,7 +594,9 @@ public class Client extends JFrame{
 		}
 		else{//用户未创建或者用户不在线
 			currentEntry = onlineSearcher.search(keyword);
-			//int [] displayOrder = {0,1,2};
+			displayOrder[0] = 0;
+			displayOrder[1] = 1;
+			displayOrder[2] = 2;//设置显示顺序
 			displayThreePanel();
 		}
 	}
@@ -593,9 +609,11 @@ public class Client extends JFrame{
 		for(int i = 0; i < 3; i++){
 			//先判断是否勾选了该来源(顺序是baidu,youdao,bing)
 			//用户在线就显示赞和不赞的数目，否则不显示
+			//获取0（baidu）1（youdao）2（bing）显示的面板标号
+			int panelIndex = displayOrder[i];
 			boolean isSelected = true;
-			String [] ex = currentEntry.getInformation(displayOrder[i]).toString().split("\\$");
-			System.out.println(currentEntry.getInformation(displayOrder[i]).toString());
+			String [] ex = currentEntry.getInformation(i).toString().split("\\$");
+			System.out.println(currentEntry.getInformation(i).toString());
 			switch(ex[0]){
 				case "baidu": if(!baidu.isSelected())  isSelected = false;break;
 				case "youdao": if(!youdao.isSelected())  isSelected = false;break;
@@ -604,31 +622,31 @@ public class Client extends JFrame{
 			
 			if(isSelected){
 				//选中了就进行显示
-				result[i].append(ex[0] + '\n');
+				result[ panelIndex].append(ex[0] + '\n');
 				//keyword
-				result[i].append(currentEntry.getKeyword() + '\n');
+				result[ panelIndex].append(currentEntry.getKeyword() + '\n');
 				//音标
 				String [] pho = ex[1].split("#");
 				for(int j = 0; j < pho.length; j++){
-					result[i].append(pho[j] + ",");
+					result[panelIndex].append(pho[j] + ",");
 				}
-				result[i].append("\n");
+				result[ panelIndex].append("\n");
 				//词性
 				String [] attri = ex[2].split("#");
 				//解释
 			    String [] exp = ex[3].split("#");
 			    for(int k = 0; k < attri.length; k++){
-			    	result[i].append(attri[k] + " " + exp[k] + '\n');
+			    	result[panelIndex].append(attri[k] + " " + exp[k] + '\n');
 			    }
 			    if(currentUser!= null && currentUser.isOnline()){
 			    	//zan
 			    	//int currentZan = Integer.parseInt(ex[4]);
 			    	System.out.println("zan: " + zanSum[i]);
-			    	result[i].append("zan: " + zanSum[i] + "\n");
+			    	result[panelIndex].append("zan: " + zanSum[i] + "\n");
 			    	//unzan
 			    	//int currentUnzan = Integer.parseInt(ex[5]);
 			    	System.out.println("unzan: " + unzanSum[i]);
-			    	result[i].append("unzan: " + unzanSum[i] + "\n");
+			    	result[panelIndex].append("unzan: " + unzanSum[i] + "\n");
 			    }
 				//下一次要显示哪一块面板
 				//index++;
@@ -641,15 +659,18 @@ public class Client extends JFrame{
 		}
 	}
 	
-	public void displayExplaination(){//进行排序后显示
+	public void displayOrderSort(){//进行排序后显示
 		//将获取的释义显示在面板上
 		//根据zan和unzan的数量进行排序显示
 		//用123代表三个information
 		int []allzanSum = new int[3];//zan和unzan综合
 		//int []dis = {0,1,2};//显示顺序
 		allzanSum[0] = zanSum[0] -  unzanSum[0];
+		System.out.println("baidu: " + zanSum[0] + " - " + unzanSum[0]);
 		allzanSum[1] = zanSum[1] -  unzanSum[1];
+		System.out.println("youdao: " + zanSum[1] + " - " + unzanSum[1]);
 		allzanSum[2] = zanSum[2] -  unzanSum[2];
+		System.out.println("bing: " + zanSum[2] + " - " + unzanSum[2]);
 	    for(int i = 0; i < 2; i++){
 	    	for(int j = i+1; j < 3; j++){
 	    		if(allzanSum[i] < allzanSum[j]){
@@ -669,7 +690,7 @@ public class Client extends JFrame{
 	    	System.out.println("显示在面板" + displayOrder[i] + " "+ "zan: " + allzanSum[i]);
 	    }
 	    System.out.println();
-		displayThreePanel();
+		//displayThreePanel();
 	}
 	
 	public static void main(String[] args){
@@ -941,12 +962,7 @@ public class Client extends JFrame{
 		baidu.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String keyword = input.getText();
-				if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) 
-						&& currentUser != null && currentUser.isOnline() )
-					displayExplaination();
-				else if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) ){
-					//不在线
-					//int [] disOrder = {0,1,2};
+				if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) ){
 					displayThreePanel();
 				}
 			}
@@ -955,27 +971,16 @@ public class Client extends JFrame{
 		youdao.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String keyword = input.getText();
-				if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) 
-						&& currentUser != null && currentUser.isOnline() )
-					displayExplaination();
-				else if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) ){
-					//不在线
-					//int [] disOrder = {0,1,2};
+				if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) ){
 					displayThreePanel();
 				}
-			
 			}
 		});
 		
 		bing.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String keyword = input.getText();
-				if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) 
-						&& currentUser != null && currentUser.isOnline() )
-					displayExplaination();
-				else if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) ){
-					//不在线
-					//int [] disOrder = {0,1,2};
+				if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) ){
 					displayThreePanel();
 				}
 			}
