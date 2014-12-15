@@ -148,16 +148,16 @@ class Database {
 		}
 	}
 
-	boolean insertEntry(Entry entry) {
+	boolean sqlInsertEntry(Entry entry) {
 		try {
 			Statement stm = connect.createStatement();
 			if (entry.getKeyword() == null) return false;
 			else {
 				return stm.execute("insert into entry values('"
 						+ entry.getKeyword() + "');")
-						&& insertInformation(entry.getKeyword(), entry.getInformation(0))
-						&& insertInformation(entry.getKeyword(), entry.getInformation(1))
-						&& insertInformation(entry.getKeyword(), entry.getInformation(2));
+						&& sqlInsertInformation(entry.getKeyword(), entry.getInformation(0))
+						&& sqlInsertInformation(entry.getKeyword(), entry.getInformation(1))
+						&& sqlInsertInformation(entry.getKeyword(), entry.getInformation(2));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -166,7 +166,7 @@ class Database {
 		return false;
 	}
 	
-	boolean insertInformation(String keyword, Information info) {
+	boolean sqlInsertInformation(String keyword, Information info) {
 		try {
 			Statement stm = connect.createStatement();
 			//keyword | source | phonetic | attribute | zancount | unzancount
@@ -181,7 +181,7 @@ class Database {
 		return false;
 	}
 	
-	boolean insertUser(User user) {
+	boolean sqlInsertUser(User user) {
 		try {
 			Statement stm = connect.createStatement();
 			return user.isOnline() ? stm.execute("insert into user values('"
@@ -197,7 +197,7 @@ class Database {
 		return false;
 	}
 	
-	boolean insertZanlog(String keyword, String name, String source) {
+	boolean sqlInsertZanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
 			return stm.execute("insert into zanlog values('" + keyword + "', '" + name + "', '" + source + "');");
@@ -208,7 +208,7 @@ class Database {
 		return false;
 	}
 	
-	boolean insertUnzanlog(String keyword, String name, String source) {
+	boolean sqlInsertUnzanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
 			return stm.execute("insert into unzanlog values('" + keyword + "', '" + name + "', '" + source + "');");
@@ -219,7 +219,7 @@ class Database {
 		return false;
 	}
 
-	boolean insertCard(String sender, String owner, String keyword, String source) {
+	boolean sqlInsertCard(String sender, String owner, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
 			return stm.execute("insert into unzanlog values('" + sender + "', '" + owner + "', '" + keyword + "', '" + source +"')");
@@ -233,7 +233,7 @@ class Database {
 	/** regist 需要用到的功能 */
 	// 1. nameIsExist
 	// 2. insert user
-	boolean NameIsExist(String username) {
+	boolean sqlNameIsExist(String username) {
 		try {
 			Statement stm = connect.createStatement();
 			ResultSet rs = stm.executeQuery("select * from user where username = '" + username + "';");
@@ -251,7 +251,7 @@ class Database {
 	// 2. get User -> 如果密码校验通过[get到的是只有name和password的user]
 	// 3. update status
 	// 4. online list 获取
-	User getUserByName(String username) {
+	User sqlGetUserByName(String username) {
 		User result = null;
 		try {
 			Statement stm = connect.createStatement();
@@ -267,7 +267,7 @@ class Database {
 		}
 		return result;
 	}
-	boolean updateUserStatus(String username, boolean status) {
+	boolean sqlUpdateUserStatus(String username, boolean status) {
 		try {
 			Statement stm = connect.createStatement();
 			return status ? stm
@@ -282,7 +282,7 @@ class Database {
 		return false;
 	}
 	/** 返回所有online user[比如有两个人(hello和hi)在线, 就返回"hello#hi"]*/
-	String getOnlineUser() {
+	String sqlGetOnlineUser() {
 		try {
 			Statement stm = connect.createStatement();
 			ResultSet rs = stm.executeQuery("select * from user where status = 1;");
@@ -306,7 +306,7 @@ class Database {
 	// 1. EntryIsExist(keyword) 
 	// 2. getEntry(keyword)
 	// 3. online search -> insert entry, insert information
-	boolean EntryIsExist(String keyword) {
+	boolean sqlEntryIsExist(String keyword) {
 		try {
 			Statement stm = connect.createStatement();
 			ResultSet rs = stm.executeQuery("select * from entry where keyword = '" + keyword + "';");
@@ -318,7 +318,7 @@ class Database {
 		}
 		return false;
 	}
-	Entry getEntry(String keyword) {
+	Entry sqlGetEntry(String keyword) {
 		Entry result = new Entry(keyword);
 		try {
 			Statement stm = connect.createStatement();
@@ -338,7 +338,7 @@ class Database {
 	/** 赞和不赞需要用到的功能 */
 	// 1. haveZaned
 	// 2. insertZanlog
-	boolean ZanlogIsExist(String username, String keyword, String source) {
+	boolean sqlZanlogIsExist(String username, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
 			ResultSet rs = stm
@@ -353,7 +353,7 @@ class Database {
 		}
 		return false;
 	}
-	boolean UnzanlogIsExist(String username, String keyword, String source) {
+	boolean sqlUnzanlogIsExist(String username, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
 			ResultSet rs = stm
@@ -368,10 +368,17 @@ class Database {
 		}
 		return false;
 	}
-	boolean updateZancount(String keyword, String source) {
+	boolean sqlUpdateZancount(String keyword, String source) {
+		try {
+			Statement stm = connect.createStatement();
+			return stm.execute("update information set zan = 1 where username = '"+ username + "'");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return false;
 	}
-	boolean updateUnzancount(String keyword, String source) {
+	boolean sqlUpdateUnzancount(String keyword, String source) {
 		return false;
 	}
 	
@@ -379,7 +386,7 @@ class Database {
 	// 1. haveSent
 	// 2. insertCard
 	// 3. my cards
-	boolean CardIsExist(String sender, String owner, String keyword, String source) {
+	boolean sqlCardIsExist(String sender, String owner, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
 			ResultSet rs = stm
@@ -396,16 +403,16 @@ class Database {
 		return false;
 	}
 	/** 获取我的所有单词卡, 比如我有两张卡[card1#card2] card1的格式是[keyword^sender^ownder^information] */
-	String getMyCard(String owner) {
+	String sqlGetMyCard(String owner) {
 		
 		return null;
 	}
 
-	public static void main(String[] args) {
-		// only for testing
-		Database db = new Database();
-		System.out.println("db is normal");
-	}
+//	public static void main(String[] args) {
+//		// only for testing
+//		Database db = new Database();
+//		System.out.println("db is normal");
+//	}
 //
 //	// invoke me when register request is received
 //	public boolean register(String userName, String password) {
