@@ -69,19 +69,19 @@ class Entry {
 		else
 			return null;
 	}
-	public boolean clickZan(String source, String user) {
-		if (source.equals("baidu")) return informations[BAIDU].clickZan(user);
-		if (source.equals("youdao")) return informations[YOUDAO].clickZan(user);
-		if (source.equals("bing")) return informations[BING].clickZan(user);
-		return false;
-	}
-	
-	public boolean clickUnzan(String source, String user) {
-		if (source.equals("baidu")) return informations[BAIDU].clickUnzan(user);
-		if (source.equals("youdao")) return informations[YOUDAO].clickUnzan(user);
-		if (source.equals("bing")) return informations[BING].clickUnzan(user);
-		return false;
-	}
+//	public boolean clickZan(String source, String user) {
+//		if (source.equals("baidu")) return informations[BAIDU].clickZan(user);
+//		if (source.equals("youdao")) return informations[YOUDAO].clickZan(user);
+//		if (source.equals("bing")) return informations[BING].clickZan(user);
+//		return false;
+//	}
+//	
+//	public boolean clickUnzan(String source, String user) {
+//		if (source.equals("baidu")) return informations[BAIDU].clickUnzan(user);
+//		if (source.equals("youdao")) return informations[YOUDAO].clickUnzan(user);
+//		if (source.equals("bing")) return informations[BING].clickUnzan(user);
+//		return false;
+//	}
 
 	public String toString() {
 		return 
