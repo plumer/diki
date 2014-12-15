@@ -422,7 +422,7 @@ class Database {
 			while (rs.next()) {
 				// card表: sender | owner | keyword | source
 				if (result == null) {
-					StringBuffer temp = new StringBuffer(rs.getString(3) + "^" + rs.getString(1) + "^" + rs.getString(2) + "^");
+					StringBuffer temp = new StringBuffer(rs.getString(1) + "^" + rs.getString(3) + "^");
 					Statement infostm = connect.createStatement();
 					ResultSet infors = infostm
 							.executeQuery("select * from information where keyword = '"
@@ -436,7 +436,7 @@ class Database {
 							.toString());
 					result = new StringBuffer(temp);
 				} else {
-					StringBuffer temp = new StringBuffer(rs.getString(3) + "^" + rs.getString(1) + "^" + rs.getString(2) + "^");
+					StringBuffer temp = new StringBuffer(rs.getString(1) + "^" + rs.getString(3) + "^");
 					Statement infostm = connect.createStatement();
 					ResultSet infors = infostm
 							.executeQuery("select * from information where keyword = '"
@@ -448,7 +448,7 @@ class Database {
 							.getString(3), infors.getString(4), infors
 							.getString(5), infors.getInt(6), infors.getInt(7))
 							.toString());
-					result.append("#" + temp);
+					result.append("^" + temp);
 				}
 			}
 			return result.toString();
