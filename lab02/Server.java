@@ -73,11 +73,23 @@ public class Server {
 								osToClient.writeUTF("rlifalse");
 								osToClient.flush();
 							} else {
-								String userNames = new String();
-								Set<String> onlineUserList =
-									db.login(s[0], s[1],
-									connectionSocket.getInetAddress(), // to be deprecated
-									connectionSocket.getPort());		// to be deprecated
+								String onlineUserList = null;
+								if ( db.sqlNameIsExist(s[0]) ) {
+									User quester = db.getUserByName(s[0]);
+									if ( quester.getPassword().equals(s[1]) ) {
+/* this may fail					*/	updateUserStatus(s[0], User.ONLINE);
+										onlineUserList = db.getOnlineUser();
+										currentUserName = s[0];
+										osToClient.writeUTF("rlitrue^" + onlineUserList.substring(1));
+									} else {
+										osToClient.writeUTF("rlifalse");
+										log("error", "login password incorrect");
+									}
+								} else {
+									log("error", "login: user ["+s[0]+"] not exist");
+									osToClient.writeUTF("rlifalse");
+								}
+								osToClient.flush();
 								/////////////////////////
 								// 数据库提供了以下函数:
 								// 1. boolean NameIsExist(String username); 返回用户名是否存在
@@ -85,16 +97,6 @@ public class Server {
 								// 3. boolean updateUserStatus(String username, boolean status); 将用户username的状态修改为status
 								// 4. String getOnlineUser(); 返回在线用户的用户名串[例如: user1#user2#user3 ]
 								/////////////////////////
-								if (onlineUserList == null)
-									osToClient.writeUTF("rli"+false);
-								else {
-									Iterator<String> iterator = onlineUserList.iterator();
-									while (iterator.hasNext())
-										userNames = userNames + "^" + 	iterator.next();
-									osToClient.writeUTF("rlitrue"+userNames);
-									currentUserName = s[0];
-								}
-								osToClient.flush();
 								log("info", "reply login: "+onlineUserList);
 							}
 
@@ -113,8 +115,17 @@ public class Server {
 								// 1. boolean NameIsExist(String username); 返回用户名是否存在
 								// 2. boolean insertUser(User user); 将user对象加入user表, 返回是否插入成功
 								/////////////////////////////
-								result = db.register(s[0], s[1]);
-								osToClient.writeUTF("rrg" + result);
+								if ( db.sqlNameIsExist(s[0]) ) {
+									log("error", "register: user ["+s[0]+"] already exists");
+									osToClient.writeUTF("rrgfalse");
+								} else {
+									if (!db.sqlInsertUser(new User(s[0], s[1]))) {
+										log("error", "register: write into database error");
+										osToClient.writeUTF("rrgfalse");
+									} else {
+										osToClient.writeUTF("rrgtrue");
+									}
+								}
 							} else {
 								log("error", "register request operands error:");
 								printStringArray(s);
@@ -137,7 +148,13 @@ public class Server {
 							// 3. String getOnlineUser(); 返回在线用户的用户名串[例如: user1#user2#user3 ]
 							/////////////////////////
 							log("info", "logging out request on user [" + s[0] + "]");
-							boolean result = db.logout(s[0]);
+							boolean result = false;
+							if ( db.sqlNameIsExist(s[0]) ) {
+								result = db.updateUserStatus(s[0], User.OFFLINE);
+								currentUserName = null;
+							} else {
+								log("error", "user does not exist");
+							}
 							osToClient.writeUTF("rlo" + result);
 							osToClient.flush();
 							log("info", "reply logout: "+result);
@@ -157,12 +174,19 @@ public class Server {
 							// 2. Entry getEntry(String keyword); 返回keyword的Entry[包含三个information, 且information里zan和unzan数值正常]
 							// 3. boolean insertEntry(Entry entry); 插入一个Entry到数据库中[并不检查这个entry是否存在, 所以如果插入失败就返回false]
 							/////////////////////////
-							Entry result = db.request(s[0]);
+							Entry result = null;
+							if ( db.sqlEntryIsExist(s[0]) ) {
+								result = db.sqlGetEntry(s[0]);
+							} else {
+								OnlineSearcher oser = new OnlineSearcher();
+								result = oser.search(s[0]);
+								insertEntry(result);
+							}
 							boolean [] zanFlag = new boolean[3];
 							boolean [] unzanFlag = new boolean[3];
 							for (int i = 0; i < 3; i++) {
-								zanFlag[i] = result.getInformation(i).isZannedBy(currentUserName);
-								unzanFlag[i] = result.getInformation(i).isUnzannedBy(currentUserName);
+								zanFlag[i] = db.sqlZanLogIsExist(currentUserName, s[0], Entry.sourceString[i];
+								unzanFlag[i] = db.sqlUnzanLogIsExist(currentUserName, s[0], Entry.sourceString[i];
 							}
 							String flags =
 								zanFlag[0] +"^"+ zanFlag[1] +"^"+ zanFlag[2] +"^"+ 
@@ -186,7 +210,12 @@ public class Server {
 							//////////////////////////
 							log("info", "zan on word [" + s[1] + "] on source [" +
 								s[2] +"] by user [" + s[0] +"]");
-							boolean result = db.clickZan(s[0],s[1],s[2]);
+							boolean result = false;
+							if ( !db.sqlZanlogIsExist(s[0], s[1], s[2]) ) {
+								result = db.sqlInsertZanlog(s[1], s[0], s[2]);
+								if (result) 
+									db.updateZancount(s[1], s[2]);
+							}
 							osToClient.writeUTF("rza" + result);
 							osToClient.flush();
 							log("info", "reply zan: "+result);
@@ -201,7 +230,12 @@ public class Server {
 							//////////////////////////
 							log("info", "unzan on word [" + s[1] + "] on source [" +
 								s[2] +"] by user [" + s[0] +"]");
-							boolean result = db.clickUnzan(s[0], s[1], s[2]);
+							boolean result = false;
+							if ( !db.sqlUnzanLogIsExist(s[0], s[1], s[2]) ) {
+								result = db.sqlInsertUnzanlog(s[1], s[0], s[2]);
+								if (result)
+									db.updateUnzancount(s[1], s[2]);
+							}
 							osToClient.writeUTF("ruz" + result);
 							osToClient.flush();
 							log("info", "reply unzan: "+result);
@@ -215,16 +249,11 @@ public class Server {
 								// 1. String getOnlineUser(); 返回在线用户的用户名串[例如: username1#username2#username3 ]
 								/////////////////////////
 							log("info", "request online users except [" + s[0] + "]");
-							Set<String> onlineUserList = db.getOnlineUsers(null);
-							String userNames = new String();
-							Iterator<String> iterator = onlineUserList.iterator();
-							while (iterator.hasNext())
-								userNames = userNames + "^" + iterator.next();
-							if (userNames.length() > 0)
-								userNames = userNames.substring(1);
-							osToClient.writeUTF("rou"+userNames);
+							String onlineUserList = db.sqlGetOnlineUser().replaceAll("\\$", "\\^");
+							
+							osToClient.writeUTF("rou"+onlineUserList.substring(1));
 							osToClient.flush();
-							log("info", "reply qou: " + userNames);
+							log("info", "reply qou: " + onlineUserList.substring(1));
 						} else if (opcode.equals("sc")) {			
 							// send card
 							// s[0] - sender, s[1] - receiver, s[2] - keyword, s[3] - provider
@@ -238,7 +267,12 @@ public class Server {
 							/////////////////////////
 							log("info", "sending card from [" + s[0] + "] to [" +
 								s[1] + "] on word [" + s[2] + "] provided by [" + s[3] + "]");
-							boolean result = db.sendCard(s[0], s[1], s[2], s[3]);
+							boolean result = false;
+							if ( !db.sqlCardIsExist(s[0], s[1], s[2], s[3]) ) {
+								result = insertCard(s[0], s[2], s[2], s[3]);
+							} else {
+								log("error", "send card log already exists");
+							}
 							osToClient.writeUTF("rsc" + result);
 							osToClient.flush();
 							log("info", "reply qsc: " + result);
