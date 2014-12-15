@@ -1,33 +1,17 @@
-/**
- * 
- */
 package lab02;
 
-/**
- *	@author diki
- *	modified by vocryan Dec 1 2014 19:30
- *		implemented methods:
- *			register
- *			login, logout
- *			clickZan, clickUnzan
- *			search
- * 		remain unimplemented:
- *			send card
- */
-
-import java.io.*;
 import java.net.*;
-import java.util.*;
 import java.sql.*;
 
 class Database {
 	private Connection connect;
 
+	// 做了下面这些修改: 
+	// 1. 数据库地址默认为本地的127.0.0.1:3306, 但是可以通过构造函数设置为其他的
+	// 2. 数据库为test, user为root, 密码为空[mysql的默认设置]
+	// 3. 数据库编码为utf8
+	/** 默认构造函数 */
 	public Database() {
-		// 做了下面这些修改: 
-		// 1. 数据库地址默认为本地的127.0.0.1:3306, 但是可以通过构造函数设置为其他的
-		// 2. 数据库为test, user为root, 密码为空[mysql的默认设置]
-		// 3. 数据库编码为utf8
 		String host = "127.0.0.1:3306";
 		String database = "test";
 		String user = "root";
@@ -51,7 +35,7 @@ class Database {
 					stm.execute("create table entry(keyword char(50) primary key not null)default charset=utf8;");
 				}
 				// 检查information表是否存在
-				// information表: keyword | source | phonetic | attribute | zancount | unzancount
+				// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
 				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='information';");
 				if (!rs.next()) {
 					stm.execute("create table information(keyword char(50) primary key not null references entry(keyword), source char(20) not null, phonetic char(20), attribute char(20), explanation char(200), zan int, unzan int)default charset=utf8;");
@@ -90,6 +74,7 @@ class Database {
 		}
 	}
 
+	/** 指定数据库参数的构造函数 */
 	public Database(String host, String database, String user, String password) {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -147,7 +132,8 @@ class Database {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/** entry表插入 */
 	boolean sqlInsertEntry(Entry entry) {
 		try {
 			Statement stm = connect.createStatement();
@@ -166,6 +152,7 @@ class Database {
 		return false;
 	}
 	
+	/** information表插入 */
 	boolean sqlInsertInformation(String keyword, Information info) {
 		try {
 			Statement stm = connect.createStatement();
@@ -181,6 +168,7 @@ class Database {
 		return false;
 	}
 	
+	/** user表插入 */
 	boolean sqlInsertUser(User user) {
 		try {
 			Statement stm = connect.createStatement();
@@ -197,6 +185,7 @@ class Database {
 		return false;
 	}
 	
+	/** zanlog表插入 */
 	boolean sqlInsertZanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
@@ -208,6 +197,7 @@ class Database {
 		return false;
 	}
 	
+	/** unzanlog表插入 */
 	boolean sqlInsertUnzanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
@@ -219,6 +209,7 @@ class Database {
 		return false;
 	}
 
+	/** card表插入 */
 	boolean sqlInsertCard(String sender, String owner, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
@@ -231,8 +222,9 @@ class Database {
 	}
 	
 	/** regist 需要用到的功能 */
-	// 1. nameIsExist
-	// 2. insert user
+	// 1. sqlNameIsExist: 判断用户名是否存在
+	// 2. sqlInsertUser: user表插入
+	/** 判断用户名是否存在 */
 	boolean sqlNameIsExist(String username) {
 		try {
 			Statement stm = connect.createStatement();
@@ -247,10 +239,11 @@ class Database {
 	}
 	
 	/** login 需要用到的功能 */
-	// 1. nameIsExist -> 用户名不存在
-	// 2. get User -> 如果密码校验通过[get到的是只有name和password的user]
-	// 3. update status
-	// 4. online list 获取
+	// 1. sqlNameIsExist: 用户名不存在
+	// 2. sqlGetUserByName: 如果密码校验通过[根据用户名get到完整的User对象]
+	// 3. sqlUpdateUserStatus: 更新用户在线状态
+	// 4. sqlGetOnlineUser: 获取在线用户名
+	/** 根据用户名获取完整的用户 */
 	User sqlGetUserByName(String username) {
 		User result = null;
 		try {
@@ -267,6 +260,7 @@ class Database {
 		}
 		return result;
 	}
+	/** 更新用户在线/不在线状态 */
 	boolean sqlUpdateUserStatus(String username, boolean status) {
 		try {
 			Statement stm = connect.createStatement();
@@ -300,12 +294,13 @@ class Database {
 	}
 	
 	/** 注销需要用到的功能 */
-	// 1. update status
+	// 1. sqlUpdateUserStatus
 	
 	/** 查询需要用到的功能 */
-	// 1. EntryIsExist(keyword) 
-	// 2. getEntry(keyword)
-	// 3. online search -> insert entry, insert information
+	// 1. sqlEntryIsExist(keyword) 
+	// 2. sqlGetEntry(keyword)
+	// 3. 插入entry
+	/** 判断Entry是否已经在数据库中 */
 	boolean sqlEntryIsExist(String keyword) {
 		try {
 			Statement stm = connect.createStatement();
@@ -318,6 +313,7 @@ class Database {
 		}
 		return false;
 	}
+	/** 根据关键词获取Entry */
 	Entry sqlGetEntry(String keyword) {
 		Entry result = new Entry(keyword);
 		try {
@@ -336,8 +332,9 @@ class Database {
 	}
 	
 	/** 赞和不赞需要用到的功能 */
-	// 1. haveZaned
-	// 2. insertZanlog
+	// 1. sqlZanlogIsExist
+	// 2. sqlUpdateZancount
+	/** 判断zanlog记录是否存在 */
 	boolean sqlZanlogIsExist(String username, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
@@ -353,6 +350,7 @@ class Database {
 		}
 		return false;
 	}
+	/** 判断unzanlog记录是否存在 */
 	boolean sqlUnzanlogIsExist(String username, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
@@ -368,6 +366,7 @@ class Database {
 		}
 		return false;
 	}
+	/** zan数目加1 */
 	boolean sqlUpdateZancount(String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
@@ -380,6 +379,7 @@ class Database {
 		}
 		return false;
 	}
+	/** unzan数目加1 */
 	boolean sqlUpdateUnzancount(String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
@@ -394,9 +394,10 @@ class Database {
 	}
 	
 	/** 发卡需要用到的功能 */
-	// 1. haveSent
-	// 2. insertCard
-	// 3. my cards
+	// 1. sqlCardIsExist
+	// 2. sqlGetMyCard
+	// 3. 插入card记录
+	/** 判断这个卡是不是已经被发送过 */
 	boolean sqlCardIsExist(String sender, String owner, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
@@ -413,6 +414,7 @@ class Database {
 		}
 		return false;
 	}
+	
 	/** 获取我的所有单词卡, 比如我有两张卡[card1#card2] card1的格式是[keyword^sender^ownder^information] */
 	String sqlGetMyCard(String owner) {
 		StringBuffer result = null;
