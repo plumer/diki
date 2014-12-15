@@ -22,11 +22,18 @@ class User {
 		this.name = name;
 //		this.status = status;
 		this.password = password;
-		// only password and nameis necessary in creating (i.e. registering) a new user
+		// only password and name is necessary in creating (i.e. registering) a new user
 //		this.ip = ip;
 //		this.port = port;
 	}
-	
+	/** 增加了一个完全的构造函数 */
+	User(String name, String password, InetAddress ip, int port, boolean status) {
+		this.name = name;
+		this.password = password;
+		this.ip = ip;
+		this.port = port;
+		this.status = status;
+	}
 
 	/**
 	 * @return the status
