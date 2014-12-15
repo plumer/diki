@@ -61,13 +61,13 @@ public class Information {
 		return explanation;
 	}
 	
-	void clickZan() {
-		zan ++;
-	}
-	
-	void clickUnzan() {
-		unzan ++;
-	}
+//	void clickZan() {
+//		zan ++;
+//	}
+//	
+//	void clickUnzan() {
+//		unzan ++;
+//	}
 	
 	int getZan() {
 		return zan;
