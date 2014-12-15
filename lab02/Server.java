@@ -1,8 +1,6 @@
 package lab02;
 import java.io.*;
 import java.net.*;
-import java.util.concurrent.*;
-import java.util.*;
 public class Server {
 	private static Database db = new Database();
 
@@ -75,10 +73,10 @@ public class Server {
 							} else {
 								String onlineUserList = null;
 								if ( db.sqlNameIsExist(s[0]) ) {
-									User quester = db.getUserByName(s[0]);
+									User quester = db.sqlGetUserByName(s[0]);
 									if ( quester.getPassword().equals(s[1]) ) {
-/* this may fail					*/	updateUserStatus(s[0], User.ONLINE);
-										onlineUserList = db.getOnlineUser();
+/* this may fail					*/	db.sqlUpdateUserStatus(s[0], User.ONLINE);
+										onlineUserList = db.sqlGetOnlineUser();
 										currentUserName = s[0];
 										osToClient.writeUTF("rlitrue^" + onlineUserList.substring(1));
 									} else {
@@ -150,7 +148,7 @@ public class Server {
 							log("info", "logging out request on user [" + s[0] + "]");
 							boolean result = false;
 							if ( db.sqlNameIsExist(s[0]) ) {
-								result = db.updateUserStatus(s[0], User.OFFLINE);
+								result = db.sqlUpdateUserStatus(s[0], User.OFFLINE);
 								currentUserName = null;
 							} else {
 								log("error", "user does not exist");
@@ -180,13 +178,13 @@ public class Server {
 							} else {
 								OnlineSearcher oser = new OnlineSearcher();
 								result = oser.search(s[0]);
-								insertEntry(result);
+								db.sqlInsertEntry(result);
 							}
 							boolean [] zanFlag = new boolean[3];
 							boolean [] unzanFlag = new boolean[3];
 							for (int i = 0; i < 3; i++) {
-								zanFlag[i] = db.sqlZanLogIsExist(currentUserName, s[0], Entry.sourceString[i];
-								unzanFlag[i] = db.sqlUnzanLogIsExist(currentUserName, s[0], Entry.sourceString[i];
+								zanFlag[i] = db.sqlZanlogIsExist(currentUserName, s[0], Entry.sourceString[i]);
+								unzanFlag[i] = db.sqlUnzanlogIsExist(currentUserName, s[0], Entry.sourceString[i]);
 							}
 							String flags =
 								zanFlag[0] +"^"+ zanFlag[1] +"^"+ zanFlag[2] +"^"+ 
@@ -214,7 +212,7 @@ public class Server {
 							if ( !db.sqlZanlogIsExist(s[0], s[1], s[2]) ) {
 								result = db.sqlInsertZanlog(s[1], s[0], s[2]);
 								if (result) 
-									db.updateZancount(s[1], s[2]);
+									db.sqlUpdateZancount(s[1], s[2]);
 							}
 							osToClient.writeUTF("rza" + result);
 							osToClient.flush();
@@ -231,10 +229,10 @@ public class Server {
 							log("info", "unzan on word [" + s[1] + "] on source [" +
 								s[2] +"] by user [" + s[0] +"]");
 							boolean result = false;
-							if ( !db.sqlUnzanLogIsExist(s[0], s[1], s[2]) ) {
+							if ( !db.sqlUnzanlogIsExist(s[0], s[1], s[2]) ) {
 								result = db.sqlInsertUnzanlog(s[1], s[0], s[2]);
 								if (result)
-									db.updateUnzancount(s[1], s[2]);
+									db.sqlUpdateUnzancount(s[1], s[2]);
 							}
 							osToClient.writeUTF("ruz" + result);
 							osToClient.flush();
@@ -269,7 +267,7 @@ public class Server {
 								s[1] + "] on word [" + s[2] + "] provided by [" + s[3] + "]");
 							boolean result = false;
 							if ( !db.sqlCardIsExist(s[0], s[1], s[2], s[3]) ) {
-								result = insertCard(s[0], s[2], s[2], s[3]);
+								result = db.sqlInsertCard(s[0], s[2], s[2], s[3]);
 							} else {
 								log("error", "send card log already exists");
 							}
