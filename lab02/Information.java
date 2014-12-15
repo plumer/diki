@@ -12,8 +12,8 @@ public class Information {
 	private String phonetic;	// 音标
 	private String attribute;	// 词性
 	private String explanation;
-	private Vote zan;
-	private Vote unzan;
+	private int zan;
+	private int unzan;
 	
 	/**
 	 * @Constructor
@@ -23,8 +23,17 @@ public class Information {
 		this.phonetic = phonetic;
 		this.attribute = attribute;
 		this.explanation = explanation;
-		zan = new Vote();
-		unzan = new Vote();
+		zan = 0;
+		unzan = 0;
+	}
+	
+	public Information(String source, String phonetic, String attribute, String explanation, int zan, int unzan) {
+		this.source = source;
+		this.phonetic = phonetic;
+		this.attribute = attribute;
+		this.explanation = explanation;
+		this.zan = zan;
+		this.unzan = unzan;
 	}
 	
 	/**
@@ -52,20 +61,20 @@ public class Information {
 		return explanation;
 	}
 	
-	boolean clickZan(String devil) {
-		return zan.poll(devil);
+	void clickZan() {
+		zan ++;
 	}
 	
-	boolean clickUnzan(String devil) {
-		return unzan.poll(devil);
+	void clickUnzan() {
+		unzan ++;
 	}
 	
 	int getZan() {
-		return zan.getCount();
+		return zan;
 	}
 	
 	int getUnzan() {
-		return unzan.getCount();
+		return unzan;
 	}
 
 	public String toString() {
@@ -78,13 +87,13 @@ public class Information {
 			getUnzan() + "$";
 	}
 
-	// return if a certain user has zanned this info
-	public boolean isZannedBy(String userName) {
-		return zan.polledBy(userName);
-	}
-
-	// return if a certain user has unzanned this info
-	public boolean isUnzannedBy(String userName) {
-		return unzan.polledBy(userName);
-	}
+//	// return if a certain user has zanned this info
+//	public boolean isZannedBy(String userName) {
+//		return zan.polledBy(userName);
+//	}
+//
+//	// return if a certain user has unzanned this info
+//	public boolean isUnzannedBy(String userName) {
+//		return unzan.polledBy(userName);
+//	}
 }
