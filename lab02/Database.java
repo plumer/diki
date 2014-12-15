@@ -197,7 +197,7 @@ class Database {
 		return false;
 	}
 	
-	boolean insertZanLog(String keyword, String name, String source) {
+	boolean insertZanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
 			return stm.execute("insert into zanlog values('" + keyword + "', '" + name + "', '" + source + "');");
@@ -208,7 +208,7 @@ class Database {
 		return false;
 	}
 	
-	boolean insertUnzanLog(String keyword, String name, String source) {
+	boolean insertUnzanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
 			return stm.execute("insert into unzanlog values('" + keyword + "', '" + name + "', '" + source + "');");
@@ -257,9 +257,11 @@ class Database {
 			Statement stm = connect.createStatement();
 			ResultSet rs = stm.executeQuery("select * from user where username = '" + username + "';");
 			if (rs.next()) {
-				result = new User(rs.getString(1), rs.getString(2));
+				result = new User(rs.getString(1), rs.getString(2),
+						InetAddress.getByName(rs.getString(3)), rs.getInt(4),
+						rs.getBoolean(5));
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -304,10 +306,10 @@ class Database {
 	// 1. EntryIsExist(keyword) 
 	// 2. getEntry(keyword)
 	// 3. online search -> insert entry, insert information
-	boolean EntryIsExist(Entry entry) {
+	boolean EntryIsExist(String keyword) {
 		try {
 			Statement stm = connect.createStatement();
-			ResultSet rs = stm.executeQuery("select * from entry where keyword = '" + entry.getKeyword() + "';");
+			ResultSet rs = stm.executeQuery("select * from entry where keyword = '" + keyword + "';");
 			if (rs.next()) return true;
 			else return false;
 		} catch (SQLException e) {
@@ -323,7 +325,7 @@ class Database {
 			ResultSet rs = stm.executeQuery("select * from information where keyword = '" + keyword + "';");
 			while (rs.next()) {
 				// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
-				result.setInformation(rs.getString(2), new Information(rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5)));
+				result.setInformation(rs.getString(2), new Information(rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getInt(6), rs.getInt(7)));
 			}
 			return result;
 		} catch (SQLException e) {
@@ -366,6 +368,12 @@ class Database {
 		}
 		return false;
 	}
+	boolean updateZancount(String keyword, String source) {
+		return false;
+	}
+	boolean updateUnzancount(String keyword, String source) {
+		return false;
+	}
 	
 	/** 发卡需要用到的功能 */
 	// 1. haveSent
@@ -387,7 +395,7 @@ class Database {
 		}
 		return false;
 	}
-	/** 获取我的所有单词卡, 比如我有两张卡[card1#card2] card1的格式是[sender^ownder^information] */
+	/** 获取我的所有单词卡, 比如我有两张卡[card1#card2] card1的格式是[keyword^sender^ownder^information] */
 	String getMyCard(String owner) {
 		
 		return null;
