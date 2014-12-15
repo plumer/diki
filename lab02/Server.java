@@ -56,9 +56,18 @@ public class Server {
 					for (int i = 0; i < s.length; ++i) 
 						System.out.print("\t"+s[i]);
 					System.out.print("\n");
-
+					/*
+					 * operands are stored in String array s[] (line 52)
+					 * server respond to request packages depending on the opcode
+					 */
 					if (buf.charAt(0) == 'q') {
-						if (opcode.equals("li")) {					// login
+						if (opcode.equals("li")) {					
+							// login request
+							// s[0] - username, s[1] - password
+							// assumption: the user is currently offline
+							// if username exists in the database, and password matches
+							//   return true
+							// else return false
 							if (s.length != 2) {
 								log("error", "login request invalid");
 								osToClient.writeUTF("rlifalse");
@@ -67,8 +76,8 @@ public class Server {
 								String userNames = new String();
 								Set<String> onlineUserList =
 									db.login(s[0], s[1],
-									connectionSocket.getInetAddress(),
-									connectionSocket.getPort());
+									connectionSocket.getInetAddress(), // to be deprecated
+									connectionSocket.getPort());		// to be deprecated
 								if (onlineUserList == null)
 									osToClient.writeUTF("rli"+false);
 								else {
@@ -82,8 +91,14 @@ public class Server {
 								log("info", "reply login: "+onlineUserList);
 							}
 
-						} else if (opcode.equals("rg")) {			// register
-
+						} else if (opcode.equals("rg")) {			
+							// register request
+							// s[0] - username, s[1] - password
+							// if username CONFLICTS with some existing user
+							//   return false
+							// else 
+							//   insert a new user to the database
+							//   return true
 							boolean result = false;
 							if (s.length == 2) {
 								result = db.register(s[0], s[1]);
@@ -97,14 +112,26 @@ public class Server {
 							osToClient.flush();
 							log("info", "reply register: "+result);
 
-						} else if (opcode.equals("lo")) {			// logout
+						} else if (opcode.equals("lo")) {
+							// logout request
+							// s[0] - username
+							// if user exists in the database and is currently online
+							//   return true
+							// else return false
 							log("info", "logging out request on user [" + s[0] + "]");
 							boolean result = db.logout(s[0]);
 							osToClient.writeUTF("rlo" + result);
 							osToClient.flush();
 							log("info", "reply logout: "+result);
 
-						} else if (opcode.equals("se")) {			// search
+						} else if (opcode.equals("se")) {			
+							// search request
+							// s[0] - keyword
+							// if keyword exists in the database
+							//   make an entry and return
+							// else
+							//   search it online and insert it into the database
+							//   return the entry
 
 							Entry result = db.request(s[0]);
 							boolean [] zanFlag = new boolean[3];
@@ -120,8 +147,13 @@ public class Server {
 							osToClient.flush();
 							log("info", "reply search: "+result+"^"+flags);
 
-						} else if (opcode.equals("za")) {			// zan
-							
+						} else if (opcode.equals("za")) {			
+							// zan request
+							// s[0] username, s[1] keyword, s[2] source
+							// if this record already exists in the database
+							//   return false
+							// else write this record into the database
+							//   return true
 							log("info", "zan on word [" + s[1] + "] on source [" +
 								s[2] +"] by user [" + s[0] +"]");
 							boolean result = db.clickZan(s[0],s[1],s[2]);
@@ -130,14 +162,19 @@ public class Server {
 							log("info", "reply zan: "+result);
 
 						} else if (opcode.equals("uz")) {			// unzan
-						
+							// similar to zan
 							log("info", "unzan on word [" + s[1] + "] on source [" +
 								s[2] +"] by user [" + s[0] +"]");
 							boolean result = db.clickUnzan(s[0], s[1], s[2]);
 							osToClient.writeUTF("ruz" + result);
 							osToClient.flush();
 							log("info", "reply unzan: "+result);
-						} else if (opcode.equals("ou")) {			// get online users
+						} else if (opcode.equals("ou")) {			
+							// get online users request
+							// s[0] - requester
+							// return all users that are online
+							// should we exclude the requester?
+							
 							log("info", "request online users except [" + s[0] + "]");
 							Set<String> onlineUserList = db.getOnlineUsers(null);
 							String userNames = new String();
@@ -149,7 +186,11 @@ public class Server {
 							osToClient.writeUTF("rou"+userNames);
 							osToClient.flush();
 							log("info", "reply qou: " + userNames);
-						} else if (opcode.equals("sc")) {			// send card
+						} else if (opcode.equals("sc")) {			
+							// send card
+							// s[0] - sender, s[1] - receiver, s[2] - keyword, s[3] - provider
+							// insert this to the database....
+							// BTW, [fetch cards] function unimplemented
 							log("info", "sending card from [" + s[0] + "] to [" +
 								s[1] + "] on word [" + s[2] + "] provided by [" + s[3] + "]");
 							boolean result = db.sendCard(s[0], s[1], s[2], s[3]);
