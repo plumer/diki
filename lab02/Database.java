@@ -371,7 +371,9 @@ class Database {
 	boolean sqlUpdateZancount(String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
-			return stm.execute("update information set zan = 1 where username = '"+ username + "'");
+			return stm
+					.execute("update information set zan = zan + 1 where keyword = '"
+							+ keyword + "' and source = '" + source + "'");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -379,6 +381,15 @@ class Database {
 		return false;
 	}
 	boolean sqlUpdateUnzancount(String keyword, String source) {
+		try {
+			Statement stm = connect.createStatement();
+			return stm
+					.execute("update information set unzan = unzan + 1 where keyword = '"
+							+ keyword + "' and source = '" + source + "'");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return false;
 	}
 	
