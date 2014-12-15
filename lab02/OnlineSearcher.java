@@ -233,18 +233,25 @@ class OnlineSearcher {
 	Entry search(String keyword) {
 		Entry result = new Entry(keyword);
 
-		// executor = Executors.newFixedThreadPool(3);
+		 executor = Executors.newFixedThreadPool(3);
 
 		searchBaidu baidu = new searchBaidu(keyword);
 		searchYoudao youdao = new searchYoudao(keyword);
 		searchBing bing = new searchBing(keyword);
-
+		
+		//Thread baidu = new Thread(new searchBaidu(keyword), "baidu");
+		//Thread youdao = new Thread(new searchYoudao(keyword), "youdao");
+		//Thread bing = new Thread(new searchBing(keyword), "bing");
 		executor.execute(baidu);
 		executor.execute(youdao);
 		executor.execute(bing);
 
 		executor.shutdown();
+		
 		try {
+		//	baidu.join();
+		//	youdao.join();
+		//	bing.join();
 			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block

@@ -51,28 +51,36 @@ public class Server {
 					String buf = isFromClient.readUTF();
 					String [] s = buf.substring(3).split("\\^");
 					String opcode = buf.substring(1, 3);
-					log("info", "opcode: \"" + buf.substring(0, 3) + "\"\noperands: ");
+					log("info", "opcode: \"" + buf.substring(0, 3) + "\"\n"+
+						s.length + "operands: ");
 					for (int i = 0; i < s.length; ++i) 
 						System.out.print("\t"+s[i]);
+					System.out.print("\n");
 
 					if (buf.charAt(0) == 'q') {
 						if (opcode.equals("li")) {					// login
-
-							String userNames = new String();
-							Set<String> onlineUserList =
-								db.login(s[0], s[1],
-								connectionSocket.getInetAddress(),
-								connectionSocket.getPort());
-							if (onlineUserList == null)
-								osToClient.writeUTF("rli"+false);
-							else {
-								Iterator<String> iterator = onlineUserList.iterator();
-								while (iterator.hasNext())
-									userNames = userNames + "^" + iterator.next();
-								osToClient.writeUTF("rlitrue"+userNames);
-								currentUserName = s[0];
+							if (s.length != 2) {
+								log("error", "login request invalid");
+								osToClient.writeUTF("rlifalse");
+								osToClient.flush();
+							} else {
+								String userNames = new String();
+								Set<String> onlineUserList =
+									db.login(s[0], s[1],
+									connectionSocket.getInetAddress(),
+									connectionSocket.getPort());
+								if (onlineUserList == null)
+									osToClient.writeUTF("rli"+false);
+								else {
+									Iterator<String> iterator = onlineUserList.iterator();
+									while (iterator.hasNext())
+										userNames = userNames + "^" + 	iterator.next();
+									osToClient.writeUTF("rlitrue"+userNames);
+									currentUserName = s[0];
+								}
+								osToClient.flush();
+								log("info", "reply login: "+onlineUserList);
 							}
-							log("info", "reply login: "+onlineUserList);
 
 						} else if (opcode.equals("rg")) {			// register
 
@@ -86,12 +94,14 @@ public class Server {
 								log("info", "false sent back");
 								osToClient.writeUTF("rrgfalse");
 							}
+							osToClient.flush();
 							log("info", "reply register: "+result);
 
 						} else if (opcode.equals("lo")) {			// logout
-
+							log("info", "logging out request on user [" + s[0] + "]");
 							boolean result = db.logout(s[0]);
 							osToClient.writeUTF("rlo" + result);
+							osToClient.flush();
 							log("info", "reply logout: "+result);
 
 						} else if (opcode.equals("se")) {			// search
@@ -107,19 +117,45 @@ public class Server {
 								zanFlag[0] +"^"+ zanFlag[1] +"^"+ zanFlag[2] +"^"+ 
 								unzanFlag[0] +"^"+ unzanFlag[1] +"^"+ unzanFlag[2];
 							osToClient.writeUTF("rse" + result +"^"+ flags);
+							osToClient.flush();
 							log("info", "reply search: "+result+"^"+flags);
 
 						} else if (opcode.equals("za")) {			// zan
-
+							
+							log("info", "zan on word [" + s[1] + "] on source [" +
+								s[2] +"] by user [" + s[0] +"]");
 							boolean result = db.clickZan(s[0],s[1],s[2]);
 							osToClient.writeUTF("rza" + result);
+							osToClient.flush();
 							log("info", "reply zan: "+result);
 
 						} else if (opcode.equals("uz")) {			// unzan
-
+						
+							log("info", "unzan on word [" + s[1] + "] on source [" +
+								s[2] +"] by user [" + s[0] +"]");
 							boolean result = db.clickUnzan(s[0], s[1], s[2]);
 							osToClient.writeUTF("ruz" + result);
+							osToClient.flush();
 							log("info", "reply unzan: "+result);
+						} else if (opcode.equals("ou")) {			// get online users
+							log("info", "request online users except [" + s[0] + "]");
+							Set<String> onlineUserList = db.getOnlineUsers(null);
+							String userNames = new String();
+							Iterator<String> iterator = onlineUserList.iterator();
+							while (iterator.hasNext())
+								userNames = userNames + "^" + iterator.next();
+							if (userNames.length() > 0)
+								userNames = userNames.substring(1);
+							osToClient.writeUTF("rou"+userNames);
+							osToClient.flush();
+							log("info", "reply qou: " + userNames);
+						} else if (opcode.equals("sc")) {			// send card
+							log("info", "sending card from [" + s[0] + "] to [" +
+								s[1] + "] on word [" + s[2] + "] provided by [" + s[3] + "]");
+							boolean result = db.sendCard(s[0], s[1], s[2], s[3]);
+							osToClient.writeUTF("rsc" + result);
+							osToClient.flush();
+							log("info", "reply qsc: " + result);
 						}
 					} // end of if
 					transactionCounter++;
