@@ -454,7 +454,7 @@ public class Client extends JFrame{
 									+ currentEntry.getInformation(displayOrder[panelID]));
 			//String replySendCard = fromServer.readUTF();
 			//System.out.println("recv sendCard: " + replySendCard);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -462,7 +462,7 @@ public class Client extends JFrame{
 	}
 	
 	private void getCard(){
-		
+		notebookNumber = 0;
 		try {
 			//send
 			toServer.writeUTF("qgc" + currentUser.getName());
@@ -862,6 +862,7 @@ public class Client extends JFrame{
 		//添加note的监听事件
 		note.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
+				getCard();
 				showNotes();
 			}
 		});
@@ -1011,7 +1012,7 @@ public class Client extends JFrame{
 		//在用户登陆或者注册的时候才需要开始与Server进行通信
 		try{//create a socket to connect to the server
 			
-			socket = new Socket("192.168.1.107",23333);//yushen:114.212.129.39
+			socket = new Socket("172.26.38.120",23333);//yushen:114.212.129.39
 			//System.out.println(socket.getInetAddress().getAddress());
 			
 			//create an input stream to receive data from the server
