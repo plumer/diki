@@ -62,7 +62,6 @@ public class Client extends JFrame{
 	
 	// pops out another that requires user name and password from user input
 	private boolean login() {
-		//System.out.println("Start login 0");
 		JFrame loginFrame = new JFrame();//登陆窗口
 		JLabel loginUserName = new JLabel("User Name");
 		JTextField jtfLoginUserName = new JTextField(8);
@@ -144,7 +143,6 @@ public class Client extends JFrame{
 	    					jtfLoginUserName.setText("");
 	    					jtfLoginPassword.setText("");
 	    					loginFrame.setVisible(false);
-	    					//loginFrame.setEnabled(false);
 	    					JOptionPane.showMessageDialog(null,"登陆成功，欢迎您！","登录",JOptionPane.OK_OPTION);
 	    					
 	    				}
@@ -177,7 +175,7 @@ public class Client extends JFrame{
 	}
 
 	private boolean logout() {
-
+		if(currentUser != null &&currentUser.isOnline()){//判断有用户在线
 		System.out.println("start logout!");
 		String userNameString = currentUser.getName();
 		System.out.println("currentUser: " + userNameString);
@@ -226,7 +224,7 @@ public class Client extends JFrame{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		}
 		return true;
 	}
 
@@ -483,10 +481,6 @@ public class Client extends JFrame{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
-		
 	}
 	
 	private void refreshOnlineUserList(){
@@ -715,9 +709,20 @@ public class Client extends JFrame{
 				frame.setResizable(false);
 				frame.pack();//frame.setSize(600,600);
 				frame.setLocationRelativeTo(null);
-				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 				frame.setTitle("DIKI");
 				frame.setVisible(true);
+				frame.addWindowListener(new WindowAdapter() {  
+					public void windowClosing(WindowEvent e) {  
+						int n=JOptionPane.showConfirmDialog(null, "您确定要退出Diki吗？","退出",JOptionPane.YES_NO_OPTION);
+						//选中“是”返回0,选中“否”返回1。
+						if(n == 0){
+							//用户退出（如果在线）
+							frame.logout();
+							System.exit(0);
+						}
+					 }  
+					});   
 				
 			}
 	
@@ -730,7 +735,6 @@ public class Client extends JFrame{
 		sendCard = new JButton[3];
 		for(int i = 0; i < 3; i++){
 			result[i] = new JTextArea(5,20);
-			//result[i].setBorder(BorderFactory.createTitledBorder ("baidu"));
 			scrollpane[i] = new JScrollPane(result[i]);
 			whoToSend[i] = new JTextField("who to send");
 			zan[i] = new JButton("zan");
@@ -738,6 +742,7 @@ public class Client extends JFrame{
 			unzan[i] = new JButton("unzan");
 			unzan[i].setEnabled(false);//同上
 			sendCard[i] = new JButton("send card");
+			sendCard[i].setEnabled(false);
 		}
 		
 		/* 主要的四个panel（有的pannel是由更小的panel构成的）
@@ -766,16 +771,8 @@ public class Client extends JFrame{
 		 * 控件有：百度、有道和必应三个复选框
 		 */ 
 		JPanel selectSourcePanel = new JPanel();
-		
 		JPanel showResultPanel = new JPanel();
-		/*
-		JPanel showPanelA = new JPanel();
-		JPanel showSelectPanelA = new JPanel();
-		JPanel showPanelB = new JPanel();
-		JPanel showSelectPanelB = new JPanel();
-		JPanel showPanelC = new JPanel();
-		JPanel showSelectPanelC = new JPanel();
-		*/
+		
 		JPanel [] showThreePanel = new JPanel[3];
 		JPanel [] showSelectPanel = new JPanel[3];
 		for(int i = 0; i < 3; i++){
@@ -822,35 +819,6 @@ public class Client extends JFrame{
 			}
 			showThreePanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
 		}
-		/*showSelectPanelA.setLayout(new GridLayout(4,1));
-		showSelectPanelA.add(whoToSend[0]);
-		showSelectPanelA.add(zan[0]);
-		showSelectPanelA.add(unzan[0]);
-		showSelectPanelA.add(sendCard[0]);
-		showPanelA.setLayout(new BorderLayout());
-		showPanelA.add(scrollpane[0],BorderLayout.CENTER);
-		showPanelA.add(showSelectPanelA,BorderLayout.EAST);
-		showPanelA.setBorder(BorderFactory.createTitledBorder ("baidu"));
-		
-		showSelectPanelB.setLayout(new GridLayout(4,1));
-		showSelectPanelB.add(whoToSend[1]);
-		showSelectPanelB.add(zan[1]);
-		showSelectPanelB.add(unzan[1]);
-		showSelectPanelB.add(sendCard[1]);
-		showPanelB.setLayout(new BorderLayout());
-		showPanelB.add(scrollpane[1],BorderLayout.CENTER);
-		showPanelB.add(showSelectPanelB,BorderLayout.EAST);
-		showPanelB.setBorder(BorderFactory.createTitledBorder ("youdao"));
-		
-		showSelectPanelC.setLayout(new GridLayout(4,1));
-		showSelectPanelC.add(whoToSend[2]);
-		showSelectPanelC.add(zan[2]);
-		showSelectPanelC.add(unzan[2]);
-		showSelectPanelC.add(sendCard[2]);
-		showPanelC.setLayout(new BorderLayout());
-		showPanelC.add(scrollpane[2],BorderLayout.CENTER);
-		showPanelC.add(showSelectPanelC,BorderLayout.EAST);
-		showPanelC.setBorder(BorderFactory.createTitledBorder ("bing"));*/
 		
 		showResultPanel.setLayout(new GridLayout(3,1));
 		showResultPanel.add(showThreePanel[0]);
@@ -1040,7 +1008,7 @@ public class Client extends JFrame{
 				refreshOnlineUserList();
 			}
 		});
-		
+		/*在用户登陆或者注册的时候才需要开始与Server进行通信
 		try{//create a socket to connect to the server
 			
 			socket = new Socket("114.212.129.39",23333);//yushen:114.212.129.39
@@ -1056,7 +1024,7 @@ public class Client extends JFrame{
 		catch(Exception ex){
 			ex.printStackTrace();
 		}
-		
+		*/
 	}
 	
 }
