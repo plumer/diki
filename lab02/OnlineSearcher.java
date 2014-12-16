@@ -56,22 +56,36 @@ class OnlineSearcher {
 					}
 				}
 				/* 获取词性 */
-				temp = baidudoc.getElementById("en-simple-means")
-						.getElementsByTag("strong");
-				for (Element i : temp) {
-					if (attribute == null)
-						attribute = i.text();
-					else
-						attribute = attribute + '#' + i.text();
+				Element el = baidudoc.getElementById("en-simple-means");
+				if (el != null) {
+					temp = el.getElementsByTag("strong");
+				} else {
+					temp = null;
+				}
+				if (temp == null) attribute = null;
+				else {
+					for (Element i : temp) {
+						if (attribute == null)
+							attribute = i.text();
+						else
+							attribute = attribute + '#' + i.text();
+					}
 				}
 				/* 获取解释 */
-				temp = baidudoc.getElementById("en-simple-means")
-						.getElementsByTag("span");
-				for (int i = 0; i < attribute.split("#").length; i++) {
-					if (explanation == null)
-						explanation = temp.get(i).text();
-					else
-						explanation = explanation + '#' + temp.get(i).text();
+				if (el != null) {
+					temp = el.getElementsByTag("span");
+				} else {
+					temp = null;
+				}
+				if (temp == null) {
+					explanation = null;
+				} else {
+					for (int i = 0; i < attribute.split("#").length; i++) {
+						if (explanation == null)
+							explanation = temp.get(i).text();
+						else
+							explanation = explanation + '#' + temp.get(i).text();
+					}
 				}
 				/*
 				 * System.out.println(phonetic); System.out.println(attribute);
@@ -191,20 +205,29 @@ class OnlineSearcher {
 				if (temp.size() > 0)
 					phonetic = phonetic + '#' + temp.text();
 				/* 获取词性和解释 */
-				temp = bingdoc.getElementsByClass("qdef").get(0)
-						.getElementsByTag("ul").get(0).getElementsByTag("li");
-				for (Element i : temp) {
-					Element j = i.getElementsByClass("pos").get(0);
-					if (j.className().equals("pos")) {
-						if (attribute == null)
-							attribute = j.text();
-						else
-							attribute = attribute + '#' + j.text();
-						Element k = i.getElementsByClass("def").get(0);
-						if (explanation == null)
-							explanation = k.text();
-						else
-							explanation = explanation + '#' + k.text();
+				Elements els = bingdoc.getElementsByClass("qdef");
+				if (els.size() > 0) {
+					temp = els.get(0).getElementsByTag("ul").get(0).getElementsByTag("li");
+				} else {
+					temp = null;
+				} 
+				if (temp == null) {
+					attribute = null;
+					explanation = null;
+				} else {
+					for (Element i : temp) {
+						Element j = i.getElementsByClass("pos").get(0);
+						if (j.className().equals("pos")) {
+							if (attribute == null)
+								attribute = j.text();
+							else
+								attribute = attribute + '#' + j.text();
+							Element k = i.getElementsByClass("def").get(0);
+							if (explanation == null)
+								explanation = k.text();
+							else
+								explanation = explanation + '#' + k.text();
+						}
 					}
 				}
 				/*
