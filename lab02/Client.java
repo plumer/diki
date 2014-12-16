@@ -730,6 +730,7 @@ public class Client extends JFrame{
 		sendCard = new JButton[3];
 		for(int i = 0; i < 3; i++){
 			result[i] = new JTextArea(5,20);
+			//result[i].setBorder(BorderFactory.createTitledBorder ("baidu"));
 			scrollpane[i] = new JScrollPane(result[i]);
 			whoToSend[i] = new JTextField("who to send");
 			zan[i] = new JButton("zan");
@@ -767,13 +768,20 @@ public class Client extends JFrame{
 		JPanel selectSourcePanel = new JPanel();
 		
 		JPanel showResultPanel = new JPanel();
-		
+		/*
 		JPanel showPanelA = new JPanel();
 		JPanel showSelectPanelA = new JPanel();
 		JPanel showPanelB = new JPanel();
 		JPanel showSelectPanelB = new JPanel();
 		JPanel showPanelC = new JPanel();
 		JPanel showSelectPanelC = new JPanel();
+		*/
+		JPanel [] showThreePanel = new JPanel[3];
+		JPanel [] showSelectPanel = new JPanel[3];
+		for(int i = 0; i < 3; i++){
+			showThreePanel[i] = new JPanel();
+			showSelectPanel[i] = new JPanel();
+		}
 		
 		logPanel.setLayout(new GridLayout(1,5,40,40));
 		logPanel.add(login);
@@ -797,7 +805,24 @@ public class Client extends JFrame{
 		searchPanel.add(search,BorderLayout.EAST);
 		searchPanel.add(selectSourcePanel,BorderLayout.SOUTH);
 		
-		showSelectPanelA.setLayout(new GridLayout(4,1));
+		for(int i = 0; i < 3; i++){
+			showSelectPanel[i].setLayout(new GridLayout(4,1));
+			showSelectPanel[i].add(whoToSend[i]);
+			showSelectPanel[i].add(zan[i]);
+			showSelectPanel[i].add(unzan[i]);
+			showSelectPanel[i].add(sendCard[i]);
+			showThreePanel[i].setLayout(new BorderLayout());
+			showThreePanel[i].add(scrollpane[i],BorderLayout.CENTER);
+			showThreePanel[i].add(showSelectPanel[i],BorderLayout.EAST);
+			String subTitle = "";
+			switch(i){
+				case 0: subTitle = "baidu"; break;
+				case 1: subTitle = "youdao";break;
+				case 2: subTitle = "bing";break;
+			}
+			showThreePanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
+		}
+		/*showSelectPanelA.setLayout(new GridLayout(4,1));
 		showSelectPanelA.add(whoToSend[0]);
 		showSelectPanelA.add(zan[0]);
 		showSelectPanelA.add(unzan[0]);
@@ -805,6 +830,7 @@ public class Client extends JFrame{
 		showPanelA.setLayout(new BorderLayout());
 		showPanelA.add(scrollpane[0],BorderLayout.CENTER);
 		showPanelA.add(showSelectPanelA,BorderLayout.EAST);
+		showPanelA.setBorder(BorderFactory.createTitledBorder ("baidu"));
 		
 		showSelectPanelB.setLayout(new GridLayout(4,1));
 		showSelectPanelB.add(whoToSend[1]);
@@ -814,6 +840,7 @@ public class Client extends JFrame{
 		showPanelB.setLayout(new BorderLayout());
 		showPanelB.add(scrollpane[1],BorderLayout.CENTER);
 		showPanelB.add(showSelectPanelB,BorderLayout.EAST);
+		showPanelB.setBorder(BorderFactory.createTitledBorder ("youdao"));
 		
 		showSelectPanelC.setLayout(new GridLayout(4,1));
 		showSelectPanelC.add(whoToSend[2]);
@@ -823,18 +850,21 @@ public class Client extends JFrame{
 		showPanelC.setLayout(new BorderLayout());
 		showPanelC.add(scrollpane[2],BorderLayout.CENTER);
 		showPanelC.add(showSelectPanelC,BorderLayout.EAST);
+		showPanelC.setBorder(BorderFactory.createTitledBorder ("bing"));*/
 		
 		showResultPanel.setLayout(new GridLayout(3,1));
-		showResultPanel.add(showPanelA);
-		showResultPanel.add(showPanelB);
-		showResultPanel.add(showPanelC);
+		showResultPanel.add(showThreePanel[0]);
+		showResultPanel.add(showThreePanel[1]);
+		showResultPanel.add(showThreePanel[2]);
 		
 		showPanel.setLayout(new BorderLayout());
 		onlineUserList.setFixedCellWidth(100);
 		onlineUserList.setFixedCellHeight(50);
 		onlineUserList.setModel(defaultListModel);
+		scrollPane.setBorder(BorderFactory.createTitledBorder ("OnlineUserList"));
 		showPanel.add(scrollPane,BorderLayout.WEST);
 		showPanel.add(showResultPanel,BorderLayout.CENTER);
+		
 		
 		setLayout(new BorderLayout(20,20));
 		add(logPanel,BorderLayout.NORTH);
