@@ -20,13 +20,9 @@ import java.lang.String;
  */
 
 class Entry {
-	private static final int BAIDU = 0;
-	private static final int YOUDAO = 1;
-	private static final int BING = 2;
-	public static final String [] sourceString = {
-		"baidu", "youdao", "bing"
-	};
-	
+	static final int BAIDU = 0;
+	static final int YOUDAO = 1;
+	static final int BING = 2;
 
 	private String keyword;
 
@@ -40,16 +36,16 @@ class Entry {
 		return keyword;
 	}
 	
-	public boolean setInformation(String source, Information info) {
-		if (source.equals("baidu")) {
+	public boolean setInformation(Information info) {
+		if (info.getSource().equals("baidu")) {
 			informations[BAIDU] = info;
 			return true;
 		}
-		if (source.equals("youdao")){
+		if (info.getSource().equals("youdao")){
 			informations[YOUDAO] = info;
 			return true;
 		}
-		if (source.equals("bing")){
+		if (info.getSource().equals("bing")){
 			informations[BING] = info;
 			return true;
 		}

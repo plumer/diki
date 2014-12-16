@@ -108,4 +108,8 @@ class User {
 	void setPort(int port) {
 		this.port = port;
 	}
+	
+	public String toString() {
+		return name + '#' + password + '#' + ip.toString() + '#' + Integer.toString(port) + '#' + status;
+	}
 }

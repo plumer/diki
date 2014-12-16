@@ -38,7 +38,7 @@ class Database {
 				// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
 				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='information';");
 				if (!rs.next()) {
-					stm.execute("create table information(keyword char(50) primary key not null references entry(keyword), source char(20) not null, phonetic char(20), attribute char(20), explanation char(200), zan int, unzan int)default charset=utf8;");
+					stm.execute("create table information(keyword char(50) references entry(keyword), source char(20), phonetic char(50), attribute char(20), explanation char(200), zan int, unzan int, primary key(keyword, source))default charset=utf8;");
 				}
 				// 检查user表是否存在
 				// user表: username | passowrd | ip | port | status
@@ -97,7 +97,7 @@ class Database {
 				// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
 				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='information';");
 				if (!rs.next()) {
-					stm.execute("create table information(keyword char(50) primary key not null references entry(keyword), source char(20) not null, phonetic char(20), attribute char(20), explanation char(200), zan int, unzan int)default charset=utf8;");
+					stm.execute("create table information(keyword char(50) references entry(keyword), source char(20), phonetic char(50), attribute char(20), explanation char(200), zan int, unzan int, primary key(keyword, source))default charset=utf8;");
 				}
 				// 检查user表是否存在
 				// user表: username | passowrd | ip | port | status
@@ -133,17 +133,16 @@ class Database {
 		}
 	}
 	
-	/** entry表插入 */
+	/** entry表插入 测试ok*/
 	boolean sqlInsertEntry(Entry entry) {
 		try {
 			Statement stm = connect.createStatement();
 			if (entry.getKeyword() == null) return false;
 			else {
-				return stm.execute("insert into entry values('"
-						+ entry.getKeyword() + "');")
-						&& sqlInsertInformation(entry.getKeyword(), entry.getInformation(0))
-						&& sqlInsertInformation(entry.getKeyword(), entry.getInformation(1))
-						&& sqlInsertInformation(entry.getKeyword(), entry.getInformation(2));
+				stm.execute("insert into entry values('"+ entry.getKeyword() + "');");
+				sqlInsertInformation(entry.getKeyword(),entry.getInformation("baidu"));
+				sqlInsertInformation(entry.getKeyword(),entry.getInformation("youdao"));
+				sqlInsertInformation(entry.getKeyword(),entry.getInformation("bing"));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -152,7 +151,7 @@ class Database {
 		return false;
 	}
 	
-	/** information表插入 */
+	/** information表插入 测试ok*/
 	boolean sqlInsertInformation(String keyword, Information info) {
 		try {
 			Statement stm = connect.createStatement();
@@ -168,7 +167,7 @@ class Database {
 		return false;
 	}
 	
-	/** user表插入 */
+	/** user表插入 测试ok*/
 	boolean sqlInsertUser(User user) {
 		try {
 			Statement stm = connect.createStatement();
@@ -185,11 +184,13 @@ class Database {
 		return false;
 	}
 	
-	/** zanlog表插入 */
+	/** zanlog表插入 测试ok*/
 	boolean sqlInsertZanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
-			return stm.execute("insert into zanlog values('" + keyword + "', '" + name + "', '" + source + "');");
+			stm.execute("insert into zanlog values('" + keyword + "', '" + name + "', '" + source + "');");
+			stm.execute("update information set zan = zan + 1 where keyword = '"+ keyword + "' and source = '" + source + "'");
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -197,11 +198,13 @@ class Database {
 		return false;
 	}
 	
-	/** unzanlog表插入 */
+	/** unzanlog表插入 测试ok*/
 	boolean sqlInsertUnzanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
-			return stm.execute("insert into unzanlog values('" + keyword + "', '" + name + "', '" + source + "');");
+			stm.execute("insert into unzanlog values('" + keyword + "', '" + name + "', '" + source + "');");
+			stm.execute("update information set unzan = unzan + 1 where keyword = '"+ keyword + "' and source = '" + source + "'");
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -209,11 +212,11 @@ class Database {
 		return false;
 	}
 
-	/** card表插入 */
+	/** card表插入 测试ok*/
 	boolean sqlInsertCard(String sender, String owner, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
-			return stm.execute("insert into unzanlog values('" + sender + "', '" + owner + "', '" + keyword + "', '" + source +"')");
+			return stm.execute("insert into card values('" + sender + "', '" + owner + "', '" + keyword + "', '" + source +"')");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -224,7 +227,7 @@ class Database {
 	/** regist 需要用到的功能 */
 	// 1. sqlNameIsExist: 判断用户名是否存在
 	// 2. sqlInsertUser: user表插入
-	/** 判断用户名是否存在 */
+	/** 判断用户名是否存在 测试ok*/
 	boolean sqlNameIsExist(String username) {
 		try {
 			Statement stm = connect.createStatement();
@@ -243,7 +246,7 @@ class Database {
 	// 2. sqlGetUserByName: 如果密码校验通过[根据用户名get到完整的User对象]
 	// 3. sqlUpdateUserStatus: 更新用户在线状态
 	// 4. sqlGetOnlineUser: 获取在线用户名
-	/** 根据用户名获取完整的用户 */
+	/** 根据用户名获取完整的用户 测试ok*/
 	User sqlGetUserByName(String username) {
 		User result = null;
 		try {
@@ -260,7 +263,7 @@ class Database {
 		}
 		return result;
 	}
-	/** 更新用户在线/不在线状态 */
+	/** 更新用户在线/不在线状态 测试ok*/
 	boolean sqlUpdateUserStatus(String username, boolean status) {
 		try {
 			Statement stm = connect.createStatement();
@@ -275,12 +278,12 @@ class Database {
 		}
 		return false;
 	}
-	/** 返回所有online user[比如有两个人(hello和hi)在线, 就返回"hello#hi"]*/
+	/** 返回所有online user[比如有两个人(hello和hi)在线, 就返回"hello#hi"] 测试ok*/
 	String sqlGetOnlineUser() {
+		StringBuffer result = null;
 		try {
 			Statement stm = connect.createStatement();
-			ResultSet rs = stm.executeQuery("select * from user where status = 1;");
-			StringBuffer result = null;
+			ResultSet rs = stm.executeQuery("select username from user where status = 1;");
 			while (rs.next()) {
 				if (result == null) result = new StringBuffer(rs.getString(1));
 				else result.append("#" + rs.getString(1));
@@ -290,7 +293,7 @@ class Database {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return result.toString();
 	}
 	
 	/** 注销需要用到的功能 */
@@ -300,7 +303,7 @@ class Database {
 	// 1. sqlEntryIsExist(keyword) 
 	// 2. sqlGetEntry(keyword)
 	// 3. 插入entry
-	/** 判断Entry是否已经在数据库中 */
+	/** 判断Entry是否已经在数据库中 测试ok*/
 	boolean sqlEntryIsExist(String keyword) {
 		try {
 			Statement stm = connect.createStatement();
@@ -313,7 +316,7 @@ class Database {
 		}
 		return false;
 	}
-	/** 根据关键词获取Entry */
+	/** 根据关键词获取Entry 测试ok*/
 	Entry sqlGetEntry(String keyword) {
 		Entry result = new Entry(keyword);
 		try {
@@ -321,7 +324,7 @@ class Database {
 			ResultSet rs = stm.executeQuery("select * from information where keyword = '" + keyword + "';");
 			while (rs.next()) {
 				// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
-				result.setInformation(rs.getString(2), new Information(rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getInt(6), rs.getInt(7)));
+				result.setInformation(new Information(rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getInt(6), rs.getInt(7)));
 			}
 			return result;
 		} catch (SQLException e) {
@@ -334,7 +337,7 @@ class Database {
 	/** 赞和不赞需要用到的功能 */
 	// 1. sqlZanlogIsExist
 	// 2. sqlUpdateZancount
-	/** 判断zanlog记录是否存在 */
+	/** 判断zanlog记录是否存在 测试ok*/
 	boolean sqlZanlogIsExist(String username, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
@@ -350,7 +353,7 @@ class Database {
 		}
 		return false;
 	}
-	/** 判断unzanlog记录是否存在 */
+	/** 判断unzanlog记录是否存在 测试ok*/
 	boolean sqlUnzanlogIsExist(String username, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
@@ -367,37 +370,13 @@ class Database {
 		return false;
 	}
 	/** zan数目加1 */
-	boolean sqlUpdateZancount(String keyword, String source) {
-		try {
-			Statement stm = connect.createStatement();
-			return stm
-					.execute("update information set zan = zan + 1 where keyword = '"
-							+ keyword + "' and source = '" + source + "'");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
-	}
 	/** unzan数目加1 */
-	boolean sqlUpdateUnzancount(String keyword, String source) {
-		try {
-			Statement stm = connect.createStatement();
-			return stm
-					.execute("update information set unzan = unzan + 1 where keyword = '"
-							+ keyword + "' and source = '" + source + "'");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
-	}
 	
 	/** 发卡需要用到的功能 */
 	// 1. sqlCardIsExist
 	// 2. sqlGetMyCard
 	// 3. 插入card记录
-	/** 判断这个卡是不是已经被发送过 */
+	/** 判断这个卡是不是已经被发送过 测试ok*/
 	boolean sqlCardIsExist(String sender, String owner, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
@@ -415,7 +394,7 @@ class Database {
 		return false;
 	}
 	
-	/** 获取我的所有单词卡, 比如我有两张卡[card1#card2] card1的格式是[keyword^sender^ownder^information] */
+	/** 获取我的所有单词卡, 比如我有两张卡[card1#card2] card1的格式是[keyword^sender^ownder^information] 测试ok*/
 	String sqlGetMyCard(String owner) {
 		StringBuffer result = null;
 		try {
@@ -432,11 +411,13 @@ class Database {
 									+ "' and source = '"
 									+ rs.getString(4) + "'");
 					// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
-					temp.append(new Information(infors.getString(2), infors
-							.getString(3), infors.getString(4), infors
-							.getString(5), infors.getInt(6), infors.getInt(7))
-							.toString());
-					result = new StringBuffer(temp);
+					if (infors.next()) {
+						temp.append(new Information(infors.getString(2), infors
+								.getString(3), infors.getString(4), infors
+								.getString(5), infors.getInt(6), infors
+								.getInt(7)).toString());
+						result = new StringBuffer(temp);
+					}
 				} else {
 					StringBuffer temp = new StringBuffer(rs.getString(1) + "^" + rs.getString(3) + "^");
 					Statement infostm = connect.createStatement();
@@ -446,11 +427,13 @@ class Database {
 									+ "' and source = '"
 									+ rs.getString(4) + "'");
 					// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
-					temp.append(new Information(infors.getString(2), infors
-							.getString(3), infors.getString(4), infors
-							.getString(5), infors.getInt(6), infors.getInt(7))
-							.toString());
-					result.append("^" + temp);
+					if (infors.next()) {
+						temp.append(new Information(infors.getString(2), infors
+								.getString(3), infors.getString(4), infors
+								.getString(5), infors.getInt(6), infors
+								.getInt(7)).toString());
+						result.append("^" + temp);
+					}
 				}
 			}
 			return result.toString();
@@ -465,6 +448,56 @@ class Database {
 //		// only for testing
 //		Database db = new Database();
 //		System.out.println("db is normal");
+//		
+//		OnlineSearcher os = new OnlineSearcher();
+//		Entry entry = os.search("world");
+//		db.sqlInsertEntry(entry);
+//		entry = os.search("phone");
+//		db.sqlInsertEntry(entry);
+//		entry = os.search("great");
+//		db.sqlInsertEntry(entry);
+//		
+//		System.out.println(db.sqlEntryIsExist("phone"));
+//		System.out.println(db.sqlGetEntry("world").toString());
+		
+//					User user = new User("bendan", "bendan", InetAddress.getByName("192.168.1.1"), 12345, User.OFFLINE);
+//					db.sqlInsertUser(user);
+//					user = new User("benben", "bendan", InetAddress.getByName("192.168.1.1"), 12345, User.OFFLINE);
+//					db.sqlInsertUser(user);
+//					user = new User("aaa", "bendan", InetAddress.getByName("192.168.1.1"), 12345, User.OFFLINE);
+//					db.sqlInsertUser(user);
+//					
+//					System.out.println(user.toString());
+//					db.sqlUpdateUserStatus("benben", User.ONLINE);
+//					db.sqlUpdateUserStatus("aaa", User.ONLINE);
+//					System.out.println(db.sqlGetOnlineUser());
+//		System.out.println(db.sqlGetUserByName("puhhh").toString());
+//		
+//		System.out.println(db.sqlNameIsExist("puhhh"));
+		
+//		db.sqlInsertCard("aaa", "benben", "phone", "baidu");
+//		db.sqlInsertCard("aaa", "bendan", "phone", "baidu");
+//		db.sqlInsertCard("puhhh", "benben", "world", "youdao");
+//		db.sqlInsertCard("bendan", "benben", "great", "bing");
+//		
+//		db.sqlInsertZanlog("phone", "aaa", "baidu");
+//		db.sqlInsertZanlog("world", "aaa", "youdao");
+//		db.sqlInsertZanlog("great", "aaa", "bing");
+//		db.sqlInsertZanlog("phone", "benben", "baidu");
+//		
+//		db.sqlInsertUnzanlog("world", "bendan", "youdao");
+//		db.sqlInsertUnzanlog("world", "bendan", "bing");
+//		db.sqlInsertUnzanlog("great", "benben", "youdao");
+//		db.sqlInsertUnzanlog("phone", "puhhh", "youdao");
+		
+//		System.out.println(db.sqlZanlogIsExist("aaa", "phone", "baidu"));
+//		System.out.println(db.sqlZanlogIsExist("aaa", "phone", "youdao"));
+//		System.out.println(db.sqlUnzanlogIsExist("bendan", "world", "baidu"));
+//		System.out.println(db.sqlUnzanlogIsExist("bendan", "world", "youdao"));
+//		System.out.println(db.sqlCardIsExist("aaa", "benben", "phone", "baidu"));
+//		System.out.println(db.sqlCardIsExist("aaa", "benben", "phone", "youdao"));
+//		
+//		System.out.println(db.sqlGetMyCard("benben"));
 //	}
 //
 //	// invoke me when register request is received

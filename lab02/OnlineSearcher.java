@@ -13,17 +13,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
- * get到神器jsoup 可以百度到jar包然后import一下嗯 最后还是没有用多线程来实现【我太弱了Orz
+ * get到神器jsoup 可以百度到jar包然后import一下嗯
  * 
  * 注意： '#'来分开两种发音、词性和解释 例如：查 hello 音标: 美 [heˈləʊ]#英 [hə'ləʊ] 词性: int.#n. 解释:
  * 你好；喂；您好；哈喽#你好；嘿；（表示惊讶）嘿 保证词性个数和解释个数一一对应
  * */
 class OnlineSearcher {
 	private ExecutorService executor;
-
-	/*
-	 * private String baidu; private String youdao; private String bing;
-	 */
 
 	public OnlineSearcher() {
 		executor = Executors.newFixedThreadPool(3);
@@ -45,7 +41,7 @@ class OnlineSearcher {
 			baidu = "http://cidian.baidu.com/s?wd=" + keyword;
 			String src = null, phonetic = null, attribute = null, explanation = null;
 
-			src = "baidu";
+			src = info.getSource();
 			Document baidudoc;
 			try {
 				baidudoc = Jsoup.connect(baidu).timeout(5000).get();
@@ -81,7 +77,7 @@ class OnlineSearcher {
 				 * System.out.println(phonetic); System.out.println(attribute);
 				 * System.out.println(explanation);
 				 */
-			} catch (IOException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("connect time out");
@@ -112,7 +108,7 @@ class OnlineSearcher {
 			// TODO Auto-generated method stub
 			youdao = "http://dict.youdao.com/search?le=eng&q=" + keyword
 					+ "&keyfrom=dict.top";
-			String src = "youdao", phonetic = null, attribute = null, explanation = null;
+			String src = info.getSource(), phonetic = null, attribute = null, explanation = null;
 			// System.out.println("youdao");
 			Document youdaodoc;
 			try {
@@ -147,7 +143,7 @@ class OnlineSearcher {
 						}
 					}
 				}
-			} catch (IOException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("connect time out");
@@ -182,7 +178,7 @@ class OnlineSearcher {
 			// TODO Auto-generated method stub
 			bing = "http://cn.bing.com/dict/search?q=" + keyword
 					+ "&go=&qs=bs&form=CM";
-			String src = "bing", phonetic = null, attribute = null, explanation = null;
+			String src = info.getSource(), phonetic = null, attribute = null, explanation = null;
 			// System.out.println("bing");
 			Document bingdoc;
 			try {
@@ -216,7 +212,7 @@ class OnlineSearcher {
 				 * System.out.println(explanation);
 				 */
 				info = new Information(src, phonetic, attribute, explanation);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("connect time out");
@@ -259,9 +255,9 @@ class OnlineSearcher {
 			System.out.println("thread error");
 		}
 
-		result.setInformation("baidu", baidu.getInformation());
-		result.setInformation("youdao", youdao.getInformation());
-		result.setInformation("bing", bing.getInformation());
+		result.setInformation(baidu.getInformation());
+		result.setInformation(youdao.getInformation());
+		result.setInformation(bing.getInformation());
 		/*System.out.println(result.getInformation("baidu"));
 		System.out.println(result.getInformation("youdao"));
 		System.out.println(result.getInformation("bing"));*/
