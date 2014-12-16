@@ -1008,10 +1008,10 @@ public class Client extends JFrame{
 				refreshOnlineUserList();
 			}
 		});
-		/*在用户登陆或者注册的时候才需要开始与Server进行通信
+		//在用户登陆或者注册的时候才需要开始与Server进行通信
 		try{//create a socket to connect to the server
 			
-			socket = new Socket("114.212.129.39",23333);//yushen:114.212.129.39
+			socket = new Socket("192.168.1.107",23333);//yushen:114.212.129.39
 			//System.out.println(socket.getInetAddress().getAddress());
 			
 			//create an input stream to receive data from the server
@@ -1024,7 +1024,7 @@ public class Client extends JFrame{
 		catch(Exception ex){
 			ex.printStackTrace();
 		}
-		*/
+		
 	}
 	
 }
