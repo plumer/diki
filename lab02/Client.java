@@ -554,7 +554,7 @@ public class Client extends JFrame{
 							System.out.println(ex[2]);//cixing
 							System.out.println(ex[3]);//jieshi
 							Information information = new Information(ex[0],ex[1],ex[2],ex[3]);
-							currentEntry.setInformation(ex[0],information);
+							currentEntry.setInformation(information);
 							//给zan、unzan数目赋值
 							zanSum[i] = Integer.parseInt(ex[4]);
 							unzanSum[i] = Integer.parseInt(ex[5]);
