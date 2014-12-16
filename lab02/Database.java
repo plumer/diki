@@ -13,15 +13,15 @@ class Database {
 	/** 默认构造函数 */
 	public Database() {
 		String host = "127.0.0.1:3306";
-		String database = "diki";
+		String database = "test";
 		String user = "root";
-		String password = "21844576";
+		String password = "";
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager
 					.getConnection(
-							"jdbc:mysql://" + host + "/diki?useUnicode=true&characterEncoding=UTF-8",
+							"jdbc:mysql://" + host + "/" + database + "?useUnicode=true&characterEncoding=UTF-8",
 							user, password);
 			// 检查连接是否成功
 			if (!connect.isClosed()) {
@@ -75,12 +75,13 @@ class Database {
 	}
 
 	/** 指定数据库参数的构造函数 */
+	// 一般来说是 new Database("127.0.0.1:3306", "diki", "root", "");
 	public Database(String host, String database, String user, String password) {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager
 					.getConnection(
-							"jdbc:mysql://" + host + "/test?useUnicode=true&characterEncoding=UTF-8",
+							"jdbc:mysql://" + host + "/" + database +"?useUnicode=true&characterEncoding=UTF-8",
 							user, password);
 			// 检查连接是否成功
 			if (!connect.isClosed()) {
@@ -483,18 +484,18 @@ class Database {
 		return result.toString();
 	}
 
-//	public static void main(String[] args) {
-//		// only for testing
-//		Database db = new Database();
-//		System.out.println("db is normal");
-//		
-//		OnlineSearcher os = new OnlineSearcher();
-//		Entry entry = os.search("world");
-//		db.sqlInsertEntry(entry);
-//		entry = os.search("phone");
-//		db.sqlInsertEntry(entry);
-//		entry = os.search("great");
-//		db.sqlInsertEntry(entry);
+	public static void main(String[] args) {
+		// only for testing
+		Database db = new Database();
+		System.out.println("db is normal");
+		
+		OnlineSearcher os = new OnlineSearcher();
+		Entry entry = os.search("world");
+		db.sqlInsertEntry(entry);
+		entry = os.search("phone");
+		db.sqlInsertEntry(entry);
+		entry = os.search("great");
+		db.sqlInsertEntry(entry);
 //		
 //		System.out.println(db.sqlEntryIsExist("phone"));
 //		System.out.println(db.sqlGetEntry("world").toString());
@@ -537,7 +538,7 @@ class Database {
 //		System.out.println(db.sqlCardIsExist("aaa", "benben", "phone", "youdao"));
 //		
 //		System.out.println(db.sqlGetMyCard("benben"));
-//	}
+	}
 //
 //	// invoke me when register request is received
 //	public boolean register(String userName, String password) {
