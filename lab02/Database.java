@@ -156,10 +156,11 @@ class Database {
 		try {
 			Statement stm = connect.createStatement();
 			//keyword | source | phonetic | attribute | zancount | unzancount
-			return stm.execute("insert into information values('" + keyword
+			stm.execute("insert into information values('" + keyword
 					+ "', '" + info.getSource() + "', '" + info.getPhonetic()
 					+ "', '" + info.getAttribute() + "', '"
 					+ info.getExplanation() + "', 0, 0);");
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -171,12 +172,13 @@ class Database {
 	boolean sqlInsertUser(User user) {
 		try {
 			Statement stm = connect.createStatement();
-			return user.isOnline() ? stm.execute("insert into user values('"
+			if (user.isOnline()) stm.execute("insert into user values('"
 					+ user.getName() + "', '" + user.getPassword() + "', '"
-					+ user.getIp() + "', '" + user.getPort() + "', 1);")
-					: stm.execute("insert into user values('" + user.getName()
+					+ user.getIp() + "', '" + user.getPort() + "', 1);");
+			else stm.execute("insert into user values('" + user.getName()
 							+ "', '" + user.getPassword() + "', '"
 							+ user.getIp() + "', '" + user.getPort() + "', 0);");
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -216,7 +218,8 @@ class Database {
 	boolean sqlInsertCard(String sender, String owner, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
-			return stm.execute("insert into card values('" + sender + "', '" + owner + "', '" + keyword + "', '" + source +"')");
+			stm.execute("insert into card values('" + sender + "', '" + owner + "', '" + keyword + "', '" + source +"')");
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -267,11 +270,13 @@ class Database {
 	boolean sqlUpdateUserStatus(String username, boolean status) {
 		try {
 			Statement stm = connect.createStatement();
-			return status ? stm
+			if (status) stm
 					.execute("update user set status = 1 where username = '"
-							+ username + "'") : stm
+							+ username + "'");
+			else stm
 					.execute("update user set status = 0 where username = '"
 							+ username + "'");
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
