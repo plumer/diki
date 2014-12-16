@@ -484,18 +484,18 @@ class Database {
 		return result.toString();
 	}
 
-	public static void main(String[] args) {
-		// only for testing
-		Database db = new Database();
-		System.out.println("db is normal");
-		
-		OnlineSearcher os = new OnlineSearcher();
-		Entry entry = os.search("world");
-		db.sqlInsertEntry(entry);
-		entry = os.search("phone");
-		db.sqlInsertEntry(entry);
-		entry = os.search("great");
-		db.sqlInsertEntry(entry);
+//	public static void main(String[] args) {
+//		// only for testing
+//		Database db = new Database();
+//		System.out.println("db is normal");
+//		
+//		OnlineSearcher os = new OnlineSearcher();
+//		Entry entry = os.search("world");
+//		db.sqlInsertEntry(entry);
+//		entry = os.search("phone");
+//		db.sqlInsertEntry(entry);
+//		entry = os.search("great");
+//		db.sqlInsertEntry(entry);
 //		
 //		System.out.println(db.sqlEntryIsExist("phone"));
 //		System.out.println(db.sqlGetEntry("world").toString());
@@ -538,7 +538,7 @@ class Database {
 //		System.out.println(db.sqlCardIsExist("aaa", "benben", "phone", "youdao"));
 //		
 //		System.out.println(db.sqlGetMyCard("benben"));
-	}
+//	}
 //
 //	// invoke me when register request is received
 //	public boolean register(String userName, String password) {
