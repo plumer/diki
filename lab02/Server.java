@@ -79,7 +79,7 @@ public class Server {
 /* this may fail					*/	db.sqlUpdateUserStatus(s[0], User.ONLINE);
 										onlineUserList = db.sqlGetOnlineUser();
 										currentUserName = s[0];
-										osToClient.writeUTF("rlitrue^" + onlineUserList.substring(1));
+										osToClient.writeUTF("rlitrue^" + onlineUserList);
 									} else {
 										osToClient.writeUTF("rlifalse");
 										log("error", "login password incorrect");
@@ -246,9 +246,9 @@ public class Server {
 							log("info", "request online users except [" + s[0] + "]");
 							String onlineUserList = db.sqlGetOnlineUser().replaceAll("\\$", "\\^");
 							
-							osToClient.writeUTF("rou"+onlineUserList.substring(1));
+							osToClient.writeUTF("rou"+onlineUserList);
 							osToClient.flush();
-							log("info", "reply qou: " + onlineUserList.substring(1));
+							log("info", "reply qou: " + onlineUserList);
 						} else if (opcode.equals("sc")) {			
 							// send card
 							// s[0] - sender, s[1] - receiver, s[2] - keyword, s[3] - provider

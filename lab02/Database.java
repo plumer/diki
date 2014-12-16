@@ -13,15 +13,15 @@ class Database {
 	/** 默认构造函数 */
 	public Database() {
 		String host = "127.0.0.1:3306";
-		String database = "test";
+		String database = "diki";
 		String user = "root";
-		String password = "";
+		String password = "21844576";
 		
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager
 					.getConnection(
-							"jdbc:mysql://" + host + "/test?useUnicode=true&characterEncoding=UTF-8",
+							"jdbc:mysql://" + host + "/diki?useUnicode=true&characterEncoding=UTF-8",
 							user, password);
 			// 检查连接是否成功
 			if (!connect.isClosed()) {
@@ -259,15 +259,21 @@ class Database {
 	/** 根据用户名获取完整的用户 测试ok*/
 	User sqlGetUserByName(String username) {
 		User result = null;
+		ResultSet rs = null;
 		try {
 			Statement stm = connect.createStatement();
-			ResultSet rs = stm.executeQuery("select * from user where username = '" + username + "';");
+			rs = stm.executeQuery("select * from user where username = '" + username + "';");
 			if (rs.next()) {
-				result = new User(rs.getString(1), rs.getString(2),
+				result = new User(rs.getString(1), rs.getString(2));
+/*				if (rs.getString(3).equals(null)) {
+					
+				} else {
+					result = new User(rs.getString(1), rs.getString(2),
 						InetAddress.getByName(rs.getString(3)), rs.getInt(4),
 						rs.getBoolean(5));
-			}
-		} catch (SQLException | UnknownHostException e) {
+				}
+*/			}
+		} catch (SQLException/* | UnknownHostException*/ e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
