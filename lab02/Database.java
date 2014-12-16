@@ -404,6 +404,30 @@ class Database {
 		return false;
 	}
 	
+	String sqlGetCard(String sender, String owner, String keyword, String source) {
+		StringBuffer result = null;
+		try {
+			// card表: sender | owner | keyword | source
+			StringBuffer temp = new StringBuffer(sender + "^" + keyword + "^");
+			Statement infostm = connect.createStatement();
+			ResultSet infors = infostm
+					.executeQuery("select * from information where keyword = '"
+							+ keyword + "' and source = '" + source + "'");
+			// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
+			if (infors.next()) {
+				temp.append(new Information(infors.getString(2), infors
+						.getString(3), infors.getString(4),
+						infors.getString(5), infors.getInt(6), infors.getInt(7))
+						.toString());
+				result = new StringBuffer(temp);
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result.toString();
+	}
 	/** 获取我的所有单词卡, 比如我有两张卡[card1#card2] card1的格式是[keyword^sender^ownder^information] 测试ok*/
 	String sqlGetMyCard(String owner) {
 		StringBuffer result = null;
