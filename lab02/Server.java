@@ -211,8 +211,6 @@ public class Server {
 							boolean result = false;
 							if ( !db.sqlZanlogIsExist(s[0], s[1], s[2]) ) {
 								result = db.sqlInsertZanlog(s[1], s[0], s[2]);
-								if (result) 
-									db.sqlUpdateZancount(s[1], s[2]);
 							}
 							osToClient.writeUTF("rza" + result);
 							osToClient.flush();
@@ -231,8 +229,6 @@ public class Server {
 							boolean result = false;
 							if ( !db.sqlUnzanlogIsExist(s[0], s[1], s[2]) ) {
 								result = db.sqlInsertUnzanlog(s[1], s[0], s[2]);
-								if (result)
-									db.sqlUpdateUnzancount(s[1], s[2]);
 							}
 							osToClient.writeUTF("ruz" + result);
 							osToClient.flush();

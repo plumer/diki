@@ -23,7 +23,7 @@ class Entry {
 	static final int BAIDU = 0;
 	static final int YOUDAO = 1;
 	static final int BING = 2;
-
+	static String[] sourceString = {"baidu", "youdao", "bing"};
 	private String keyword;
 
 	private Information[] informations = new Information[3];
