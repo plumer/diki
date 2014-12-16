@@ -143,6 +143,7 @@ class Database {
 				sqlInsertInformation(entry.getKeyword(),entry.getInformation("baidu"));
 				sqlInsertInformation(entry.getKeyword(),entry.getInformation("youdao"));
 				sqlInsertInformation(entry.getKeyword(),entry.getInformation("bing"));
+				return true;
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -156,10 +157,11 @@ class Database {
 		try {
 			Statement stm = connect.createStatement();
 			//keyword | source | phonetic | attribute | zancount | unzancount
-			return stm.execute("insert into information values('" + keyword
+			stm.execute("insert into information values('" + keyword
 					+ "', '" + info.getSource() + "', '" + info.getPhonetic()
 					+ "', '" + info.getAttribute() + "', '"
 					+ info.getExplanation() + "', 0, 0);");
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -171,12 +173,15 @@ class Database {
 	boolean sqlInsertUser(User user) {
 		try {
 			Statement stm = connect.createStatement();
-			return user.isOnline() ? stm.execute("insert into user values('"
-					+ user.getName() + "', '" + user.getPassword() + "', '"
-					+ user.getIp() + "', '" + user.getPort() + "', 1);")
-					: stm.execute("insert into user values('" + user.getName()
-							+ "', '" + user.getPassword() + "', '"
-							+ user.getIp() + "', '" + user.getPort() + "', 0);");
+			if (user.isOnline())
+				stm.execute("insert into user values('" + user.getName()
+						+ "', '" + user.getPassword() + "', '" + user.getIp()
+						+ "', '" + user.getPort() + "', 1);");
+			else
+				stm.execute("insert into user values('" + user.getName()
+						+ "', '" + user.getPassword() + "', '" + user.getIp()
+						+ "', '" + user.getPort() + "', 0);");
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -188,8 +193,10 @@ class Database {
 	boolean sqlInsertZanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
-			stm.execute("insert into zanlog values('" + keyword + "', '" + name + "', '" + source + "');");
-			stm.execute("update information set zan = zan + 1 where keyword = '"+ keyword + "' and source = '" + source + "'");
+			stm.execute("insert into zanlog values('" + keyword + "', '" + name
+					+ "', '" + source + "');");
+			stm.execute("update information set zan = zan + 1 where keyword = '"
+					+ keyword + "' and source = '" + source + "'");
 			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -202,8 +209,10 @@ class Database {
 	boolean sqlInsertUnzanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
-			stm.execute("insert into unzanlog values('" + keyword + "', '" + name + "', '" + source + "');");
-			stm.execute("update information set unzan = unzan + 1 where keyword = '"+ keyword + "' and source = '" + source + "'");
+			stm.execute("insert into unzanlog values('" + keyword + "', '"
+					+ name + "', '" + source + "');");
+			stm.execute("update information set unzan = unzan + 1 where keyword = '"
+					+ keyword + "' and source = '" + source + "'");
 			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -216,7 +225,8 @@ class Database {
 	boolean sqlInsertCard(String sender, String owner, String keyword, String source) {
 		try {
 			Statement stm = connect.createStatement();
-			return stm.execute("insert into card values('" + sender + "', '" + owner + "', '" + keyword + "', '" + source +"')");
+			stm.execute("insert into card values('" + sender + "', '" + owner + "', '" + keyword + "', '" + source +"')");
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -267,11 +277,13 @@ class Database {
 	boolean sqlUpdateUserStatus(String username, boolean status) {
 		try {
 			Statement stm = connect.createStatement();
-			return status ? stm
+			if (status) stm
 					.execute("update user set status = 1 where username = '"
-							+ username + "'") : stm
+							+ username + "'");
+			else stm
 					.execute("update user set status = 0 where username = '"
 							+ username + "'");
+			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -286,9 +298,8 @@ class Database {
 			ResultSet rs = stm.executeQuery("select username from user where status = 1;");
 			while (rs.next()) {
 				if (result == null) result = new StringBuffer(rs.getString(1));
-				else result.append("#" + rs.getString(1));
+				else result.append("^" + rs.getString(1));
 			}
-			return result.toString();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -326,7 +337,6 @@ class Database {
 				// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
 				result.setInformation(new Information(rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getInt(6), rs.getInt(7)));
 			}
-			return result;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -394,6 +404,30 @@ class Database {
 		return false;
 	}
 	
+	String sqlGetCard(String sender, String owner, String keyword, String source) {
+		StringBuffer result = null;
+		try {
+			// card表: sender | owner | keyword | source
+			StringBuffer temp = new StringBuffer(sender + "^" + keyword + "^");
+			Statement infostm = connect.createStatement();
+			ResultSet infors = infostm
+					.executeQuery("select * from information where keyword = '"
+							+ keyword + "' and source = '" + source + "'");
+			// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
+			if (infors.next()) {
+				temp.append(new Information(infors.getString(2), infors
+						.getString(3), infors.getString(4),
+						infors.getString(5), infors.getInt(6), infors.getInt(7))
+						.toString());
+				result = new StringBuffer(temp);
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return result.toString();
+	}
 	/** 获取我的所有单词卡, 比如我有两张卡[card1#card2] card1的格式是[keyword^sender^ownder^information] 测试ok*/
 	String sqlGetMyCard(String owner) {
 		StringBuffer result = null;
@@ -436,7 +470,6 @@ class Database {
 					}
 				}
 			}
-			return result.toString();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

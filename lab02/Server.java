@@ -5,6 +5,7 @@ public class Server {
 	private static Database db = new Database();
 
 	public static void main( String[] args ) {
+		System.out.println("你服务器大爷开啦！");
 		try {
 			ServerSocket serverSocket = new ServerSocket(23333);
 			int clientNo = 1;
