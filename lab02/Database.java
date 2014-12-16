@@ -143,6 +143,7 @@ class Database {
 				sqlInsertInformation(entry.getKeyword(),entry.getInformation("baidu"));
 				sqlInsertInformation(entry.getKeyword(),entry.getInformation("youdao"));
 				sqlInsertInformation(entry.getKeyword(),entry.getInformation("bing"));
+				return true;
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -172,12 +173,14 @@ class Database {
 	boolean sqlInsertUser(User user) {
 		try {
 			Statement stm = connect.createStatement();
-			if (user.isOnline()) stm.execute("insert into user values('"
-					+ user.getName() + "', '" + user.getPassword() + "', '"
-					+ user.getIp() + "', '" + user.getPort() + "', 1);");
-			else stm.execute("insert into user values('" + user.getName()
-							+ "', '" + user.getPassword() + "', '"
-							+ user.getIp() + "', '" + user.getPort() + "', 0);");
+			if (user.isOnline())
+				stm.execute("insert into user values('" + user.getName()
+						+ "', '" + user.getPassword() + "', '" + user.getIp()
+						+ "', '" + user.getPort() + "', 1);");
+			else
+				stm.execute("insert into user values('" + user.getName()
+						+ "', '" + user.getPassword() + "', '" + user.getIp()
+						+ "', '" + user.getPort() + "', 0);");
 			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -190,8 +193,10 @@ class Database {
 	boolean sqlInsertZanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
-			stm.execute("insert into zanlog values('" + keyword + "', '" + name + "', '" + source + "');");
-			stm.execute("update information set zan = zan + 1 where keyword = '"+ keyword + "' and source = '" + source + "'");
+			stm.execute("insert into zanlog values('" + keyword + "', '" + name
+					+ "', '" + source + "');");
+			stm.execute("update information set zan = zan + 1 where keyword = '"
+					+ keyword + "' and source = '" + source + "'");
 			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -204,8 +209,10 @@ class Database {
 	boolean sqlInsertUnzanlog(String keyword, String name, String source) {
 		try {
 			Statement stm = connect.createStatement();
-			stm.execute("insert into unzanlog values('" + keyword + "', '" + name + "', '" + source + "');");
-			stm.execute("update information set unzan = unzan + 1 where keyword = '"+ keyword + "' and source = '" + source + "'");
+			stm.execute("insert into unzanlog values('" + keyword + "', '"
+					+ name + "', '" + source + "');");
+			stm.execute("update information set unzan = unzan + 1 where keyword = '"
+					+ keyword + "' and source = '" + source + "'");
 			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -293,7 +300,6 @@ class Database {
 				if (result == null) result = new StringBuffer(rs.getString(1));
 				else result.append("#" + rs.getString(1));
 			}
-			return result.toString();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -331,7 +337,6 @@ class Database {
 				// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
 				result.setInformation(new Information(rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getInt(6), rs.getInt(7)));
 			}
-			return result;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -441,7 +446,6 @@ class Database {
 					}
 				}
 			}
-			return result.toString();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
