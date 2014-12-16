@@ -298,7 +298,7 @@ class Database {
 			ResultSet rs = stm.executeQuery("select username from user where status = 1;");
 			while (rs.next()) {
 				if (result == null) result = new StringBuffer(rs.getString(1));
-				else result.append("#" + rs.getString(1));
+				else result.append("^" + rs.getString(1));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
