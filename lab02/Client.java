@@ -58,6 +58,7 @@ public class Client extends JFrame{
 	private int [] zanSum = {0,0,0};//每个显示面板的点赞数
 	private int [] unzanSum = {0,0,0};//不赞数
 	JPanel [] showThreePanel = new JPanel[3];
+    //
 	
 	private Socket socket;
 	//net IO stream
@@ -70,7 +71,6 @@ public class Client extends JFrame{
 		JLabel loginUserName = new JLabel("User Name");
 		JTextField jtfLoginUserName = new JTextField(8);
 		JLabel loginPassword = new JLabel("Password");
-		//JTextField jtfLoginPassword = new JTextField(8);
 		JPasswordField jtfLoginPassword = new JPasswordField();
 		JLabel Login0 = new JLabel("hhh");
 		JPasswordField Login1 = new JPasswordField("23333");
@@ -168,10 +168,10 @@ public class Client extends JFrame{
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
-				
+			 
 			}
 		});
+		
 		
 		lfCancel.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
@@ -180,7 +180,7 @@ public class Client extends JFrame{
 				loginFrame.setVisible(false);//登陆面板不可见
 			}
 		});
-	
+		
 		return true;//不知道如何返回false或者true？
 	}
 
@@ -280,6 +280,7 @@ public class Client extends JFrame{
 		        	JOptionPane.showMessageDialog(null, "注册失败，请重新确认密码！","注册",  JOptionPane.ERROR_MESSAGE);
 		        }
 		        else{
+		        	if(userName.length() <= 20 && password.length() <= 20){//用户名和密码不超过20个字符)
 		        	StringBuilder requestRegPackage = new StringBuilder();
 		        	String replyRegPackage;
 		        	requestRegPackage.append("qrg");
@@ -318,6 +319,13 @@ public class Client extends JFrame{
 		        		// TODO Auto-generated catch block
 		        		e1.printStackTrace();
 		        	}
+		        	}
+		        	else{//输入字符超出20个
+		        		jtfRegUserName.setText("");
+        				jtfRegPassword.setText("");
+        				jtfRegPasswordConfirm.setText("");
+		        		JOptionPane.showMessageDialog(null,"用户名和密码不能超出20个字符，请重新输入！");
+				    }
 		        }
 			}
 		});
@@ -472,11 +480,16 @@ public class Client extends JFrame{
 
 	private boolean sendCard(int panelID) {
 		String dstUserName = whoToSend[panelID].getText();
+		System.out.println("sendcard " + panelID + " to " + dstUserName);
 		try {
 			toServer.writeUTF("qsc" + currentUser.getName() + "^"
 									+ dstUserName + "^" 
 									+ currentEntry.getKeyword() + "^"
 									+ currentEntry.getInformation(displayOrder[panelID]));
+			System.out.println("qsc" + currentUser.getName() + "^"
+									 + dstUserName + "^" 
+									 + currentEntry.getKeyword() + "^"
+									 + currentEntry.getInformation(displayOrder[panelID]));
 			//String replySendCard = fromServer.readUTF();
 			//System.out.println("recv sendCard: " + replySendCard);
 		} catch (Exception e) {
@@ -684,9 +697,9 @@ public class Client extends JFrame{
 				//index++;
 			}
 			else{
-				zan[i].setEnabled(false);
-				unzan[i].setEnabled(false);
-				sendCard[i].setEnabled(false);
+				zan[panelIndex].setEnabled(false);
+				unzan[panelIndex].setEnabled(false);
+				sendCard[panelIndex].setEnabled(false);
 			}
 		}
 	}
@@ -703,7 +716,7 @@ public class Client extends JFrame{
 		System.out.println("youdao: " + zanSum[1] + " - " + unzanSum[1]+ " = " + allzanSum[1] );
 		allzanSum[2] = zanSum[2] -  unzanSum[2];
 		System.out.println("bing: " + zanSum[2] + " - " + unzanSum[2] + " = " + allzanSum[2] );
-	    for(int i = 0; i < 2; i++){
+	    for(int i = 0; i < 2; i++){//从小到大排序
 	    	for(int j = 0; j < 2-i; j++){
 	    		if(allzanSum[j] > allzanSum[j+1]){
 	    			int temp1 = displayOrder[j];
@@ -716,9 +729,11 @@ public class Client extends JFrame{
 	    		}
 	    	}
 	    }
-	    int temp = displayOrder[0];
-	    displayOrder[0] = displayOrder[2];
-	    displayOrder[2] = temp;
+	    if(displayOrder[0] != displayOrder[2]){
+	    	int temp = displayOrder[0];
+	    	displayOrder[0] = displayOrder[2];
+	    	displayOrder[2] = temp;
+	    }
 	    System.out.println("Display Order: ");
 	    for(int i = 0; i < 3; i++){
 	    	switch(i){
@@ -1030,6 +1045,7 @@ public class Client extends JFrame{
 		//添加发送单词卡的触发事件，使用多线程实现单词卡的发送和接收
 		sendCard[0].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
+				System.out.println("sendcard 0");
 				sendCard(0);
 			}
 		});
