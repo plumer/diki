@@ -763,7 +763,7 @@ public class Client extends JFrame{
 		 * GridLayout 
 		 */
 		
-		JOptionPane.showMessageDialog(null, "begin...","Diki", JOptionPane.OK_OPTION);
+		//JOptionPane.showMessageDialog(null, "begin...","Diki", JOptionPane.OK_OPTION);
 		JPanel logPanel = new JPanel();
 		
 		/* 控件有： input，输入单词的文本框，search 按钮
