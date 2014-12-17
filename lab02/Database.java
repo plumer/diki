@@ -110,7 +110,7 @@ class Database {
 				// unzancount
 				stm.execute("insert into information values('" + keyword
 						+ "', '" + info.getSource() + "', '"
-						+ info.getPhonetic() + "', '" + info.getAttribute()
+						+ info.getPhonetic().replaceAll("'", "ˈ") + "', '" + info.getAttribute()
 						+ "', '" + info.getExplanation() + "', 0, 0);");
 				return true;
 			} catch (SQLException e) {
