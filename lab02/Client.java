@@ -409,9 +409,19 @@ public class Client extends JFrame{
 
 	// panelID: which result? A? B? C?
 	private boolean clickZan(int panelID) {
-		String str = result[panelID].getText();
-		String[] temp = str.split("\n");
-		String source = temp[0];
+		String source = "";
+		int sourceIndex = 0;
+		for(int i = 0; i < 3; i++){
+			if(panelID == displayOrder[i]){
+				sourceIndex = i;
+				break;
+			}
+		}
+		switch(sourceIndex){
+			case 0 : source = "baidu";break;
+			case 1 : source = "youdao";break;
+			case 2 : source = "bing";break;
+		}
 		try {
 			 //send package
 			 toServer.writeUTF("qza" + currentUser.getName() + "^" + currentEntry.getKeyword() + "^" +source);
@@ -430,9 +440,19 @@ public class Client extends JFrame{
 	}
 
 	private boolean clickUnzan(int panelID) {
-		String str = result[panelID].getText();
-		String[] temp = str.split("\n");
-		String source = temp[0];
+		String source = "";
+		int sourceIndex = 0;
+		for(int i = 0; i < 3; i++){
+			if(panelID == displayOrder[i]){
+				sourceIndex = i;
+				break;
+			}
+		}
+		switch(sourceIndex){
+			case 0 : source = "baidu";break;
+			case 1 : source = "youdao";break;
+			case 2 : source = "bing";break;
+		}
 		try {
 			//send package
 			 toServer.writeUTF("quz" + currentUser.getName() + "^" + currentEntry.getKeyword() + "^" +source);
@@ -678,28 +698,35 @@ public class Client extends JFrame{
 		int []allzanSum = new int[3];//zan和unzan综合
 		//int []dis = {0,1,2};//显示顺序
 		allzanSum[0] = zanSum[0] -  unzanSum[0];
-		System.out.println("baidu: " + zanSum[0] + " - " + unzanSum[0]);
+		System.out.println("baidu: " + zanSum[0] + " - " + unzanSum[0] + " = " + allzanSum[0] );
 		allzanSum[1] = zanSum[1] -  unzanSum[1];
-		System.out.println("youdao: " + zanSum[1] + " - " + unzanSum[1]);
+		System.out.println("youdao: " + zanSum[1] + " - " + unzanSum[1]+ " = " + allzanSum[1] );
 		allzanSum[2] = zanSum[2] -  unzanSum[2];
-		System.out.println("bing: " + zanSum[2] + " - " + unzanSum[2]);
+		System.out.println("bing: " + zanSum[2] + " - " + unzanSum[2] + " = " + allzanSum[2] );
 	    for(int i = 0; i < 2; i++){
-	    	for(int j = i+1; j < 3; j++){
-	    		if(allzanSum[i] < allzanSum[j]){
-	    			int temp = displayOrder[j];
-	    			displayOrder[j] = displayOrder[i];
-	    			displayOrder[i] = temp;
+	    	for(int j = 0; j < 2-i; j++){
+	    		if(allzanSum[j] > allzanSum[j+1]){
+	    			int temp1 = displayOrder[j];
+	    			int temp2 = allzanSum[j];
+	    			displayOrder[j] = displayOrder[j+1];
+	    			allzanSum[j] = allzanSum[j+1];
+	    			displayOrder[j+1] = temp1;
+	    			allzanSum[j+1] = temp2;
+	    			System.out.println("交换： " + j + (j+1));
 	    		}
 	    	}
 	    }
+	    int temp = displayOrder[0];
+	    displayOrder[0] = displayOrder[2];
+	    displayOrder[2] = temp;
 	    System.out.println("Display Order: ");
 	    for(int i = 0; i < 3; i++){
 	    	switch(i){
-	    		case 0: System.out.print("baidu");break;
-	    		case 1: System.out.print("youdao");break;
-	    		case 2: System.out.print("bing");break;
+	    		case 0: System.out.println("baidu");break;
+	    		case 1: System.out.println("youdao");break;
+	    		case 2: System.out.println("bing");break;
 	    	}
-	    	System.out.println("显示在面板" + displayOrder[i] + " "+ "zan: " + allzanSum[i]);
+	    	System.out.println("显示在面板" + displayOrder[i]);
 	    }
 	    System.out.println();
 	}
