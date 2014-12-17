@@ -57,6 +57,7 @@ public class Client extends JFrame{
 	private int [] displayOrder = {0,1,2};//初始的显示顺序是0（baidu）1（youdao）2（bing）
 	private int [] zanSum = {0,0,0};//每个显示面板的点赞数
 	private int [] unzanSum = {0,0,0};//不赞数
+	JPanel [] showThreePanel = new JPanel[3];
 	
 	private Socket socket;
 	//net IO stream
@@ -70,12 +71,10 @@ public class Client extends JFrame{
 		JTextField jtfLoginUserName = new JTextField(8);
 		JLabel loginPassword = new JLabel("Password");
 		//JTextField jtfLoginPassword = new JTextField(8);
-		JPasswordField jtfLoginPassword = new JPasswordField("00000000");
+		JPasswordField jtfLoginPassword = new JPasswordField();
 		JLabel Login0 = new JLabel("hhh");
 		JPasswordField Login1 = new JPasswordField("23333");
 		jtfLoginPassword.setEchoChar('*');
-		if(jtfLoginPassword.echoCharIsSet()) 	System.out.println("huixian");
-		else 									System.out.println("meiyouhuixian");
 		JButton lfLogin = new JButton("login");//登陆面板的登陆按钮
 		JButton lfCancel = new JButton("cancel");//登陆面板的取消按钮
 		
@@ -83,15 +82,13 @@ public class Client extends JFrame{
 		loginFrame.setSize(250,125);
 		loginFrame.setLocationRelativeTo(null);
 		loginFrame.setTitle("login");
-		loginFrame.setLayout(new GridLayout(4,2,5,5));
+		loginFrame.setLayout(new GridLayout(3,2,5,5));
 		loginFrame.add(loginUserName);
 		loginFrame.add(jtfLoginUserName);
 		loginFrame.add(loginPassword);
 		loginFrame.add(jtfLoginPassword);
 		loginFrame.add(lfLogin);
 		loginFrame.add(lfCancel);
-		loginFrame.add(Login0);//
-		loginFrame.add(Login1);//
 		loginFrame.setVisible(true);
 		//lfLogin.setEnabled(true);
 		lfLogin.addActionListener(new ActionListener(){
@@ -99,7 +96,7 @@ public class Client extends JFrame{
 				loginFrame.setEnabled(true);
 				String userName = jtfLoginUserName.getText();
 				System.out.println("login username: " + userName);
-				String userPassword = jtfLoginPassword.getPassword().toString();
+				String userPassword = String.valueOf(jtfLoginPassword.getPassword());
 				System.out.println("login password: " + userPassword);
 				//发送请求登陆数据包
 				String replyLoginPackage;
@@ -247,9 +244,11 @@ public class Client extends JFrame{
 		JLabel regUserName = new JLabel("User Name");
 		JTextField jtfRegUserName = new JTextField(8);
 		JLabel regPassword = new JLabel("Password");
-		JTextField jtfRegPassword = new JTextField(8);
+		JPasswordField jtfRegPassword = new JPasswordField(8);
+		jtfRegPassword.setEchoChar('*');
 		JLabel regPasswordConfirm = new JLabel("Password Confirm");
-		JTextField jtfRegPasswordConfirm = new JTextField(8);
+		JPasswordField jtfRegPasswordConfirm = new JPasswordField(8);
+		jtfRegPasswordConfirm.setEchoChar('*');
 		JButton rfRegister = new JButton("register");
 		JButton rfCancel = new JButton("cancel");
 		
@@ -271,9 +270,8 @@ public class Client extends JFrame{
 		rfRegister.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 		        String userName = jtfRegUserName.getText();
-		        String password = jtfRegPassword.getText();
-		        String passwordConfirm = jtfRegPasswordConfirm.getText();
-		        
+		        String password = (String.valueOf(jtfRegPassword.getPassword()));
+		        String passwordConfirm = (String.valueOf(jtfRegPasswordConfirm.getPassword()));
 		        //判断输入的密码跟确认密码是否一致
 		        if(!password.equals(passwordConfirm)){
 		        	//不一致，就提示说重新输入密码
@@ -453,12 +451,6 @@ public class Client extends JFrame{
 	}
 
 	private boolean sendCard(int panelID) {
-		/* get user name (from textField)
-		 * get explanation id
-		 * send sendCard request to server
-		 *   assert success
-		 * return true
-		 */
 		String dstUserName = whoToSend[panelID].getText();
 		try {
 			toServer.writeUTF("qsc" + currentUser.getName() + "^"
@@ -526,7 +518,10 @@ public class Client extends JFrame{
 	private void search() {
 		System.out.println("Start search");
 		onlineSearcher = new OnlineSearcher();
-		String keyword = input.getText();
+		String keyword = input.getText().trim();
+		//用正则表达式判断输入的是一个英文单词
+		String normalInput = "[a-zA-Z]+";
+		if(keyword.matches(normalInput)){
 		StringBuilder requestSearchPackage = new StringBuilder();
 		String replySearchPackage;
 		System.out.println("input: " + keyword);
@@ -555,10 +550,6 @@ public class Client extends JFrame{
 							index++;
 						}
 					}
-					//............................................拆了又合，合了又拆 = =
-					//现在来处理3个info,就当做没有空格吧
-					//int [] zanSum = new int[3];
-					//int [] unzanSum = new int[3];
 					for(int i = 0; i < 3; i++){
 							System.out.println("info" + i + ": " + info[i]);
 							String [] ex = info[i].split("\\$");
@@ -606,6 +597,12 @@ public class Client extends JFrame{
 			displayOrder[2] = 2;//设置显示顺序
 			displayThreePanel();
 		}
+		}
+		else{
+			//System.out.println("输入不合法，不是一个英文单词！");
+			JOptionPane.showMessageDialog(null, "您输入的单词不合法，请重新输入！");
+			input.setText("");
+		}
 	}
 	
 	public void displayThreePanel(){
@@ -618,6 +615,7 @@ public class Client extends JFrame{
 			//用户在线就显示赞和不赞的数目，否则不显示
 			//获取0（baidu）1（youdao）2（bing）显示的面板标号
 			int panelIndex = displayOrder[i];
+			
 			boolean isSelected = true;
 			String [] ex = currentEntry.getInformation(i).toString().split("\\$");
 			System.out.println(currentEntry.getInformation(i).toString());
@@ -626,25 +624,32 @@ public class Client extends JFrame{
 				case "youdao": if(!youdao.isSelected())  isSelected = false;break;
 				case "bing": if(!bing.isSelected())  isSelected = false;break;
 			}
-			
+			showThreePanel[panelIndex].setBorder(BorderFactory.createTitledBorder (ex[0]));
 			if(isSelected){
 				//选中了就进行显示
-				result[ panelIndex].append(ex[0] + '\n');
+				//result[ panelIndex].append(ex[0] + '\n');
 				//keyword
 				result[ panelIndex].append(currentEntry.getKeyword() + '\n');
 				//音标
-				String [] pho = ex[1].split("#");
-				for(int j = 0; j < pho.length; j++){
-					result[panelIndex].append(pho[j] + ",");
+				if(!ex[1].equalsIgnoreCase("null")){
+					//System.out.println("yinbiao length: " + ex[1].length() + " " + ex[1]);
+					String [] pho = ex[1].split("#");
+					for(int j = 0; j < pho.length; j++){
+						result[panelIndex].append(pho[j] + ",");
+					}
+					result[ panelIndex].append("\n");
 				}
-				result[ panelIndex].append("\n");
 				//词性
-				String [] attri = ex[2].split("#");
-				//解释
-			    String [] exp = ex[3].split("#");
-			    for(int k = 0; k < attri.length; k++){
-			    	result[panelIndex].append(attri[k] + " " + exp[k] + '\n');
-			    }
+				if(!ex[2].equalsIgnoreCase("null") && !ex[3].equalsIgnoreCase("null")){
+					String [] attri = ex[2].split("#");
+					//解释
+					String [] exp = ex[3].split("#");
+					for(int k = 0; k < attri.length; k++){
+						result[panelIndex].append(attri[k] + " " + exp[k] + '\n');
+					}
+				}
+				//有个问题，怎么样算此不存在呢，不存在是不是也不能够点赞？OMG
+				
 			    if(currentUser!= null && currentUser.isOnline()){
 			    	//zan
 			    	//int currentZan = Integer.parseInt(ex[4]);
@@ -697,7 +702,6 @@ public class Client extends JFrame{
 	    	System.out.println("显示在面板" + displayOrder[i] + " "+ "zan: " + allzanSum[i]);
 	    }
 	    System.out.println();
-		//displayThreePanel();
 	}
 	
 	public static void main(String[] args){
@@ -762,8 +766,6 @@ public class Client extends JFrame{
 		 * 控件有：登陆按钮，注册按钮，字典名字，单词本按钮
 		 * GridLayout 
 		 */
-		
-		//JOptionPane.showMessageDialog(null, "begin...","Diki", JOptionPane.OK_OPTION);
 		JPanel logPanel = new JPanel();
 		
 		/* 控件有： input，输入单词的文本框，search 按钮
@@ -786,7 +788,7 @@ public class Client extends JFrame{
 		JPanel selectSourcePanel = new JPanel();
 		JPanel showResultPanel = new JPanel();
 		
-		JPanel [] showThreePanel = new JPanel[3];
+		//JPanel [] showThreePanel = new JPanel[3];
 		JPanel [] showSelectPanel = new JPanel[3];
 		for(int i = 0; i < 3; i++){
 			showThreePanel[i] = new JPanel();
@@ -855,7 +857,7 @@ public class Client extends JFrame{
 		//添加login的监听事件，调用login函数
 		login.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				//login();
+				login();
 			}
 		});
 		
@@ -1025,7 +1027,7 @@ public class Client extends JFrame{
 		//在用户登陆或者注册的时候才需要开始与Server进行通信
 		try{//create a socket to connect to the server
 			
-			socket = new Socket("172.26.38.120",23333);//yushen:114.212.129.39
+			socket = new Socket("114.212.133.81",23333);//yushen:114.212.129.39
 			//System.out.println(socket.getInetAddress().getAddress());
 			
 			//create an input stream to receive data from the server
@@ -1038,7 +1040,6 @@ public class Client extends JFrame{
 		catch(Exception ex){
 			ex.printStackTrace();
 		}
-		
 	}
 	
 }
