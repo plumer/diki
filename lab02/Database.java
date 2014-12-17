@@ -13,19 +13,20 @@ class Database {
 	/** 默认构造函数 */
 	public Database() {
 		String host = "127.0.0.1:3306";
-		String database = "diki";
+		String database = "test";
 		String user = "root";
 		String password = "thispasswordiswrong";
 		this(host, database, user, password);
 	}
 
 	/** 指定数据库参数的构造函数 */
+	// 一般来说是 new Database("127.0.0.1:3306", "diki", "root", "");
 	public Database(String host, String database, String user, String password) {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager
 					.getConnection(
-							"jdbc:mysql://" + host + "/diki?useUnicode=true&characterEncoding=UTF-8",
+							"jdbc:mysql://" + host + "/" + database +"?useUnicode=true&characterEncoding=UTF-8",
 							user, password);
 			// 检查连接是否成功
 			if (!connect.isClosed()) {
@@ -203,7 +204,7 @@ class Database {
 		try {
 			Statement stm = connect.createStatement();
 			rs = stm.executeQuery("select * from user where username = '" + username + "';");
-			if (rs.next()) {
+			if (rs.next()) { /** 注意从此处开始的变化： rs.getString（3）可能为空 */
 				result = new User(rs.getString(1), rs.getString(2));
 				boolean ol = rs.getBoolean(5);
 				result.setStatus(ol);
@@ -390,7 +391,7 @@ class Database {
 							.getString(3), infors.getString(4), infors
 							.getString(5), infors.getInt(6), infors
 							.getInt(7)).toString());
-					if (result == null)
+					if (result == null) /**注意此处的变化：将外层的if放到内部*/
 						result = new StringBuffer(temp);
 					else
 						result.append("^" + temp);
