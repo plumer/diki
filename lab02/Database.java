@@ -16,7 +16,7 @@ class Database {
 		//String database = "test";
 		//String user = "root";
 		//String password = "thispasswordiswrong";
-		this("127.0.0.1:3306","test", "root",  "thispasswordiswrong");
+		this("127.0.0.1:3306","test", "root",  "");
 	}
 
 	/** 指定数据库参数的构造函数 */
@@ -100,17 +100,23 @@ class Database {
 	
 	/** information表插入 测试ok*/
 	boolean sqlInsertInformation(String keyword, Information info) {
-		try {
-			Statement stm = connect.createStatement();
-			//keyword | source | phonetic | attribute | zancount | unzancount
-			stm.execute("insert into information values('" + keyword
-					+ "', '" + info.getSource() + "', '" + info.getPhonetic()
-					+ "', '" + info.getAttribute() + "', '"
-					+ info.getExplanation() + "', 0, 0);");
-			return true;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (info.getAttribute() == null && info.getExplanation() == null
+				&& info.getPhonetic() == null)
+			return false;
+		else {
+			try {
+				Statement stm = connect.createStatement();
+				// keyword | source | phonetic | attribute | zancount |
+				// unzancount
+				stm.execute("insert into information values('" + keyword
+						+ "', '" + info.getSource() + "', '"
+						+ info.getPhonetic() + "', '" + info.getAttribute()
+						+ "', '" + info.getExplanation() + "', 0, 0);");
+				return true;
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
@@ -209,7 +215,7 @@ class Database {
 				boolean ol = rs.getBoolean(5);
 				result.setStatus(ol);
 				if (ol) {
-					result.setIp(InetAddress.getByName(rs.getString(3));
+					result.setIp(InetAddress.getByName(rs.getString(3)));
 					result.setPort(rs.getInt(4));
 				}
 			}
