@@ -37,13 +37,13 @@ class Database {
 				// entry表: keyword
 				ResultSet rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='entry';");
 				if (!rs.next()) {
-					stm.execute("create table entry(keyword char(50) primary key not null)default charset=utf8;");
+					stm.execute("create table entry(keyword char(100) primary key not null)default charset=utf8;");
 				}
 				// 检查information表是否存在
 				// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
 				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='information';");
 				if (!rs.next()) {
-					stm.execute("create table information(keyword char(50) references entry(keyword), source char(20), phonetic char(50), attribute char(20), explanation char(200), zan int, unzan int, primary key(keyword, source))default charset=utf8;");
+					stm.execute("create table information(keyword char(100) references entry(keyword), source char(100), phonetic char(100), attribute char(100), explanation char(200), zan int, unzan int, primary key(keyword, source))default charset=utf8;");
 				}
 				// 检查user表是否存在
 				// user表: username | passowrd | ip | port | status
@@ -55,19 +55,19 @@ class Database {
 				// zanlog表: keyword | username | source
 				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='zanlog';");
 				if (!rs.next()) {
-					stm.execute("create table zanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
+					stm.execute("create table zanlog(keyword char(100) references entry(keyword), username char(20) references user(username), source char(100) references information(source))default charset=utf8;");
 				}
 				// 检查unzanlog表是否存在
 				// unzanlog表: keyword | username | source
 				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='unzanlog';");
 				if (!rs.next()) {
-					stm.execute("create table unzanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
+					stm.execute("create table unzanlog(keyword char(100) references entry(keyword), username char(20) references user(username), source char(100) references information(source))default charset=utf8;");
 				}
 				// 检查card表是否存在
 				// card表: sender | owner | keyword | source
 				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='card';");
 				if (!rs.next()) {
-					stm.execute("create table card(sender char(20) references user(username), owner char(20) references user(username), keyword char(50) references entry(keyword), source char(20) references information(source))default charset=utf8;");
+					stm.execute("create table card(sender char(20) references user(username), owner char(20) references user(username), keyword char(100) references entry(keyword), source char(100) references information(source))default charset=utf8;");
 				}
 			} else {
 				System.out.println("error connect to database!(check whether database " + database + " is exist!)");
