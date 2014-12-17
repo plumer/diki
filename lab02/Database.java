@@ -15,63 +15,8 @@ class Database {
 		String host = "127.0.0.1:3306";
 		String database = "diki";
 		String user = "root";
-		String password = "21844576";
-		
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-			connect = DriverManager
-					.getConnection(
-							"jdbc:mysql://" + host + "/diki?useUnicode=true&characterEncoding=UTF-8",
-							user, password);
-			// 检查连接是否成功
-			if (!connect.isClosed()) {
-				//System.out.println("connect ok!");
-				Statement stm = connect.createStatement();
-				
-				// 检查entry表是否存在
-				// entry表: keyword
-				ResultSet rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='entry';");
-				if (!rs.next()) {
-					stm.execute("create table entry(keyword char(50) primary key not null)default charset=utf8;");
-				}
-				// 检查information表是否存在
-				// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
-				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='information';");
-				if (!rs.next()) {
-					stm.execute("create table information(keyword char(50) references entry(keyword), source char(20), phonetic char(50), attribute char(20), explanation char(200), zan int, unzan int, primary key(keyword, source))default charset=utf8;");
-				}
-				// 检查user表是否存在
-				// user表: username | passowrd | ip | port | status
-				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='user';");
-				if (!rs.next()) {
-					stm.execute("create table user(username char(20) primary key not null, password char(20) not null, ip char(20), port int, status bit);");
-				}
-				// 检查zanlog表是否存在
-				// zanlog表: keyword | username | source
-				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='zanlog';");
-				if (!rs.next()) {
-					stm.execute("create table zanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
-				}
-				// 检查unzanlog表是否存在
-				// unzanlog表: keyword | username | source
-				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='unzanlog';");
-				if (!rs.next()) {
-					stm.execute("create table unzanlog(keyword char(50) references entry(keyword), username char(20) references user(username), source char(20) references information(source))default charset=utf8;");
-				}
-				// 检查card表是否存在
-				// card表: sender | owner | keyword | source
-				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='card';");
-				if (!rs.next()) {
-					stm.execute("create table card(sender char(20) references user(username), owner char(20) references user(username), keyword char(50) references entry(keyword), source char(20) references information(source))default charset=utf8;");
-				}
-			} else {
-				System.out.println("error connect to database!(check whether database " + database + " is exist!)");
-				throw(new SQLException());
-			}
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		String password = "thispasswordiswrong";
+		this(host, database, user, password);
 	}
 
 	/** 指定数据库参数的构造函数 */
@@ -80,7 +25,7 @@ class Database {
 			Class.forName("com.mysql.jdbc.Driver");
 			connect = DriverManager
 					.getConnection(
-							"jdbc:mysql://" + host + "/test?useUnicode=true&characterEncoding=UTF-8",
+							"jdbc:mysql://" + host + "/diki?useUnicode=true&characterEncoding=UTF-8",
 							user, password);
 			// 检查连接是否成功
 			if (!connect.isClosed()) {
@@ -173,14 +118,9 @@ class Database {
 	boolean sqlInsertUser(User user) {
 		try {
 			Statement stm = connect.createStatement();
-			if (user.isOnline())
-				stm.execute("insert into user values('" + user.getName()
-						+ "', '" + user.getPassword() + "', '" + user.getIp()
-						+ "', '" + user.getPort() + "', 1);");
-			else
-				stm.execute("insert into user values('" + user.getName()
-						+ "', '" + user.getPassword() + "', '" + user.getIp()
-						+ "', '" + user.getPort() + "', 0);");
+			stm.execute("insert into user values('" + user.getName()
+					+ "', '" + user.getPassword() + "', '" + user.getIp()
+					+ "', '" + user.getPort() + (user.isOnline() ? "', 1);" : "', 0);"));
 			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -265,15 +205,14 @@ class Database {
 			rs = stm.executeQuery("select * from user where username = '" + username + "';");
 			if (rs.next()) {
 				result = new User(rs.getString(1), rs.getString(2));
-/*				if (rs.getString(3).equals(null)) {
-					
-				} else {
-					result = new User(rs.getString(1), rs.getString(2),
-						InetAddress.getByName(rs.getString(3)), rs.getInt(4),
-						rs.getBoolean(5));
+				boolean ol = rs.getBoolean(5);
+				result.setStatus(ol);
+				if (ol) {
+					result.setIp(InetAddress.getByName(rs.getString(3));
+					result.setPort(rs.getInt(4));
 				}
-*/			}
-		} catch (SQLException/* | UnknownHostException*/ e) {
+			}
+		} catch (SQLException | UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -283,12 +222,8 @@ class Database {
 	boolean sqlUpdateUserStatus(String username, boolean status) {
 		try {
 			Statement stm = connect.createStatement();
-			if (status) stm
-					.execute("update user set status = 1 where username = '"
-							+ username + "'");
-			else stm
-					.execute("update user set status = 0 where username = '"
-							+ username + "'");
+			stm.execute("update user set status = " + 
+				(status?"1":"0") + " where username = '" + username + "'");
 			return true;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -442,38 +377,23 @@ class Database {
 			ResultSet rs = stm.executeQuery("select * from card where owner = '" + owner + "';");
 			while (rs.next()) {
 				// card表: sender | owner | keyword | source
-				if (result == null) {
-					StringBuffer temp = new StringBuffer(rs.getString(1) + "^" + rs.getString(3) + "^");
-					Statement infostm = connect.createStatement();
-					ResultSet infors = infostm
-							.executeQuery("select * from information where keyword = '"
-									+ rs.getString(3)
-									+ "' and source = '"
-									+ rs.getString(4) + "'");
-					// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
-					if (infors.next()) {
-						temp.append(new Information(infors.getString(2), infors
-								.getString(3), infors.getString(4), infors
-								.getString(5), infors.getInt(6), infors
-								.getInt(7)).toString());
+				StringBuffer temp = new StringBuffer(rs.getString(1) + "^" + rs.getString(3) + "^");
+				Statement infostm = connect.createStatement();
+				ResultSet infors = infostm
+						.executeQuery("select * from information where keyword = '"
+								+ rs.getString(3)
+								+ "' and source = '"
+								+ rs.getString(4) + "'");
+				// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
+				if (infors.next()) {
+					temp.append(new Information(infors.getString(2), infors
+							.getString(3), infors.getString(4), infors
+							.getString(5), infors.getInt(6), infors
+							.getInt(7)).toString());
+					if (result == null)
 						result = new StringBuffer(temp);
-					}
-				} else {
-					StringBuffer temp = new StringBuffer(rs.getString(1) + "^" + rs.getString(3) + "^");
-					Statement infostm = connect.createStatement();
-					ResultSet infors = infostm
-							.executeQuery("select * from information where keyword = '"
-									+ rs.getString(3)
-									+ "' and source = '"
-									+ rs.getString(4) + "'");
-					// information表: keyword | source | phonetic | attribute | explanation | zancount | unzancount
-					if (infors.next()) {
-						temp.append(new Information(infors.getString(2), infors
-								.getString(3), infors.getString(4), infors
-								.getString(5), infors.getInt(6), infors
-								.getInt(7)).toString());
+					else
 						result.append("^" + temp);
-					}
 				}
 			}
 		} catch (SQLException e) {
@@ -537,143 +457,5 @@ class Database {
 //		System.out.println(db.sqlCardIsExist("aaa", "benben", "phone", "youdao"));
 //		
 //		System.out.println(db.sqlGetMyCard("benben"));
-//	}
-//
-//	// invoke me when register request is received
-//	public boolean register(String userName, String password) {
-//		/**
-//		 * if the username exists in the userDB return false else add to userDB
-//		 * return true
-//		 */
-//		if (userDB.get(userName) == null) {
-//			userDB.put(userName, new User(userName, password));
-//			return true;
-//		} else {
-//			return false;
-//		}
-//	}
-//
-//	// invoke me when login request is received
-//	public boolean login(String userName, String password, InetAddress ip,
-//			int port) {
-//		/**
-//		 * if the username exists int userDB check password if match modify user
-//		 * status,ip,port return true return false
-//		 */
-//		User quester = userDB.get(userName);
-//		if (quester != null && quester.getPassword() == password) {
-//			quester.setStatus(User.ONLINE);
-//			quester.setIp(ip);
-//			quester.setPort(port);
-//			return true;
-//		} else {
-//			return false;
-//		}
-//	}
-//
-//	public boolean logout(String userName) {
-//		/**
-//		 * if the username exists in the userDB modify user status return true
-//		 * else return false
-//		 */
-//		User quester = userDB.get(userName);
-//		if (quester != null) {
-//			quester.setStatus(User.OFFLINE);
-//			return true;
-//		} else {
-//			return false;
-//		}
-//	}
-//
-//	//
-//	public String request(String keyword) {
-//		/**
-//		 *
-//		 */
-//		String[] buf1;
-//		String[] buf2;
-//		OnlineSearcher oser = new OnlineSearcher();
-//		Entry result = oser.search(keyword);
-//
-//		/*
-//		 * Information info = result.getInformation("baidu");
-//		 * System.out.println(info.getSource() + " " + info.getZan() + " likes "
-//		 * + info.getUnzan() + " unlikes"); buf1 =
-//		 * info.getPhonetic().split("#"); for (int i = 0; i < buf1.length; ++i)
-//		 * { System.out.print(buf1[i] + "\t"); } System.out.print("\n"); buf1 =
-//		 * info.getAttribute().split("#"); buf2 =
-//		 * info.getExplanation().split("#"); if (buf1.length != buf2.length) {
-//		 * System.out.println("uh-oh"); } else { for (int i = 0; i <
-//		 * buf1.length; ++i) System.out.println("\t" + buf1[i] + "\t" +
-//		 * buf2[i]); }
-//		 * 
-//		 * info = result.getInformation("youdao");
-//		 * System.out.println(info.getSource() + " " + info.getZan() + " likes "
-//		 * + info.getUnzan() + " unlikes"); buf1 =
-//		 * info.getPhonetic().split("#"); for (int i = 0; i < buf1.length; ++i)
-//		 * { System.out.print(buf1[i] + "\t"); } System.out.print("\n"); buf1 =
-//		 * info.getAttribute().split("#"); buf2 =
-//		 * info.getExplanation().split("#"); if (buf1.length != buf2.length) {
-//		 * System.out.println("uh-oh"); } else { for (int i = 0; i <
-//		 * buf1.length; ++i) System.out.println("\t" + buf1[i] + "\t" +
-//		 * buf2[i]); }
-//		 * 
-//		 * info = result.getInformation("bing");
-//		 * System.out.println(info.getSource() + " " + info.getZan() + " likes "
-//		 * + info.getUnzan() + " unlikes"); buf1 =
-//		 * info.getPhonetic().split("#"); for (int i = 0; i < buf1.length; ++i)
-//		 * { System.out.print(buf1[i] + "\t"); } System.out.print("\n"); buf1 =
-//		 * info.getAttribute().split("#"); buf2 =
-//		 * info.getExplanation().split("#"); if (buf1.length != buf2.length) {
-//		 * System.out.println("uh-oh"); } else { for (int i = 0; i <
-//		 * buf1.length; ++i) System.out.println("\t" + buf1[i] + "\t" +
-//		 * buf2[i]); }
-//		 */
-//		return result.toString();
-//	}
-//
-//	public boolean clickZan(String userName, String keyword, String source) {
-//		/**
-//		 * find the entry according to the keyword locate the source if the
-//		 * userName exists in the zanList return false else add number of zan
-//		 * add the userName into the zanList return true !! checking zanList is
-//		 * done in Vote
-//		 */
-//		User devil = userDB.get(userName);
-//		if (devil == null)
-//			return false;
-//		Entry entry = entryDB.get(keyword);
-//		if (entry == null)
-//			return false;
-//		return entry.getInformation(source).clickZan(userName);
-//	}
-//
-//	public boolean clickUnzan(String userName, String keyword, String source) {
-//		/**
-//		 * find the entry according to the keyword allocate the source if the
-//		 * userName exists in the unzanList return false else add number of
-//		 * unzan add the userName into the unzanList return true
-//		 */
-//		User devil = userDB.get(userName);
-//		if (devil == null)
-//			return false;
-//		Entry entry = entryDB.get(keyword);
-//		if (entry == null)
-//			return false;
-//		return entry.getInformation(source).clickUnzan(userName);
-//	}
-//
-//	public boolean sendCard(String sourceUser, String destinationUser,
-//			String keyword, String source) {
-//		/**
-//		 * find the entry according to the keyword new Card with sourceUser and
-//		 * keyword and source send to destinationUser return true
-//		 */
-//		Entry entry = entryDB.get(keyword);
-//		if (entry == null)
-//			return false;
-//		Card card = new Card(keyword, sourceUser, source);
-//
-//		return false;
 //	}
 }
