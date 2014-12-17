@@ -45,46 +45,54 @@ class OnlineSearcher {
 			Document baidudoc;
 			try {
 				baidudoc = Jsoup.connect(baidu).timeout(5000).get();
-				/* 获取音标 */
-				Elements temp = baidudoc.getElementsByTag("b");
-				for (Element i : temp) {
-					if (i.hasAttr("lang")) {
-						if (phonetic == null)
-							phonetic = i.text();
-						else
-							phonetic = phonetic + '#' + i.text();
-					}
-				}
-				/* 获取词性 */
-				Element el = baidudoc.getElementById("en-simple-means");
-				if (el != null) {
-					temp = el.getElementsByTag("strong");
+				if (baidudoc.getElementsByClass("noresult-tip").size() > 0) {
+					phonetic = "NotFound";
+					attribute = "NotFound";
+					explanation = "NotFound";
 				} else {
-					temp = null;
-				}
-				if (temp == null) attribute = null;
-				else {
+					/* 获取音标 */
+					Elements temp = baidudoc.getElementsByTag("b");
 					for (Element i : temp) {
-						if (attribute == null)
-							attribute = i.text();
-						else
-							attribute = attribute + '#' + i.text();
+						if (i.hasAttr("lang")) {
+							if (phonetic == null)
+								phonetic = i.text();
+							else
+								phonetic = phonetic + '#' + i.text();
+						}
 					}
-				}
-				/* 获取解释 */
-				if (el != null) {
-					temp = el.getElementsByTag("span");
-				} else {
-					temp = null;
-				}
-				if (temp == null) {
-					explanation = null;
-				} else {
-					for (int i = 0; i < attribute.split("#").length; i++) {
-						if (explanation == null)
-							explanation = temp.get(i).text();
-						else
-							explanation = explanation + '#' + temp.get(i).text();
+					/* 获取词性 */
+					Element el = baidudoc.getElementById("en-simple-means");
+					if (el != null) {
+						temp = el.getElementsByTag("strong");
+					} else {
+						temp = null;
+					}
+					if (temp == null)
+						attribute = null;
+					else {
+						for (Element i : temp) {
+							if (attribute == null)
+								attribute = i.text();
+							else
+								attribute = attribute + '#' + i.text();
+						}
+					}
+					/* 获取解释 */
+					if (el != null) {
+						temp = el.getElementsByTag("span");
+					} else {
+						temp = null;
+					}
+					if (temp == null) {
+						explanation = null;
+					} else {
+						for (int i = 0; i < attribute.split("#").length; i++) {
+							if (explanation == null)
+								explanation = temp.get(i).text();
+							else
+								explanation = explanation + '#'
+										+ temp.get(i).text();
+						}
 					}
 				}
 				/*
@@ -127,33 +135,39 @@ class OnlineSearcher {
 			Document youdaodoc;
 			try {
 				youdaodoc = Jsoup.connect(youdao).timeout(5000).get();
-				/* 获取音标 */
-				Elements temp = youdaodoc.getElementsByClass("phonetic");
-				for (int i = 0; i < temp.size() && i < 2; i++) {
-					if (phonetic == null)
-						phonetic = temp.get(i).text();
-					else
-						phonetic = phonetic + '#' + temp.get(i).text();
-				}
-				/* 获取词性和解释 */
-				temp = youdaodoc.getElementsByClass("trans-container").get(0)
-						.getElementsByTag("li");
-				for (Element i : temp) {
-					if (attribute == null) {
-						if (i.text().contains(". ")) {
-							attribute = i.text().split(". ")[0];
-							explanation = i.text().split(". ")[1];
+				if (youdaodoc.getElementsByClass("error-wrapper").size() > 0) {
+					phonetic = "NotFound";
+					attribute = "NotFound";
+					explanation = "NotFound";
+				} else {
+					/* 获取音标 */
+					Elements temp = youdaodoc.getElementsByClass("phonetic");
+					for (int i = 0; i < temp.size() && i < 2; i++) {
+						if (phonetic == null)
+							phonetic = temp.get(i).text();
+						else
+							phonetic = phonetic + '#' + temp.get(i).text();
+					}
+					/* 获取词性和解释 */
+					temp = youdaodoc.getElementsByClass("trans-container")
+							.get(0).getElementsByTag("li");
+					for (Element i : temp) {
+						if (attribute == null) {
+							if (i.text().contains(". ")) {
+								attribute = i.text().split(". ")[0];
+								explanation = i.text().split(". ")[1];
+							} else {
+								explanation = i.text();
+							}
 						} else {
-							explanation = i.text();
-						}
-					} else {
-						if (i.text().contains(". ")) {
-							attribute = attribute + '#'
-									+ i.text().split(". ")[0];
-							explanation = explanation + '#'
-									+ i.text().split(". ")[1];
-						} else {
-							explanation = explanation + '#' + i.text();
+							if (i.text().contains(". ")) {
+								attribute = attribute + '#'
+										+ i.text().split(". ")[0];
+								explanation = explanation + '#'
+										+ i.text().split(". ")[1];
+							} else {
+								explanation = explanation + '#' + i.text();
+							}
 						}
 					}
 				}
@@ -197,49 +211,52 @@ class OnlineSearcher {
 			Document bingdoc;
 			try {
 				bingdoc = Jsoup.connect(bing).timeout(5000).get();
-				/* 获取音标 */
-				Elements temp = bingdoc.getElementsByClass("hd_prUS");
-				if (temp.size() > 0)
-					phonetic = temp.text();
-				temp = bingdoc.getElementsByClass("hd_pr");
-				if (temp.size() > 0)
-					phonetic = phonetic + '#' + temp.text();
-				/* 获取词性和解释 */
-				Elements els = bingdoc.getElementsByClass("qdef");
-				if (els.size() > 0) {
-					temp = els.get(0).getElementsByTag("ul").get(0).getElementsByTag("li");
+				if (bingdoc.getElementsByClass("dymp_link").size() > 0) {
+					phonetic = "NotFound";
+					attribute = "NotFound";
+					explanation = "NotFound";
 				} else {
-					temp = null;
-				} 
-				if (temp == null) {
-					attribute = null;
-					explanation = null;
-				} else {
-					for (Element i : temp) {
-						Element j = i.getElementsByClass("pos").get(0);
-						if (j.className().equals("pos")) {
-							if (attribute == null)
-								attribute = j.text();
-							else
-								attribute = attribute + '#' + j.text();
-							Element k = i.getElementsByClass("def").get(0);
-							if (explanation == null)
-								explanation = k.text();
-							else
-								explanation = explanation + '#' + k.text();
+					/* 获取音标 */
+					Elements temp = bingdoc.getElementsByClass("hd_prUS");
+					if (temp.size() > 0)
+						phonetic = temp.text();
+					temp = bingdoc.getElementsByClass("hd_pr");
+					if (temp.size() > 0)
+						phonetic = phonetic + '#' + temp.text();
+					/* 获取词性和解释 */
+					Elements els = bingdoc.getElementsByClass("qdef");
+					if (els.size() > 0) {
+						temp = els.get(0).getElementsByTag("ul").get(0)
+								.getElementsByTag("li");
+					} else {
+						temp = null;
+					}
+					if (temp == null) {
+						attribute = null;
+						explanation = null;
+					} else {
+						for (Element i : temp) {
+							Element j = i.getElementsByClass("pos").get(0);
+							if (j.className().equals("pos")) {
+								if (attribute == null)
+									attribute = j.text();
+								else
+									attribute = attribute + '#' + j.text();
+								Element k = i.getElementsByClass("def").get(0);
+								if (explanation == null)
+									explanation = k.text();
+								else
+									explanation = explanation + '#' + k.text();
+							}
 						}
 					}
 				}
-				/*
-				 * System.out.println(phonetic); System.out.println(attribute);
-				 * System.out.println(explanation);
-				 */
-				info = new Information(src, phonetic, attribute, explanation);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("connect time out");
 			}
+			info = new Information(src, phonetic, attribute, explanation);
 		}
 
 		public Information getInformation() {

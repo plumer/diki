@@ -100,17 +100,23 @@ class Database {
 	
 	/** information表插入 测试ok*/
 	boolean sqlInsertInformation(String keyword, Information info) {
-		try {
-			Statement stm = connect.createStatement();
-			//keyword | source | phonetic | attribute | zancount | unzancount
-			stm.execute("insert into information values('" + keyword
-					+ "', '" + info.getSource() + "', '" + info.getPhonetic()
-					+ "', '" + info.getAttribute() + "', '"
-					+ info.getExplanation() + "', 0, 0);");
-			return true;
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (info.getAttribute() == null && info.getExplanation() == null
+				&& info.getPhonetic() == null)
+			return false;
+		else {
+			try {
+				Statement stm = connect.createStatement();
+				// keyword | source | phonetic | attribute | zancount |
+				// unzancount
+				stm.execute("insert into information values('" + keyword
+						+ "', '" + info.getSource() + "', '"
+						+ info.getPhonetic() + "', '" + info.getAttribute()
+						+ "', '" + info.getExplanation() + "', 0, 0);");
+				return true;
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
