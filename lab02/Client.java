@@ -1027,7 +1027,7 @@ public class Client extends JFrame{
 		//在用户登陆或者注册的时候才需要开始与Server进行通信
 		try{//create a socket to connect to the server
 			
-			socket = new Socket("114.212.133.81",23333);//yushen:114.212.129.39
+			socket = new Socket("172.26.38.120",23333);//yushen:114.212.129.39
 			//System.out.println(socket.getInetAddress().getAddress());
 			
 			//create an input stream to receive data from the server
