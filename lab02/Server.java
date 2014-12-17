@@ -21,23 +21,26 @@ public class Server {
 						clientInetAddress.getHostAddress());
 				System.out.println("Client " + clientNo + "\'s port is " +
 						connectToClient.getPort());
-				HandleTask task = new HandleTask(connectToClient);
+				HandleTask task = new HandleTask(connectToClient, clientNo);
 				new Thread(task).start();
 
 				clientNo++;
 			}
 		} catch (IOException ex) {
-			System.err.println(ex);
+			System.out.println("server system down!!");
+			ex.printStackTrace();
 		}
 	}
 
 	public static class HandleTask implements Runnable {
 		private Socket connectionSocket;
 		private String currentUserName;
+		int clientNo;
 		private int transactionCounter = 0;
 
-		public HandleTask(Socket socket) {
+		public HandleTask(Socket socket, int clientNo) {
 			this.connectionSocket = socket;
+			this.clientNo = clientNo;
 		}
 		
 		public void run() {
@@ -70,7 +73,6 @@ public class Server {
 							if (s.length != 2) {
 								log("error", "login request invalid");
 								osToClient.writeUTF("rlifalse");
-								osToClient.flush();
 							} else {
 								String onlineUserList = null;
 								if ( db.sqlNameIsExist(s[0]) ) {
@@ -88,7 +90,6 @@ public class Server {
 									log("error", "login: user ["+s[0]+"] not exist");
 									osToClient.writeUTF("rlifalse");
 								}
-								osToClient.flush();
 								/////////////////////////
 								// 数据库提供了以下函数:
 								// 1. boolean NameIsExist(String username); 返回用户名是否存在
@@ -131,7 +132,6 @@ public class Server {
 								log("info", "false sent back");
 								osToClient.writeUTF("rrgfalse");
 							}
-							osToClient.flush();
 							log("info", "reply register: "+result);
 
 						} else if (opcode.equals("lo")) {
@@ -155,7 +155,6 @@ public class Server {
 								log("error", "user does not exist");
 							}
 							osToClient.writeUTF("rlo" + result);
-							osToClient.flush();
 							log("info", "reply logout: "+result);
 
 						} else if (opcode.equals("se")) {			
@@ -191,7 +190,6 @@ public class Server {
 								zanFlag[0] +"^"+ zanFlag[1] +"^"+ zanFlag[2] +"^"+ 
 								unzanFlag[0] +"^"+ unzanFlag[1] +"^"+ unzanFlag[2];
 							osToClient.writeUTF("rse" + result +"^"+ flags);
-							osToClient.flush();
 							log("info", "reply search: "+result+"^"+flags);
 
 						} else if (opcode.equals("za")) {			
@@ -214,7 +212,6 @@ public class Server {
 								result = db.sqlInsertZanlog(s[1], s[0], s[2]);
 							}
 							osToClient.writeUTF("rza" + result);
-							osToClient.flush();
 							log("info", "reply zan: "+result);
 
 						} else if (opcode.equals("uz")) {			// unzan
@@ -232,7 +229,6 @@ public class Server {
 								result = db.sqlInsertUnzanlog(s[1], s[0], s[2]);
 							}
 							osToClient.writeUTF("ruz" + result);
-							osToClient.flush();
 							log("info", "reply unzan: "+result);
 						} else if (opcode.equals("ou")) {			
 							// get online users request
@@ -247,7 +243,6 @@ public class Server {
 							String onlineUserList = db.sqlGetOnlineUser().replaceAll("\\$", "\\^");
 							
 							osToClient.writeUTF("rou"+onlineUserList);
-							osToClient.flush();
 							log("info", "reply qou: " + onlineUserList);
 						} else if (opcode.equals("sc")) {			
 							// send card
@@ -269,14 +264,23 @@ public class Server {
 								log("error", "send card log already exists");
 							}
 							osToClient.writeUTF("rsc" + result);
-							osToClient.flush();
 							log("info", "reply qsc: " + result);
+						} else if (opcode.equals("gc")) {
+							// get all cards
+							// s[0] - sender
+							String cardsInfo = db.sqlGetMyCard(s[0]);
+							osToClient.writeUTF("rgc"+cardsInfo);
+							log("info", "reply to get card request: " + cardsInfo);
 						}
 					} // end of if
+					osToClient.flush();
 					transactionCounter++;
 				} // end of while
 			} catch (Exception ex) {
 				ex.printStackTrace();
+				if (currentUserName != null) {
+					db.updateUserStatus(currenUserName, User.OFFLINE);
+				}
 			}
 		} // end of function run()
 
@@ -287,7 +291,8 @@ public class Server {
 		}
 
 		void log(String type, String message) {
-			System.out.println("Server #"+transactionCounter+", " + type + ": " + message);
+			System.out.println("[Server] Client #" + clientNo +
+			" trans #" + transactionCounter+", " + type + ": " + message);
 		}
 	}
 	
