@@ -12,11 +12,11 @@ class Database {
 	// 3. 数据库编码为utf8
 	/** 默认构造函数 */
 	public Database() {
-		String host = "127.0.0.1:3306";
-		String database = "test";
-		String user = "root";
-		String password = "thispasswordiswrong";
-		this(host, database, user, password);
+		//String host = "127.0.0.1:3306";
+		//String database = "test";
+		//String user = "root";
+		//String password = "thispasswordiswrong";
+		this("127.0.0.1:3306","test", "root",  "thispasswordiswrong");
 	}
 
 	/** 指定数据库参数的构造函数 */
