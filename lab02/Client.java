@@ -18,8 +18,11 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.plaf.FontUIResource;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 
 import java.io.IOException;
+
 public class Client extends JFrame{
 	private JButton login = new JButton("login");			//登陆按钮
 	private JButton register = new JButton("register");	//注册按钮
@@ -66,7 +69,13 @@ public class Client extends JFrame{
 		JLabel loginUserName = new JLabel("User Name");
 		JTextField jtfLoginUserName = new JTextField(8);
 		JLabel loginPassword = new JLabel("Password");
-		JTextField jtfLoginPassword = new JTextField(8);
+		//JTextField jtfLoginPassword = new JTextField(8);
+		JPasswordField jtfLoginPassword = new JPasswordField("00000000");
+		JLabel Login0 = new JLabel("hhh");
+		JPasswordField Login1 = new JPasswordField("23333");
+		jtfLoginPassword.setEchoChar('*');
+		if(jtfLoginPassword.echoCharIsSet()) 	System.out.println("huixian");
+		else 									System.out.println("meiyouhuixian");
 		JButton lfLogin = new JButton("login");//登陆面板的登陆按钮
 		JButton lfCancel = new JButton("cancel");//登陆面板的取消按钮
 		
@@ -74,22 +83,23 @@ public class Client extends JFrame{
 		loginFrame.setSize(250,125);
 		loginFrame.setLocationRelativeTo(null);
 		loginFrame.setTitle("login");
-		loginFrame.setLayout(new GridLayout(3,2,5,5));
+		loginFrame.setLayout(new GridLayout(4,2,5,5));
 		loginFrame.add(loginUserName);
 		loginFrame.add(jtfLoginUserName);
 		loginFrame.add(loginPassword);
 		loginFrame.add(jtfLoginPassword);
 		loginFrame.add(lfLogin);
 		loginFrame.add(lfCancel);
+		loginFrame.add(Login0);//
+		loginFrame.add(Login1);//
 		loginFrame.setVisible(true);
 		//lfLogin.setEnabled(true);
 		lfLogin.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				//System.out.println("Start login 1");
 				loginFrame.setEnabled(true);
 				String userName = jtfLoginUserName.getText();
 				System.out.println("login username: " + userName);
-				String userPassword = jtfLoginPassword.getText();
+				String userPassword = jtfLoginPassword.getPassword().toString();
 				System.out.println("login password: " + userPassword);
 				//发送请求登陆数据包
 				String replyLoginPackage;
@@ -133,7 +143,10 @@ public class Client extends JFrame{
 	    					logout.setEnabled(true);
 	    					note.setEnabled(true);
 	    					refreshOnlineUserList.setEnabled(true);
-	    				
+	    					for(int i = 0; i < 3; i++){
+	    						sendCard[i].setEnabled(true);
+	    					}
+	    						
 	    					//login和register禁用
 	    					login.setEnabled(false);
 	    					register.setEnabled(false);
@@ -842,7 +855,7 @@ public class Client extends JFrame{
 		//添加login的监听事件，调用login函数
 		login.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				login();
+				//login();
 			}
 		});
 		
