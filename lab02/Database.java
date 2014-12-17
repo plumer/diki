@@ -16,7 +16,7 @@ class Database {
 		//String database = "test";
 		//String user = "root";
 		//String password = "thispasswordiswrong";
-		this("127.0.0.1:3306","test", "root",  "thispasswordiswrong");
+		this("127.0.0.1:3306","test", "root",  "");
 	}
 
 	/** 指定数据库参数的构造函数 */
@@ -209,7 +209,7 @@ class Database {
 				boolean ol = rs.getBoolean(5);
 				result.setStatus(ol);
 				if (ol) {
-					result.setIp(InetAddress.getByName(rs.getString(3));
+					result.setIp(InetAddress.getByName(rs.getString(3)));
 					result.setPort(rs.getInt(4));
 				}
 			}
