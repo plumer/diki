@@ -22,8 +22,8 @@ class ClientBackground {
 	
 	private User currentUser; // 当前用户
 	private Entry currentEntry; //当前词条
-	private String[] notebook; // 单词本
-	private int notebookNumber = 0;
+	private String[] notebook = new String[100]; // 单词本
+	private int notebookNumber ;
 	private int [] displayOrder = {0,1,2};//初始的显示顺序是0（baidu）1（youdao）2（bing）
 	private int [] zanSum = {0,0,0};//每个显示面板的点赞数
 	private int [] unzanSum = {0,0,0};//不赞数
@@ -85,6 +85,20 @@ class ClientBackground {
 			
 			}
 		});
+		
+		jtfLoginPassword.addKeyListener(new KeyAdapter() {
+    		public void keyReleased(KeyEvent e){
+    			if(e.getKeyCode() == 10){//按下enter键就进行单词查询
+    				String userName = jtfLoginUserName.getText();
+    				System.out.println("login username: " + userName);
+    				String userPassword = String.valueOf(jtfLoginPassword.getPassword());
+    				System.out.println("login password: " + userPassword);
+    				loginConfirm(userName,userPassword,defaultListModel,
+    						logout,register,note,refreshOnlineUserList,login,
+    						sendCard,lfLogin,loginFrame,jtfLoginUserName,jtfLoginPassword);
+    			}
+    		}
+    	}); 
 		
 		lfCancel.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
@@ -276,6 +290,20 @@ class ClientBackground {
 		   			 registerFrame, jtfRegUserName, jtfRegPassword, jtfRegPasswordConfirm);
 			}
 		});
+		
+		jtfRegPasswordConfirm.addKeyListener(new KeyAdapter() {
+    		public void keyReleased(KeyEvent e){
+    			if(e.getKeyCode() == 10){//按下enter键就进行单词查询
+    				String userName = jtfRegUserName.getText();
+    				System.out.println("userName: " + userName);
+    		        String password = (String.valueOf(jtfRegPassword.getPassword()));
+    		        String passwordConfirm = (String.valueOf(jtfRegPasswordConfirm.getPassword()));
+    		        registerConfirm(userName,password,passwordConfirm,
+    		   			 registerFrame, jtfRegUserName, jtfRegPassword, jtfRegPasswordConfirm);
+    			}
+    		}
+    	}); 
+		
 		rfCancel.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				jtfRegUserName.setText("");
@@ -561,13 +589,15 @@ class ClientBackground {
 	/**
 	 * 显示单词本
 	 */
-	public void showNotes(DefaultListModel defaultListModel) { 
+	public void showNotes() { 
 		//相当于是显示收到的单词卡（收卡的功能）
 		//shownote面板
 		JFrame showNoteFrame = new JFrame();
 		JLabel noteTitle = new JLabel("My notebook");
 		JList noteList = new JList();
 		JScrollPane scrollPaneOfNoteList = new JScrollPane(noteList);	//滚轮
+		DefaultListModel defaultListModel = new DefaultListModel();
+		noteList.setModel(defaultListModel);
 		JTextArea wordExplaination = new JTextArea();
 		JScrollPane scrollPaneOfWordEx = new JScrollPane(wordExplaination);	//滚轮
 		//note面板设置
@@ -584,8 +614,9 @@ class ClientBackground {
 		showNoteFrame.add(scrollPaneOfWordEx,BorderLayout.CENTER);
 		
 		for(int i = 0; i < notebookNumber; i++){
-			String [] temp = notebook[i].split("$");
-			defaultListModel.addElement(temp[2]);
+			String [] temp = notebook[i].split("\\^");
+			defaultListModel.addElement(temp[1]);
+			System.out.println(temp[1]);
 		}
 		
 		//将note中的单词加入列表中，点击即可显示具体内容
@@ -599,11 +630,16 @@ class ClientBackground {
 
 	public void selectWord(JList noteList, JTextArea wordExplaination){
 		//选中要发送的用户之后，显示在左边三个textfield中
+		wordExplaination.setText("");
     	int selectedIndex = noteList.getSelectedIndex();//返回选中多少行
-    	String[] temp = notebook[selectedIndex].split("^");
+    	//System.out.println("选中行数： " + selectedIndex);
+    	String[] temp = notebook[selectedIndex].split("\\^");
     	//来自哪个用户 temp[0]
     	//keyword temp[1]
     	//info 	temp[2]
+    	//System.out.println("temp[0]: " + temp[0]);
+    	//System.out.println("temp[1]: " + temp[1]);
+    	//System.out.println("temp[2]: " + temp[2]);
     	wordExplaination.append("FROM " + "\t" + temp[0] + "\n" 
 				+ temp[1] + "\n");
     	//info
@@ -611,7 +647,7 @@ class ClientBackground {
     	//source
     	wordExplaination.append(info[0] + '\n');
 		//keyword
-		wordExplaination.append(currentEntry.getKeyword() + '\n');
+		//wordExplaination.append(temp[1] + '\n');
 		//音标
 		String [] pho = info[1].split("#");
 		for(int j = 0; j < pho.length; j++){
@@ -631,12 +667,8 @@ class ClientBackground {
 	    	wordExplaination.append("zan: " + currentZan + "\n");
 	    	//unzan
 	    	int currentUnzan = Integer.parseInt(info[5]);
-	    	wordExplaination.append("zan: " + currentUnzan + "\n");
+	    	wordExplaination.append("unzan: " + currentUnzan + "\n");
 	    }
-    	
-    	//wordExplaination.append("FROM " + "\t" + temp[0] + "\n" 
-    							//+ temp[1] + "\n");
-		
 	}
 	
 	// panelID: which result? A? B? C?
@@ -749,13 +781,14 @@ class ClientBackground {
 			String replyGetCard = fromServer.readUTF();
 			System.out.println(replyGetCard);
 			//sender+keyword+info
+			//int wordIndex = 0;
 			String [] temp = replyGetCard.substring(3).split("\\^");
 			for(int i = 0; i < temp.length; i = i + 3){
 				System.out.println("chai: " + temp[i]);
 				System.out.println(temp[i+1]);
 				System.out.println(temp[i+2]);
-				notebook[(int)(i/3)] = new String(temp[i] + temp[i+1] + temp[i+2]);
-				System.out.println("note: "+ notebook[(int)(i/3)]);
+				notebook[notebookNumber] = new String(temp[i] + "^" + temp[i+1] + "^" + temp[i+2]);
+				System.out.println("note: "+ notebook[notebookNumber]);
 				notebookNumber++;
 			}
 			

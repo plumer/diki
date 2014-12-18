@@ -233,7 +233,7 @@ public class Client extends JFrame{
 		note.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				clientBackground.getCard();
-				clientBackground.showNotes(defaultListModel);
+				clientBackground.showNotes();
 			}
 		});
 		
