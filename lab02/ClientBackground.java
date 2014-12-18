@@ -351,20 +351,20 @@ class ClientBackground {
 	/**
 	 * 主界面按下search按键之后触发的事件
 	 */
-	public void search(JTextField input, JButton [] zan,JButton [] unzan,
+	public void search(String keyword, JButton [] zan,JButton [] unzan,
 			JTextArea[] result, JCheckBox baidu,JCheckBox youdao,JCheckBox bing,
 			JPanel [] showThreePanel,JButton [] sendCard) {
 		System.out.println("Start search");
 		onlineSearcher = new OnlineSearcher();
-		String keyword = input.getText().trim();
+		//String keyword = input.getText().trim();
 		//用正则表达式判断输入的是一个英文单词
 		String normalInput = "[a-zA-Z]+";
 		if(keyword.matches(normalInput)){
 		StringBuilder requestSearchPackage = new StringBuilder();
 		String replySearchPackage;
 		System.out.println("input: " + keyword);
-		if(currentUser == null ) System.out.println("nononono0!");
-		if(!currentUser.isOnline()) System.out.println("nononono1!");
+		//f(currentUser == null ) System.out.println("nononono0!");
+		//if(!currentUser.isOnline()) System.out.println("nononono1!");
 		if(currentUser != null && currentUser.isOnline()){//用户不为空并且用户在线
 			requestSearchPackage.append("qse");
 			requestSearchPackage.append(keyword);
@@ -443,7 +443,7 @@ class ClientBackground {
 		else{
 			//System.out.println("输入不合法，不是一个英文单词！");
 			JOptionPane.showMessageDialog(null, "您输入的单词不合法，请重新输入！");
-			input.setText("");
+			//input.setText("");
 		}
 	}
 	
@@ -469,6 +469,7 @@ class ClientBackground {
 				case "bing": if(!bing.isSelected())  isSelected = false;break;
 			}
 			showThreePanel[panelIndex].setBorder(BorderFactory.createTitledBorder (ex[0]));
+			
 			if(isSelected){
 				//选中了就进行显示
 				//result[ panelIndex].append(ex[0] + '\n');
@@ -750,7 +751,11 @@ class ClientBackground {
 			//sender+keyword+info
 			String [] temp = replyGetCard.substring(3).split("\\^");
 			for(int i = 0; i < temp.length; i = i + 3){
-				notebook[i] = new String(temp[i] + temp[i+1] + temp[i+2]);
+				System.out.println("chai: " + temp[i]);
+				System.out.println(temp[i+1]);
+				System.out.println(temp[i+2]);
+				notebook[(int)(i/3)] = new String(temp[i] + temp[i+1] + temp[i+2]);
+				System.out.println("note: "+ notebook[(int)(i/3)]);
 				notebookNumber++;
 			}
 			
