@@ -376,7 +376,7 @@ class Database {
 		}
 		return result.toString();
 	}
-	/** 获取我的所有单词卡, 比如我有两张卡[card1#card2] card1的格式是[keyword^sender^ownder^information] 测试ok*/
+	/** 获取我的所有单词卡, 比如我有两张卡[card1^card2] card1的格式是[keyword^sender^ownder^information] 测试ok*/
 	String sqlGetMyCard(String owner) {
 		StringBuffer result = null;
 		try {
