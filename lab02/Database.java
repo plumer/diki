@@ -407,7 +407,10 @@ class Database {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return result.toString();
+		if (result == null)
+			return null;
+		else
+			return result.toString();
 	}
 
 //	public static void main(String[] args) {
