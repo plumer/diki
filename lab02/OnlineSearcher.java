@@ -257,6 +257,7 @@ class OnlineSearcher {
 							if (explanation == null) explanation = temp.get(k).text();
 							else explanation = explanation + '#' + temp.get(k).text();
 						}
+						if (explanation == null) explanation = "NotFound";
 					} else {
 						explanation = "NotFound";
 					}
