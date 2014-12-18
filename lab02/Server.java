@@ -1,10 +1,36 @@
 package lab02;
 import java.io.*;
 import java.net.*;
-public class Server {
-	private static Database db = new Database();
+public class Server implements Runnable {
+	private static Database db = new Database("127.0.0.1:3306", "diki", "root", "21844576");
 
-	public static void main( String[] args ) {
+	public static void main( String[] args ) throws InterruptedException {
+		Server s = new Server();
+		Thread serverThread = new Thread(s);
+		serverThread.run();
+		serverThread.join();
+	}
+	
+	public Server() {
+		Runtime.getRuntime().addShutdownHook(new LogoutAllUsers());
+	}
+	
+	private class LogoutAllUsers extends Thread {
+		public LogoutAllUsers() {
+			super("logout all users");
+		}
+		
+		public void run() {
+			String [] onlineUserList = db.sqlGetOnlineUser().split("\\^");
+			for (int i = 0; i < onlineUserList.length; ++i) {
+				System.out.println("logging out on user [" + onlineUserList[i] + "]");
+				db.sqlUpdateUserStatus(onlineUserList[i], User.OFFLINE);
+			}
+			System.out.println("All users logged out");
+		}
+	}
+	
+	public void run() {
 		System.out.println("你服务器大爷开啦！");
 		try {
 			ServerSocket serverSocket = new ServerSocket(23333);
@@ -28,6 +54,7 @@ public class Server {
 			}
 		} catch (IOException ex) {
 			System.out.println("server system down!!");
+			
 			ex.printStackTrace();
 		}
 	}
@@ -58,18 +85,19 @@ public class Server {
 					for (int i = 0; i < s.length; ++i) 
 						System.out.print("\t"+s[i]);
 					System.out.print("\n");
-					/*
+					/**
 					 * operands are stored in String array s[] (line 52)
 					 * server respond to request packages depending on the opcode
 					 */
 					if (buf.charAt(0) == 'q') {
 						if (opcode.equals("li")) {					
-							// login request
-							// s[0] - username, s[1] - password
-							// assumption: the user is currently offline
-							// if username exists in the database, and password matches
-							//   return true
-							// else return false
+							/** login request
+								s[0] - username, s[1] - password
+								assumption: the user is currently offline
+								if username exists in the database, and password matches
+									return true
+								else return false
+							*/
 							if (s.length != 2) {
 								log("error", "login request invalid");
 								osToClient.writeUTF("rlifalse");
@@ -94,13 +122,14 @@ public class Server {
 							}
 
 						} else if (opcode.equals("rg")) {			
-							// register request
-							// s[0] - username, s[1] - password
-							// if username CONFLICTS with some existing user
-							//   return false
-							// else 
-							//   insert a new user to the database
-							//   return true
+							/** register request
+								s[0] - username, s[1] - password
+								if username CONFLICTS with some existing user
+									return false
+								else 
+									insert a new user to the database
+									return true
+							*/
 							boolean result = false;
 							if (s.length == 2) {
 								if ( db.sqlNameIsExist(s[0]) ) {
@@ -123,11 +152,12 @@ public class Server {
 							log("info", "reply register: "+result);
 
 						} else if (opcode.equals("lo")) {
-							// logout request
-							// s[0] - username
-							// if user exists in the database and is currently online
-							//   return true
-							// else return false
+							/** logout request
+								s[0] - username
+								if user exists in the database and is currently online
+									return true
+								else return false
+							*/
 							log("info", "logging out request on user [" + s[0] + "]");
 							boolean result = false;
 							if ( db.sqlNameIsExist(s[0]) ) {
@@ -223,12 +253,11 @@ public class Server {
 							// send card
 							// s[0] - sender, s[1] - receiver, s[2] - keyword, s[3] - provider
 							// insert this to the database....
-							// BTW, [fetch cards] function unimplemented
 							log("info", "sending card from [" + s[0] + "] to [" +
 								s[1] + "] on word [" + s[2] + "] provided by [" + s[3] + "]");
 							boolean result = false;
 							if ( !db.sqlCardIsExist(s[0], s[1], s[2], s[3]) ) {
-								result = db.sqlInsertCard(s[0], s[2], s[2], s[3]);
+								result = db.sqlInsertCard(s[0], s[1], s[2], s[3]);
 							} else {
 								log("error", "send card log already exists");
 							}
@@ -264,6 +293,4 @@ public class Server {
 			" trans #" + transactionCounter+", " + type + ": " + message);
 		}
 	}
-	
-
 }
