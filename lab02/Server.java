@@ -1,6 +1,9 @@
 package lab02;
 import java.io.*;
 import java.net.*;
+import javax.swing.*;
+import java.awt.*;
+
 public class Server implements Runnable {
 	private static Database db = new Database("127.0.0.1:3306", "diki", "root", "21844576");
 
@@ -13,6 +16,7 @@ public class Server implements Runnable {
 	
 	public Server() {
 		Runtime.getRuntime().addShutdownHook(new LogoutAllUsers());
+		initializeUI();
 	}
 	
 	private class LogoutAllUsers extends Thread {
@@ -37,15 +41,15 @@ public class Server implements Runnable {
 			int clientNo = 1;
 			while (true) {
 				Socket connectToClient = serverSocket.accept();
-				System.out.println("Start thread for client " + clientNo);
+				mainLog("Start thread for client " + clientNo);
 				InetAddress clientInetAddress = connectToClient.getInetAddress();
 				
-				System.out.println("Client " + clientNo + "\'s hostname is " +
+				mainLog("Client " + clientNo + "\'s hostname is " +
 						clientInetAddress.getHostName());
 
-				System.out.println("Client " + clientNo + "\'s IP Address is " +
+				mainLog("Client " + clientNo + "\'s IP Address is " +
 						clientInetAddress.getHostAddress());
-				System.out.println("Client " + clientNo + "\'s port is " +
+				mainLog("Client " + clientNo + "\'s port is " +
 						connectToClient.getPort());
 				HandleTask task = new HandleTask(connectToClient, clientNo);
 				new Thread(task).start();
@@ -58,7 +62,12 @@ public class Server implements Runnable {
 			ex.printStackTrace();
 		}
 	}
-
+	
+	public void mainLog(String message) {
+		Server.appendMessage(message+"\n");
+		System.out.println(message);
+	}
+	
 	public static class HandleTask implements Runnable {
 		private Socket connectionSocket;
 		private String currentUserName;
@@ -82,9 +91,7 @@ public class Server implements Runnable {
 					String opcode = buf.substring(1, 3);
 					log("info", "opcode: \"" + buf.substring(0, 3) + "\"\n"+
 						s.length + "operands: ");
-					for (int i = 0; i < s.length; ++i) 
-						System.out.print("\t"+s[i]);
-					System.out.print("\n");
+					printStringArray(s);
 					/**
 					 * operands are stored in String array s[] (line 52)
 					 * server respond to request packages depending on the opcode
@@ -105,11 +112,14 @@ public class Server implements Runnable {
 								String onlineUserList = null;
 								if ( db.sqlNameIsExist(s[0]) ) {
 									User quester = db.sqlGetUserByName(s[0]);
-									if ( quester.getPassword().equals(s[1]) ) {
+									if ( quester.isOnline() ) {
+										osToClient.writeUTF("rlifalse");
+									} else if ( quester.getPassword().equals(s[1]) ) {
 /* this may fail					*/	db.sqlUpdateUserStatus(s[0], User.ONLINE);
 										onlineUserList = db.sqlGetOnlineUser();
 										currentUserName = s[0];
 										osToClient.writeUTF("rlitrue^" + onlineUserList);
+										Server.newOnlineUser(s[0]);
 									} else {
 										osToClient.writeUTF("rlifalse");
 										log("error", "login password incorrect");
@@ -118,7 +128,7 @@ public class Server implements Runnable {
 									log("error", "login: user ["+s[0]+"] not exist");
 									osToClient.writeUTF("rlifalse");
 								}
-								log("info", "reply login: "+onlineUserList);
+								log("info", "reply login: \n\t"+onlineUserList);
 							}
 
 						} else if (opcode.equals("rg")) {			
@@ -149,7 +159,7 @@ public class Server implements Runnable {
 								log("info", "false sent back");
 								osToClient.writeUTF("rrgfalse");
 							}
-							log("info", "reply register: "+result);
+							log("info", "reply register: \n\t"+result);
 
 						} else if (opcode.equals("lo")) {
 							/** logout request
@@ -161,8 +171,14 @@ public class Server implements Runnable {
 							log("info", "logging out request on user [" + s[0] + "]");
 							boolean result = false;
 							if ( db.sqlNameIsExist(s[0]) ) {
-								result = db.sqlUpdateUserStatus(s[0], User.OFFLINE);
-								currentUserName = null;
+								if (!currentUserName.equals(s[0])) {
+									log("error", "logging out: mismatch on current user name with operand");
+								} else {
+									result = db.sqlUpdateUserStatus(s[0], User.OFFLINE);
+									Server.newOfflineUser(currentUserName);
+									currentUserName = null;
+								}
+								
 							} else {
 								log("error", "user does not exist");
 							}
@@ -211,7 +227,8 @@ public class Server implements Runnable {
 								zanFlag[0] +"^"+ zanFlag[1] +"^"+ zanFlag[2] +"^"+ 
 								unzanFlag[0] +"^"+ unzanFlag[1] +"^"+ unzanFlag[2];
 							osToClient.writeUTF("rse" + result +"^"+ flags);
-							log("info", "reply search: "+result+"^"+flags);
+							log("info", "reply search: \n\t" + 
+								result.toString().replaceAll("\\^", "\n\t\t")+"^"+flags);
 
 						} else if (opcode.equals("za")) {			
 							// zan request
@@ -248,7 +265,7 @@ public class Server implements Runnable {
 							String onlineUserList = db.sqlGetOnlineUser().replaceAll("\\$", "\\^");
 							
 							osToClient.writeUTF("rou"+onlineUserList);
-							log("info", "reply qou: " + onlineUserList);
+							log("info", "reply qou: \n\t" + onlineUserList);
 						} else if (opcode.equals("sc")) {			
 							// send card
 							// s[0] - sender, s[1] - receiver, s[2] - keyword, s[3] - provider
@@ -268,7 +285,7 @@ public class Server implements Runnable {
 							// s[0] - sender
 							String cardsInfo = db.sqlGetMyCard(s[0]);
 							osToClient.writeUTF("rgc"+cardsInfo);
-							log("info", "reply to get card request: " + cardsInfo);
+							log("info", "reply to get card request: \n" + cardsInfo.replaceAll("\\^", "\n"));
 						}
 					} // end of if
 					osToClient.flush();
@@ -278,19 +295,70 @@ public class Server implements Runnable {
 				ex.printStackTrace();
 				if (currentUserName != null) {
 					db.sqlUpdateUserStatus(currentUserName, User.OFFLINE);
+					Server.newOfflineUser(currentUserName);
 				}
 			}
 		} // end of function run()
 
 		void printStringArray( String[] s) {
 			for (int i = 0; i < s.length; ++i) {
-				System.out.print("\t" + s[i]);
+				Server.appendMessage("\t" + s[i]);
 			}
+			Server.appendMessage("\n");
 		}
 
 		void log(String type, String message) {
 			System.out.println("[Server] Client #" + clientNo +
 			" trans #" + transactionCounter+", " + type + ": " + message);
+			Server.appendMessage("[Server] Client #" + clientNo +
+			" trans #" + transactionCounter+", " + type + ": \n\t" + message+"\n");
 		}
+		
+		
+	} // end of class HandleTask
+	
+	public void initializeUI() {
+		jfMainPanel = new JFrame();
+		jfMainPanel.setLayout(new BorderLayout());
+		jlOnlineUsers = new JList(model);
+		jtaLog = new JTextArea();
+//		jpTopBar = new JPanel();
+//		jbtKick = new JButton("Kick Down The User");
+//		jpTopBar.add(jbtKick);
+		
+//		jfMainPanel.add(jpTopBar, BorderLayout.NORTH);
+		jfMainPanel.add(new JScrollPane(jlOnlineUsers), BorderLayout.WEST);
+		jfMainPanel.add(new JScrollPane(jtaLog), BorderLayout.CENTER);
+		
+		jfMainPanel.setTitle("Server Monitor");
+		jfMainPanel.setLocationRelativeTo(null);
+		jfMainPanel.setSize(600, 400);
+		jfMainPanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		jfMainPanel.setVisible(true);
+		
+/**		jbtKick.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String userName = 
+			}
+		});*/
+	}
+	
+	private static DefaultListModel model = new DefaultListModel();
+	private static JFrame jfMainPanel;
+	private static JList jlOnlineUsers;
+	private static JTextArea jtaLog;
+	private static JButton jbtKick;
+	private static JPanel jpTopBar;
+	
+	public static void appendMessage(String m) {
+		jtaLog.append(m);
+	}
+	
+	public static void newOnlineUser(String userName) {
+		model.addElement(userName);
+	}
+	
+	public static void newOfflineUser(String userName) {
+		model.removeElement(userName);
 	}
 }
