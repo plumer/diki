@@ -1,8 +1,5 @@
 package lab02;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -51,14 +48,16 @@ class OnlineSearcher {
 					explanation = "NotFound";
 				} else {
 					/* 获取音标 */
-					Elements temp = baidudoc.getElementsByTag("b");
-					for (Element i : temp) {
-						if (i.hasAttr("lang")) {
+					Elements temp = baidudoc.getElementsByAttributeValue("lang", "EN-US");
+					if (temp.size() > 0) {
+						for (Element i : temp) {
 							if (phonetic == null)
 								phonetic = i.text();
 							else
 								phonetic = phonetic + '#' + i.text();
 						}
+					} else {
+						phonetic = "NotFound";
 					}
 					/* 获取词性 */
 					Element el = baidudoc.getElementById("en-simple-means");
@@ -68,7 +67,7 @@ class OnlineSearcher {
 						temp = null;
 					}
 					if (temp == null)
-						attribute = null;
+						attribute = "NotFound";
 					else {
 						for (Element i : temp) {
 							if (attribute == null)
@@ -84,7 +83,7 @@ class OnlineSearcher {
 						temp = null;
 					}
 					if (temp == null) {
-						explanation = null;
+						explanation = "NotFound";
 					} else {
 						for (int i = 0; i < attribute.split("#").length; i++) {
 							if (explanation == null)
@@ -142,33 +141,41 @@ class OnlineSearcher {
 				} else {
 					/* 获取音标 */
 					Elements temp = youdaodoc.getElementsByClass("phonetic");
-					for (int i = 0; i < temp.size() && i < 2; i++) {
-						if (phonetic == null)
-							phonetic = temp.get(i).text();
-						else
-							phonetic = phonetic + '#' + temp.get(i).text();
-					}
+					if (temp.size() > 0
+							&& temp.get(0).className().equals("phonetic")) {
+						for (int i = 0; i < temp.size() && i < 2; i++) {
+							if (phonetic == null)
+								phonetic = temp.get(i).text();
+							else
+								phonetic = phonetic + '#' + temp.get(i).text();
+						}
+					} else phonetic = "NotFound";
 					/* 获取词性和解释 */
 					temp = youdaodoc.getElementsByClass("trans-container")
 							.get(0).getElementsByTag("li");
-					for (Element i : temp) {
-						if (attribute == null) {
-							if (i.text().contains(". ")) {
-								attribute = i.text().split(". ")[0];
-								explanation = i.text().split(". ")[1];
+					if (temp.size() > 0) {
+						for (Element i : temp) {
+							if (attribute == null) {
+								if (i.text().contains(". ")) {
+									attribute = i.text().split(". ")[0];
+									explanation = i.text().split(". ")[1];
+								} else {
+									explanation = i.text();
+								}
 							} else {
-								explanation = i.text();
-							}
-						} else {
-							if (i.text().contains(". ")) {
-								attribute = attribute + '#'
-										+ i.text().split(". ")[0];
-								explanation = explanation + '#'
-										+ i.text().split(". ")[1];
-							} else {
-								explanation = explanation + '#' + i.text();
+								if (i.text().contains(". ")) {
+									attribute = attribute + '#'
+											+ i.text().split(". ")[0];
+									explanation = explanation + '#'
+											+ i.text().split(". ")[1];
+								} else {
+									explanation = explanation + '#' + i.text();
+								}
 							}
 						}
+					} else {
+						attribute = "NotFound";
+						explanation = "NotFound";
 					}
 				}
 			} catch (Exception e) {
@@ -181,7 +188,6 @@ class OnlineSearcher {
 			 * System.out.println(explanation);
 			 */
 			info = new Information(src, phonetic, attribute, explanation);
-
 		}
 
 		public Information getInformation() {
@@ -218,37 +224,42 @@ class OnlineSearcher {
 				} else {
 					/* 获取音标 */
 					Elements temp = bingdoc.getElementsByClass("hd_prUS");
-					if (temp.size() > 0)
+					if (temp.size() > 0) {
 						phonetic = temp.text();
-					temp = bingdoc.getElementsByClass("hd_pr");
-					if (temp.size() > 0)
-						phonetic = phonetic + '#' + temp.text();
-					/* 获取词性和解释 */
-					Elements els = bingdoc.getElementsByClass("qdef");
-					if (els.size() > 0) {
-						temp = els.get(0).getElementsByTag("ul").get(0)
-								.getElementsByTag("li");
-					} else {
-						temp = null;
+						temp = bingdoc.getElementsByClass("hd_pr");
+						if (temp.size() > 0)
+							phonetic = phonetic + '#' + temp.text();
 					}
-					if (temp == null) {
-						attribute = null;
-						explanation = null;
-					} else {
-						for (Element i : temp) {
-							Element j = i.getElementsByClass("pos").get(0);
-							if (j.className().equals("pos")) {
-								if (attribute == null)
-									attribute = j.text();
-								else
-									attribute = attribute + '#' + j.text();
-								Element k = i.getElementsByClass("def").get(0);
-								if (explanation == null)
-									explanation = k.text();
-								else
-									explanation = explanation + '#' + k.text();
+					else phonetic = "NotFound";
+					/* 获取词性 */
+					int attribute_ct = 0;
+					Elements els = bingdoc.getElementsByClass("pos");
+					for (Element i : els) {
+						if (i.className().equals("pos web"))
+							break;
+						else if (i.className().equals("pos")) {
+							if (attribute == null) {
+								attribute_ct++;
+								attribute = i.text();
+							} else {
+								attribute_ct++;
+								attribute = attribute + '#' + i.text();
 							}
 						}
+					}
+					if (attribute == null) attribute = "NotFound";
+					
+					/* 获取解释 */
+					els = bingdoc.getElementsByClass("qdef");
+					if (els.size() > 0) {
+						temp = els.get(0).getElementsByClass("def");
+						for (int k = 0; k < temp.size() && k < attribute_ct; k++) {
+							if (explanation == null) explanation = temp.get(k).text();
+							else explanation = explanation + '#' + temp.get(k).text();
+						}
+						if (explanation == null) explanation = "NotFound";
+					} else {
+						explanation = "NotFound";
 					}
 				}
 			} catch (Exception e) {
@@ -304,9 +315,10 @@ class OnlineSearcher {
 		return result;
 	}
 
-	/*
-	 * public static void main(String[] args) { OnlineSearcher oser = new
-	 * OnlineSearcher(); oser.search("hello"); oser.search("Amy");
-	 * oser.search("Amily"); }
-	 */
+	public static void main(String[] args) {
+		OnlineSearcher oser = new OnlineSearcher();
+		System.out.println(oser.search("hello").toString());
+		System.out.println(oser.search("doubi").toString());
+		System.out.println(oser.search("great").toString());
+	}
 }
