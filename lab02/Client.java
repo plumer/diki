@@ -53,18 +53,19 @@ public class Client extends JFrame{
 	private String[] notebook; // 单词本
 	private int notebookNumber = 0;
 	private Entry currentEntry; //当前词条
-	private OnlineSearcher onlineSearcher;
+	//private OnlineSearcher onlineSearcher;
 	private int [] displayOrder = {0,1,2};//初始的显示顺序是0（baidu）1（youdao）2（bing）
 	private int [] zanSum = {0,0,0};//每个显示面板的点赞数
 	private int [] unzanSum = {0,0,0};//不赞数
 	JPanel [] showThreePanel = new JPanel[3];
+	private ClientBackground clientBackground;
     //
 	
-	private Socket socket;
+	/*private Socket socket;
 	//net IO stream
 	private DataOutputStream toServer;
-	private DataInputStream fromServer;
-	
+	private DataInputStream fromServer;*/
+	/*
 	// pops out another that requires user name and password from user input
 	private boolean login() {
 		JFrame loginFrame = new JFrame();//登陆窗口
@@ -146,6 +147,7 @@ public class Client extends JFrame{
 	    						
 	    					//login和register禁用
 	    					login.setEnabled(false);
+	    					login.setText(currentUser.getName());
 	    					register.setEnabled(false);
 	    					
 	    					//关闭登陆面板
@@ -183,7 +185,7 @@ public class Client extends JFrame{
 		
 		return true;//不知道如何返回false或者true？
 	}
-
+*//*
 	private boolean logout() {
 		if(currentUser != null &&currentUser.isOnline()){//判断有用户在线
 		System.out.println("start logout!");
@@ -236,10 +238,10 @@ public class Client extends JFrame{
 		}
 		}
 		return true;
-	}
+	}*/
 
 	// pops out another panel that requires registration information
-	private boolean register() {
+	/*private boolean register() {
 		JFrame registerFrame = new JFrame();
 		JLabel regUserName = new JLabel("User Name");
 		JTextField jtfRegUserName = new JTextField(8);
@@ -339,7 +341,7 @@ public class Client extends JFrame{
 		});	
 		return true;
 	}
-
+*//*
 	// pops out another panel that shows the list of entries received
 	private void showNotes() { 
 		//相当于是显示收到的单词卡（收卡的功能）
@@ -479,19 +481,33 @@ public class Client extends JFrame{
 	}
 
 	private boolean sendCard(int panelID) {
+		String source = "";
+		int sourceIndex = 0;
+		for(int i = 0; i < 3; i++){
+			if(panelID == displayOrder[i]){
+				sourceIndex = i;
+				break;
+			}
+		}
+		switch(sourceIndex){
+			case 0 : source = "baidu";break;
+			case 1 : source = "youdao";break;
+			case 2 : source = "bing";break;
+		}
 		String dstUserName = whoToSend[panelID].getText();
 		System.out.println("sendcard " + panelID + " to " + dstUserName);
 		try {
 			toServer.writeUTF("qsc" + currentUser.getName() + "^"
 									+ dstUserName + "^" 
 									+ currentEntry.getKeyword() + "^"
-									+ currentEntry.getInformation(displayOrder[panelID]));
+									+ source);
 			System.out.println("qsc" + currentUser.getName() + "^"
 									 + dstUserName + "^" 
 									 + currentEntry.getKeyword() + "^"
-									 + currentEntry.getInformation(displayOrder[panelID]));
-			//String replySendCard = fromServer.readUTF();
-			//System.out.println("recv sendCard: " + replySendCard);
+									 + source);
+			//发卡成功与否
+			String replySendCard = fromServer.readUTF();
+			System.out.println("recv sendCard: " + replySendCard);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -504,10 +520,12 @@ public class Client extends JFrame{
 		try {
 			//send
 			toServer.writeUTF("qgc" + currentUser.getName());
+			System.out.println("qgc" + currentUser.getName());
 			toServer.flush();
 			
 			//recv
 			String replyGetCard = fromServer.readUTF();
+			System.out.println(replyGetCard);
 			//sender+keyword+info
 			String [] temp = replyGetCard.substring(3).split("\\^");
 			for(int i = 0; i < temp.length; i = i + 3){
@@ -547,7 +565,7 @@ public class Client extends JFrame{
 		
 	}
 
-	// fills in all result panels
+	/* fills in all result panels
 	private void search() {
 		System.out.println("Start search");
 		onlineSearcher = new OnlineSearcher();
@@ -729,7 +747,7 @@ public class Client extends JFrame{
 	    		}
 	    	}
 	    }
-	    if(displayOrder[0] != displayOrder[2]){
+	    if(allzanSum[0] < allzanSum[2]){
 	    	int temp = displayOrder[0];
 	    	displayOrder[0] = displayOrder[2];
 	    	displayOrder[2] = temp;
@@ -744,7 +762,7 @@ public class Client extends JFrame{
 	    	System.out.println("显示在面板" + displayOrder[i]);
 	    }
 	    System.out.println();
-	}
+	}*/
 	
 	public static void main(String[] args){
 		
@@ -785,7 +803,13 @@ public class Client extends JFrame{
 				
 			}
 	
+	//logout
+	private void logout(){
+		clientBackground.logout(currentUser, login, logout, register, note, zan, unzan, sendCard, whoToSend, refreshOnlineUserList, defaultListModel);;
+	}
+	
 	public Client(){
+		clientBackground = new ClientBackground();
 		result = new JTextArea[3];
 		scrollpane = new JScrollPane[3];
 		whoToSend = new JTextField[3];
@@ -794,6 +818,7 @@ public class Client extends JFrame{
 		sendCard = new JButton[3];
 		for(int i = 0; i < 3; i++){
 			result[i] = new JTextArea(5,20);
+			result[i].setEditable(false);
 			scrollpane[i] = new JScrollPane(result[i]);
 			whoToSend[i] = new JTextField("who to send");
 			zan[i] = new JButton("zan");
@@ -899,28 +924,28 @@ public class Client extends JFrame{
 		//添加login的监听事件，调用login函数
 		login.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				login();
+				currentUser = clientBackground.login(defaultListModel, currentUser, logout, register, note, refreshOnlineUserList, login, sendCard);
 			}
 		});
 		
 		logout.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				logout();
+				logout();//clientBackground.logout(currentUser, login, logout, register, note, zan, unzan, sendCard, whoToSend, refreshOnlineUserList, defaultListModel);
 			}
 		});
 		
 		//添加register的监听事件
 		register.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				register();
+				clientBackground.register();
 			}
 		});
 		
 		//添加note的监听事件
 		note.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				getCard();
-				showNotes();
+				clientBackground.getCard(notebookNumber, currentUser, notebook);//getCard();
+				clientBackground.showNotes(notebookNumber, notebook, defaultListModel, currentEntry, currentUser);//showNotes();
 			}
 		});
 		
@@ -929,7 +954,7 @@ public class Client extends JFrame{
     		public void keyReleased(KeyEvent e){
     			String word = input.getText();
     			if(e.getKeyCode() == 10){//按下enter键就进行单词查询
-    				search();
+    				clientBackground.search(input, currentUser, currentEntry, zan, unzan, zanSum, unzanSum, displayOrder, result, baidu, youdao, bing, showSelectPanel, sendCard);;
     			}
     			else{//在输入和撤销单词过程中将显示框清除
     				for(int i = 0; i < 3; i++){
@@ -942,7 +967,7 @@ public class Client extends JFrame{
 		//添加search按钮的监听事件
 		search.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				search();
+				clientBackground.search(input, currentUser, currentEntry, zan, unzan, zanSum, unzanSum, displayOrder, result, baidu, youdao, bing, showSelectPanel, sendCard);
 			}
 		});
 		
@@ -960,57 +985,57 @@ public class Client extends JFrame{
 		//添加zan的监听事件（三个panel）
 		zan[0].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clickZan(0);
+				clientBackground.clickZan(0, displayOrder, currentEntry, currentUser, zan);
 			}
 		});
 		
 		zan[1].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clickZan(1);
+				clientBackground.clickZan(1, displayOrder, currentEntry, currentUser, zan);
 			}
 		});
 		
 		zan[2].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clickZan(2);
+				clientBackground.clickZan(2, displayOrder, currentEntry, currentUser, zan);
 			}
 		});
 		
 		//添加unzan的监听事件（三个panel）
 		unzan[0].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clickUnzan(0);
+				clientBackground.clickZan(0, displayOrder, currentEntry, currentUser, unzan);
 			}
 		});
 		
 		unzan[1].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clickUnzan(1);
+				clientBackground.clickZan(1, displayOrder, currentEntry, currentUser, unzan);
 			}
 		});
 		
 		unzan[2].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clickUnzan(2);
+				clientBackground.clickZan(2, displayOrder, currentEntry, currentUser, unzan);
 			}
 		});
 		
 		//添加sendCard的监听事件（三个panel）
 		sendCard[0].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				sendCard(0);
+				clientBackground.sendCard(0, displayOrder, whoToSend, currentUser, currentEntry);//sendCard(0);
 			}
 		});
 		
 		sendCard[1].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				sendCard(1);
+				clientBackground.sendCard(1, displayOrder, whoToSend, currentUser, currentEntry);//
 			}
 		});
 		
 		sendCard[2].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				sendCard(2);
+				clientBackground.sendCard(2, displayOrder, whoToSend, currentUser, currentEntry);//
 			}
 		});
 		
@@ -1019,7 +1044,7 @@ public class Client extends JFrame{
 			public void actionPerformed(ActionEvent e){
 				String keyword = input.getText();
 				if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) ){
-					displayThreePanel();
+					clientBackground.displayThreePanel(result, baidu, youdao, bing, showSelectPanel, currentEntry, currentUser, sendCard, zan, unzan, displayOrder, zanSum, unzanSum);//displayThreePanel();
 				}
 			}
 		});
@@ -1028,7 +1053,7 @@ public class Client extends JFrame{
 			public void actionPerformed(ActionEvent e){
 				String keyword = input.getText();
 				if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) ){
-					displayThreePanel();
+					clientBackground.displayThreePanel(result, baidu, youdao, bing, showSelectPanel, currentEntry, currentUser, sendCard, zan, unzan, displayOrder, zanSum, unzanSum);
 				}
 			}
 		});
@@ -1037,7 +1062,7 @@ public class Client extends JFrame{
 			public void actionPerformed(ActionEvent e){
 				String keyword = input.getText();
 				if(currentEntry != null && currentEntry.getKeyword().equalsIgnoreCase(keyword) ){
-					displayThreePanel();
+					clientBackground.displayThreePanel(result, baidu, youdao, bing, showSelectPanel, currentEntry, currentUser, sendCard, zan, unzan, displayOrder, zanSum, unzanSum);
 				}
 			}
 		});
@@ -1046,28 +1071,28 @@ public class Client extends JFrame{
 		sendCard[0].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				System.out.println("sendcard 0");
-				sendCard(0);
+				clientBackground.sendCard(0, displayOrder, whoToSend, currentUser, currentEntry);
 			}
 		});
 		
 		sendCard[1].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				sendCard(1);
+				clientBackground.sendCard(1, displayOrder, whoToSend, currentUser, currentEntry);
 			}
 		});
 		
 		sendCard[2].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				sendCard(2);
+				clientBackground.sendCard(2, displayOrder, whoToSend, currentUser, currentEntry);
 			}
 		});
 		
 		refreshOnlineUserList.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				refreshOnlineUserList();
+				clientBackground.refreshOnlineUserList(currentUser, defaultListModel);
 			}
 		});
-		//在用户登陆或者注册的时候才需要开始与Server进行通信
+		/*//在用户登陆或者注册的时候才需要开始与Server进行通信
 		try{//create a socket to connect to the server
 			
 			socket = new Socket("172.26.38.120",23333);//yushen:114.212.129.39
@@ -1082,7 +1107,7 @@ public class Client extends JFrame{
 		}
 		catch(Exception ex){
 			ex.printStackTrace();
-		}
+		}*/
 	}
 	
 }
