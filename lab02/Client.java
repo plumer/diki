@@ -49,14 +49,14 @@ public class Client extends JFrame{
 	private JButton [] unzan;	//点不赞按钮
 	private JButton [] sendCard;	//发送单词卡按钮
 
-	private User currentUser; // 当前用户
+	/*private User currentUser; // 当前用户
 	private String[] notebook; // 单词本
 	private int notebookNumber = 0;
 	private Entry currentEntry; //当前词条
 	//private OnlineSearcher onlineSearcher;
 	private int [] displayOrder = {0,1,2};//初始的显示顺序是0（baidu）1（youdao）2（bing）
 	private int [] zanSum = {0,0,0};//每个显示面板的点赞数
-	private int [] unzanSum = {0,0,0};//不赞数
+	private int [] unzanSum = {0,0,0};//不赞数*/
 	JPanel [] showThreePanel = new JPanel[3];
 	private ClientBackground clientBackground;
     //
