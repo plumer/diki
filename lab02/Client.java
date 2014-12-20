@@ -45,6 +45,21 @@ public class Client extends JFrame{
   
 	public static void main(String[] args) {
 		Client frame = new Client();
+		
+		// 参考陈冬杰的代码
+		Client.setDefaultLookAndFeelDecorated(true);
+		//* 想要修改皮肤的话，只需要更改，下面这个函数的参数，具体改成什么样，
+		// * 可以打开substance.jar, 找到org.jvnet.substance.skin这个包
+		// * 将下面的SubstanceDustCoffeeLookAndFeel替换成刚刚打开的包下的任意一个“Substance....LookAndFeel”即可 
+		try {
+			UIManager.setLookAndFeel(new org.jvnet.substance.skin.SubstanceMistSilverLookAndFeel());
+		} catch (UnsupportedLookAndFeelException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		frame.setFont(new Font("微软雅黑", 1, 15));
+		
 		frame.getLayeredPane().add(setbg, new Integer(Integer.MIN_VALUE));
 		((JPanel)frame.getContentPane()).setOpaque(false);
 		
@@ -74,6 +89,10 @@ public class Client extends JFrame{
 	}
 	
 	public Client(){
+		baidu.setOpaque(false);
+		youdao.setOpaque(false);
+		bing.setOpaque(false);
+		
 		background = new ImageIcon("bg.jpg");
 		setbg = new JLabel(background);
 		setbg.setBounds(0, 0, background.getIconWidth(), background.getIconHeight());
@@ -115,6 +134,7 @@ public class Client extends JFrame{
 		 * BorderLayout
 		 */
 		JPanel searchPanel = new JPanel();
+		searchPanel.setOpaque(false);
 		
 		/* 控件有： 在线用户列表，三个网站的搜索结果，其中有单词的解释选择给谁发送单词卡、赞按钮、不赞按钮和发送单词卡按钮
 		 * 三个网站的搜索结构(showResultPanel (使用 BorderLayout))       
@@ -123,18 +143,23 @@ public class Client extends JFrame{
 		 * BorderLayout
 		 */
 		JPanel showPanel = new JPanel();
+		showPanel.setOpaque(false);
 		
 		/* 以下是更小的panel的定义，在上面已经解释过
 		 * 控件有：百度、有道和必应三个复选框
 		 */ 
 		JPanel selectSourcePanel = new JPanel();
+		selectSourcePanel.setOpaque(false);
 		JPanel showResultPanel = new JPanel();
+		showResultPanel.setOpaque(false);
 		
 		//JPanel [] showThreePanel = new JPanel[3];
 		JPanel [] showSelectPanel = new JPanel[3];
 		for(int i = 0; i < 3; i++){
 			showThreePanel[i] = new JPanel();
 			showSelectPanel[i] = new JPanel();
+			showThreePanel[i].setOpaque(false);
+			showSelectPanel[i].setOpaque(false);
 		}
 		
 		logPanel.setOpaque(false);
@@ -156,10 +181,15 @@ public class Client extends JFrame{
 		selectSourcePanel.add(youdao);
 		selectSourcePanel.add(bing);
 		
-		searchPanel.setLayout(new BorderLayout(20,10));
-		searchPanel.add(new JLabel("Input"),BorderLayout.WEST);
-		searchPanel.add(input,BorderLayout.CENTER);
-		searchPanel.add(search,BorderLayout.EAST);
+		searchPanel.setLayout(new BorderLayout(5, 5));
+		JPanel subSearchPanel = new JPanel(new BorderLayout(5, 5));
+		
+		subSearchPanel.setOpaque(false);
+		subSearchPanel.add(new JLabel("    Input    "), BorderLayout.WEST);
+		subSearchPanel.add(input, BorderLayout.CENTER);
+		subSearchPanel.add(search, BorderLayout.EAST);
+		
+		searchPanel.add(subSearchPanel, BorderLayout.NORTH);
 		searchPanel.add(selectSourcePanel,BorderLayout.SOUTH);
 		
 		for(int i = 0; i < 3; i++){
@@ -190,14 +220,19 @@ public class Client extends JFrame{
 		onlineUserList.setFixedCellHeight(50);
 		onlineUserList.setModel(defaultListModel);
 		scrollPane.setBorder(BorderFactory.createTitledBorder ("OnlineUserList"));
+		scrollPane.setOpaque(false);
 		showPanel.add(scrollPane,BorderLayout.WEST);
 		showPanel.add(showResultPanel,BorderLayout.CENTER);
 		
 		
-		setLayout(new BorderLayout(20,20));
+		setLayout(new BorderLayout());
+		logPanel.setBounds(0, 0, 800, 30);
+		JPanel subPanel = new JPanel(new BorderLayout());
+		subPanel.setOpaque(false);
 		add(logPanel,BorderLayout.NORTH);
-		add(searchPanel,BorderLayout.CENTER);
-		add(showPanel,BorderLayout.SOUTH);
+		subPanel.add(searchPanel,BorderLayout.CENTER);
+		subPanel.add(showPanel,BorderLayout.SOUTH);
+		add(subPanel);
 		
 		//添加login的监听事件，调用login函数
 		login.addActionListener(new ActionListener(){

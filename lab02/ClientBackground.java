@@ -291,14 +291,16 @@ class ClientBackground {
 			}
 		});
 		
-		rfRegister.addKeyListener(new KeyAdapter() {
+		jtfRegPasswordConfirm.addKeyListener(new KeyAdapter() {
     		public void keyReleased(KeyEvent e){
-    			String userName = jtfRegUserName.getText();
-				System.out.println("userName: " + userName);
-		        String password = (String.valueOf(jtfRegPassword.getPassword()));
-		        String passwordConfirm = (String.valueOf(jtfRegPasswordConfirm.getPassword()));
-		        registerConfirm(userName,password,passwordConfirm,
-		   			 registerFrame, jtfRegUserName, jtfRegPassword, jtfRegPasswordConfirm);
+    			if(e.getKeyCode() == 10){//按下enter键就进行单词查询
+    				String userName = jtfRegUserName.getText();
+    				System.out.println("userName: " + userName);
+    		        String password = (String.valueOf(jtfRegPassword.getPassword()));
+    		        String passwordConfirm = (String.valueOf(jtfRegPasswordConfirm.getPassword()));
+    		        registerConfirm(userName,password,passwordConfirm,
+    		   			 registerFrame, jtfRegUserName, jtfRegPassword, jtfRegPasswordConfirm);
+    			}
     		}
     	}); 
 		
@@ -640,6 +642,9 @@ class ClientBackground {
     	//来自哪个用户 temp[0]
     	//keyword temp[1]
     	//info 	temp[2]
+    	//System.out.println("temp[0]: " + temp[0]);
+    	//System.out.println("temp[1]: " + temp[1]);
+    	//System.out.println("temp[2]: " + temp[2]);
     	wordExplaination.append("FROM " + "\t" + temp[0] + "\n" 
 				+ temp[1] + "\n");
     	//info
@@ -665,12 +670,8 @@ class ClientBackground {
 	    	wordExplaination.append("zan: " + currentZan + "\n");
 	    	//unzan
 	    	int currentUnzan = Integer.parseInt(info[5]);
-	    	wordExplaination.append("zan: " + currentUnzan + "\n");
+	    	wordExplaination.append("unzan: " + currentUnzan + "\n");
 	    }
-    	
-    	//wordExplaination.append("FROM " + "\t" + temp[0] + "\n" 
-    							//+ temp[1] + "\n");
-		
 	}
 	
 	// panelID: which result? A? B? C?
@@ -783,6 +784,7 @@ class ClientBackground {
 			String replyGetCard = fromServer.readUTF();
 			System.out.println(replyGetCard);
 			//sender+keyword+info
+			//int wordIndex = 0;
 			String [] temp = replyGetCard.substring(3).split("\\^");
 			for(int i = 0; i < temp.length; i = i + 3){
 				System.out.println("chai: " + temp[i]);
