@@ -1,29 +1,17 @@
 package lab02;
 
-// ju ge lizi
-import java.util.*; 
-import java.awt.*;
-import java.io.*; 
+import java.awt.*; 
 
 import javax.swing.*;
 
 import java.awt.event.*;
-import java.net.*;
-import java.awt.event.KeyEvent;
 
-import javax.swing.text.Document;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.FontUIResource;
 import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
-
-import java.io.IOException;
 
 public class Client extends JFrame{
+	private static final long serialVersionUID = 1L;
 	private JButton login = new JButton("login");			//登陆按钮
 	private JButton register = new JButton("register");	//注册按钮
 	private JLabel title = new JLabel("My Diki");			//词典名字
@@ -33,63 +21,53 @@ public class Client extends JFrame{
 	private JTextField input = new JTextField(); 			//输入文本框
 	private JButton search = new JButton("search");		//search 按钮
 	
-	private JCheckBox baidu = new JCheckBox("百度",true);		//三个复选框
+	private JCheckBox baidu = new JCheckBox("百度",true);	//三个复选框
 	private JCheckBox youdao = new JCheckBox("有道",true);
 	private JCheckBox bing = new JCheckBox("必应",true);
 	
 	private JButton refreshOnlineUserList = new JButton("refresh");
-	DefaultListModel defaultListModel = new DefaultListModel();
-	private JList onlineUserList = new JList();			//在线用户列表
+	DefaultListModel<String> defaultListModel = new DefaultListModel<String>();
+	private JList<String> onlineUserList = new JList<String>();			//在线用户列表
 	private JScrollPane scrollPane = new JScrollPane(onlineUserList);		//列表的滚动
 	
-	private JTextArea [] result;		//3个网站的搜索结果显示文本区域
-	private JScrollPane [] scrollpane;	//滚轮
-	private JTextField [] whoToSend;//显示给谁发单词卡的文本框
-	private JButton [] zan;		//点赞按钮
-	private JButton [] unzan;	//点不赞按钮
-	private JButton [] sendCard;	//发送单词卡按钮
+	private JTextArea [] result;			//3个网站的搜索结果显示文本区域
+	private JScrollPane [] scrollpane;		//滚轮
+	private JTextField [] whoToSend;		//显示给谁发单词卡的文本框
+	private JButton [] zan;				//点赞按钮
+	private JButton [] unzan;				//点不赞按钮
+	private JButton [] sendCard;			//发送单词卡按钮
 
 	JPanel [] showThreePanel = new JPanel[3];
 	private ClientBackground clientBackground;
-  
-	public static void main(String[] args){
-		
-		/* 下面的这个函数完全从陈冬杰的代码那里复制来的 */
 
-		/*		JFrame.setDefaultLookAndFeelDecorated(true);
-				try 
-				{
-					//* 想要修改皮肤的话，只需要更改，下面这个函数的参数，具体改成什么样，
-					// * 可以打开substance.jar, 找到org.jvnet.substance.skin这个包
-					// * 将下面的SubstanceDustCoffeeLookAndFeel替换成刚刚打开的包下的任意一个“Substance....LookAndFeel”即可 
-					UIManager.setLookAndFeel(new org.jvnet.substance.skin.SubstanceEmeraldDuskLookAndFeel());
+	ImageIcon background;
+	static JLabel setbg;
+  
+	public static void main(String[] args) {
+		Client frame = new Client();
+		
+		frame.getLayeredPane().add(setbg, new Integer(Integer.MIN_VALUE));
+		((JPanel)frame.getContentPane()).setOpaque(false);
+		
+		// frame.setResizable(true);
+		frame.setSize(800, 600);// frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame.setTitle("DIKI");
+		frame.setVisible(true);
+		frame.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				int n = JOptionPane.showConfirmDialog(null, "乃真的要走了吗？", "退出",
+						JOptionPane.YES_NO_OPTION);
+				// 选中“是”返回0,选中“否”返回1。
+				if (n == 0) {
+					// 用户退出（如果在线）
+					frame.logout();
+					System.exit(0);
 				}
-				catch (Exception e)
-				{
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		*/		//----------------如果想删除substance效果，只保留下面部分--------------------------
-				Client frame = new Client();
-				frame.setResizable(false);
-				frame.setSize(600,600);//frame.pack();
-				frame.setLocationRelativeTo(null);
-				frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-				frame.setTitle("DIKI");
-				frame.setVisible(true);
-				frame.addWindowListener(new WindowAdapter() {  
-					public void windowClosing(WindowEvent e) {  
-						int n=JOptionPane.showConfirmDialog(null, "您确定要退出Diki吗？","退出",JOptionPane.YES_NO_OPTION);
-						//选中“是”返回0,选中“否”返回1。
-						if(n == 0){
-							//用户退出（如果在线）
-							frame.logout();
-							System.exit(0);
-						}
-					 }  
-					});   
-				
 			}
+		});
+	}
 	
 	//logout
 	private void logout(){
@@ -97,17 +75,27 @@ public class Client extends JFrame{
 	}
 	
 	public Client(){
+		background = new ImageIcon("bg.jpg");
+		setbg = new JLabel(background);
+		setbg.setBounds(0, 0, background.getIconWidth(), background.getIconHeight());
+		
 		clientBackground = new ClientBackground();
+		
 		result = new JTextArea[3];
+		
 		scrollpane = new JScrollPane[3];
+		
 		whoToSend = new JTextField[3];
 		zan = new JButton[3];
 		unzan = new JButton[3];
 		sendCard = new JButton[3];
+		
 		for(int i = 0; i < 3; i++){
 			result[i] = new JTextArea(5,20);
 			result[i].setEditable(false);
 			scrollpane[i] = new JScrollPane(result[i]);
+			scrollpane[i].setOpaque(false);
+			
 			whoToSend[i] = new JTextField("who to send");
 			zan[i] = new JButton("zan");
 			zan[i].setEnabled(false);//未登陆时无法点赞
@@ -128,6 +116,7 @@ public class Client extends JFrame{
 		 * BorderLayout
 		 */
 		JPanel searchPanel = new JPanel();
+		searchPanel.setOpaque(false);
 		
 		/* 控件有： 在线用户列表，三个网站的搜索结果，其中有单词的解释选择给谁发送单词卡、赞按钮、不赞按钮和发送单词卡按钮
 		 * 三个网站的搜索结构(showResultPanel (使用 BorderLayout))       
@@ -136,22 +125,30 @@ public class Client extends JFrame{
 		 * BorderLayout
 		 */
 		JPanel showPanel = new JPanel();
+		showPanel.setOpaque(false);
 		
 		/* 以下是更小的panel的定义，在上面已经解释过
 		 * 控件有：百度、有道和必应三个复选框
 		 */ 
 		JPanel selectSourcePanel = new JPanel();
+		selectSourcePanel.setOpaque(false);
 		JPanel showResultPanel = new JPanel();
+		showResultPanel.setOpaque(false);
 		
 		//JPanel [] showThreePanel = new JPanel[3];
 		JPanel [] showSelectPanel = new JPanel[3];
 		for(int i = 0; i < 3; i++){
 			showThreePanel[i] = new JPanel();
 			showSelectPanel[i] = new JPanel();
+			showThreePanel[i].setOpaque(false);
+			showSelectPanel[i].setOpaque(false);
 		}
 		
-		logPanel.setLayout(new GridLayout(1,5,40,40));
+		logPanel.setOpaque(false);
+		
+		logPanel.setLayout(new GridLayout(1,5,5,5));
 		logPanel.add(login);
+		//logPanel.add(login);
 		logPanel.add(logout);
 		logout.setEnabled(false);//未登陆时不能使用logout
 		logPanel.add(register);
@@ -200,6 +197,7 @@ public class Client extends JFrame{
 		onlineUserList.setFixedCellHeight(50);
 		onlineUserList.setModel(defaultListModel);
 		scrollPane.setBorder(BorderFactory.createTitledBorder ("OnlineUserList"));
+		scrollPane.setOpaque(false);
 		showPanel.add(scrollPane,BorderLayout.WEST);
 		showPanel.add(showResultPanel,BorderLayout.CENTER);
 		
@@ -331,25 +329,21 @@ public class Client extends JFrame{
 		//复选框的监听器
 		baidu.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				String keyword = input.getText();
-					clientBackground.displayThreePanel(result, baidu, youdao, bing, showSelectPanel, sendCard, zan, unzan);
+				clientBackground.displayThreePanel(result, baidu, youdao, bing, showSelectPanel, sendCard, zan, unzan);
 				
 			}
 		});
 		
 		youdao.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				String keyword = input.getText();
-					clientBackground.displayThreePanel(result, baidu, youdao, bing, showThreePanel, sendCard, zan, unzan);
+				clientBackground.displayThreePanel(result, baidu, youdao, bing, showThreePanel, sendCard, zan, unzan);
 				
 			}
 		});
 		
 		bing.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				String keyword = input.getText();
-				
-					clientBackground.displayThreePanel(result, baidu, youdao, bing, showSelectPanel, sendCard, zan, unzan);
+				clientBackground.displayThreePanel(result, baidu, youdao, bing, showSelectPanel, sendCard, zan, unzan);
 				
 			}
 		});
@@ -379,22 +373,5 @@ public class Client extends JFrame{
 				clientBackground.refreshOnlineUserList(defaultListModel);
 			}
 		});
-		/*//在用户登陆或者注册的时候才需要开始与Server进行通信
-		try{//create a socket to connect to the server
-			
-			socket = new Socket("114.212.129.39",23333);//yushen:114.212.129.39
-			//System.out.println(socket.getInetAddress().getAddress());
-			
-			//create an input stream to receive data from the server
-			fromServer = new DataInputStream(socket.getInputStream());
-			
-			//create an output stream to send data to the server
-			toServer = new DataOutputStream(socket.getOutputStream());
-
-		}
-		catch(Exception ex){
-			ex.printStackTrace();
-		}*/
-	}
-	
+	}	
 }
