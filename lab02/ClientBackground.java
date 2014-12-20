@@ -29,20 +29,7 @@ class ClientBackground {
 	private int [] unzanSum = {0,0,0};//不赞数
 	
 	ClientBackground(){
-		try{//create a socket to connect to the server
 			
-			socket = new Socket("114.212.129.39",23333);//yushen:114.212.129.39
-			//System.out.println(socket.getInetAddress().getAddress());
-			
-			//create an input stream to receive data from the server
-			fromServer = new DataInputStream(socket.getInputStream());
-			
-			//create an output stream to send data to the server
-			toServer = new DataOutputStream(socket.getOutputStream());
-		}
-		catch(Exception ex){
-			ex.printStackTrace();
-		}		
 	}
 	
 	/**
@@ -118,6 +105,20 @@ class ClientBackground {
 		//发送请求登陆数据包
 		String replyLoginPackage;
 		try {
+			try{//create a socket to connect to the server
+				
+				socket = new Socket("114.212.129.39",23333);//yushen:114.212.129.39
+				//System.out.println(socket.getInetAddress().getAddress());
+				
+				//create an input stream to receive data from the server
+				fromServer = new DataInputStream(socket.getInputStream());
+				
+				//create an output stream to send data to the server
+				toServer = new DataOutputStream(socket.getOutputStream());
+			}
+			catch(Exception ex){
+				ex.printStackTrace();
+			}	
 			//send package to server
 			toServer.writeUTF("qli" + userName + "^" + userPassword);
 			toServer.flush();
@@ -338,6 +339,20 @@ class ClientBackground {
         	System.out.println("send package: " + requestRegPackage.toString());
         
         	try {//send
+        		try{//create a socket to connect to the server
+        			
+        			socket = new Socket("114.212.129.39",23333);//yushen:114.212.129.39
+        			//System.out.println(socket.getInetAddress().getAddress());
+        			
+        			//create an input stream to receive data from the server
+        			fromServer = new DataInputStream(socket.getInputStream());
+        			
+        			//create an output stream to send data to the server
+        			toServer = new DataOutputStream(socket.getOutputStream());
+        		}
+        		catch(Exception ex){
+        			ex.printStackTrace();
+        		}	
         		toServer.writeUTF(requestRegPackage.toString());
         		toServer.flush();
         		//receive

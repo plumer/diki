@@ -206,8 +206,8 @@ public class Client extends JFrame{
 				case 1: break;
 				case 2: break;
 			}
-			showThreePanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
-			showSelectPanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
+			showThreePanel[i].setBorder(BorderFactory.createTitledBorder (" "));
+			showSelectPanel[i].setBorder(BorderFactory.createTitledBorder (" "));
 		}
 		
 		showResultPanel.setLayout(new GridLayout(3,1));
