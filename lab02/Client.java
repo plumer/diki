@@ -75,6 +75,10 @@ public class Client extends JFrame{
 	}
 	
 	public Client(){
+		baidu.setOpaque(false);
+		youdao.setOpaque(false);
+		bing.setOpaque(false);
+		
 		background = new ImageIcon("bg.jpg");
 		setbg = new JLabel(background);
 		setbg.setBounds(0, 0, background.getIconWidth(), background.getIconHeight());
@@ -163,10 +167,15 @@ public class Client extends JFrame{
 		selectSourcePanel.add(youdao);
 		selectSourcePanel.add(bing);
 		
-		searchPanel.setLayout(new BorderLayout(20,10));
-		searchPanel.add(new JLabel("Input"),BorderLayout.WEST);
-		searchPanel.add(input,BorderLayout.CENTER);
-		searchPanel.add(search,BorderLayout.EAST);
+		searchPanel.setLayout(new BorderLayout(5, 5));
+		JPanel subSearchPanel = new JPanel(new BorderLayout(5, 5));
+		
+		subSearchPanel.setOpaque(false);
+		subSearchPanel.add(new JLabel("    Input    "), BorderLayout.WEST);
+		subSearchPanel.add(input, BorderLayout.CENTER);
+		subSearchPanel.add(search, BorderLayout.EAST);
+		
+		searchPanel.add(subSearchPanel, BorderLayout.NORTH);
 		searchPanel.add(selectSourcePanel,BorderLayout.SOUTH);
 		
 		for(int i = 0; i < 3; i++){
@@ -202,10 +211,14 @@ public class Client extends JFrame{
 		showPanel.add(showResultPanel,BorderLayout.CENTER);
 		
 		
-		setLayout(new BorderLayout(20,20));
+		setLayout(new BorderLayout());
+		logPanel.setBounds(0, 0, 800, 30);
+		JPanel subPanel = new JPanel(new BorderLayout());
+		subPanel.setOpaque(false);
 		add(logPanel,BorderLayout.NORTH);
-		add(searchPanel,BorderLayout.CENTER);
-		add(showPanel,BorderLayout.SOUTH);
+		subPanel.add(searchPanel,BorderLayout.CENTER);
+		subPanel.add(showPanel,BorderLayout.SOUTH);
+		add(subPanel);
 		
 		//添加login的监听事件，调用login函数
 		login.addActionListener(new ActionListener(){
