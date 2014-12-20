@@ -140,7 +140,7 @@ public class Client extends JFrame{
 		logPanel.setOpaque(false);
 		
 		logPanel.setLayout(new GridLayout(1,5,5,5));
-		logPanel.add(login, 1);
+		logPanel.add(login);
 		//logPanel.add(login);
 		logPanel.add(logout);
 		logout.setEnabled(false);//未登陆时不能使用logout
@@ -177,7 +177,7 @@ public class Client extends JFrame{
 				case 1: subTitle = "youdao";break;
 				case 2: subTitle = "bing";break;
 			}
-			showThreePanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
+			//showThreePanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
 		}
 		
 		showResultPanel.setLayout(new GridLayout(3,1));
@@ -223,7 +223,7 @@ public class Client extends JFrame{
 		note.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				clientBackground.getCard();
-				clientBackground.showNotes(defaultListModel);
+				clientBackground.showNotes();
 			}
 		});
 		
@@ -232,7 +232,7 @@ public class Client extends JFrame{
     		public void keyReleased(KeyEvent e){
     			String word = input.getText();
     			if(e.getKeyCode() == 10){//按下enter键就进行单词查询
-    				clientBackground.search(word ,zan, unzan, result, baidu, youdao, bing, showSelectPanel, sendCard);
+    				clientBackground.search(word ,zan, unzan, result, baidu, youdao, bing, showThreePanel, showSelectPanel, sendCard);
     			}
     			else{//在输入和撤销单词过程中将显示框清除
     				for(int i = 0; i < 3; i++){
@@ -246,7 +246,7 @@ public class Client extends JFrame{
 		search.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				String word = input.getText();
-				clientBackground.search(word , zan, unzan, result, baidu, youdao, bing, showSelectPanel, sendCard);
+				clientBackground.search(word , zan, unzan, result, baidu, youdao, bing, showThreePanel, showSelectPanel, sendCard);
 			}
 		});
 		
@@ -283,19 +283,19 @@ public class Client extends JFrame{
 		//添加unzan的监听事件（三个panel）
 		unzan[0].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clientBackground.clickZan(0, unzan);
+				clientBackground.clickUnzan(0, unzan);
 			}
 		});
 		
 		unzan[1].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clientBackground.clickZan(1, unzan);
+				clientBackground.clickUnzan(1, unzan);
 			}
 		});
 		
 		unzan[2].addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clientBackground.clickZan(2,  unzan);
+				clientBackground.clickUnzan(2,  unzan);
 			}
 		});
 		
@@ -321,21 +321,21 @@ public class Client extends JFrame{
 		//复选框的监听器
 		baidu.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clientBackground.displayThreePanel(result, baidu, youdao, bing, showSelectPanel, sendCard, zan, unzan);
+				clientBackground.displayThreePanel(result, baidu, youdao, bing, showThreePanel,showSelectPanel, sendCard, zan, unzan);
 				
 			}
 		});
 		
 		youdao.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clientBackground.displayThreePanel(result, baidu, youdao, bing, showThreePanel, sendCard, zan, unzan);
+				clientBackground.displayThreePanel(result, baidu, youdao, bing, showThreePanel,showSelectPanel, sendCard, zan, unzan);
 				
 			}
 		});
 		
 		bing.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				clientBackground.displayThreePanel(result, baidu, youdao, bing, showSelectPanel, sendCard, zan, unzan);
+				clientBackground.displayThreePanel(result, baidu, youdao, bing, showThreePanel,showSelectPanel, sendCard, zan, unzan);
 				
 			}
 		});
