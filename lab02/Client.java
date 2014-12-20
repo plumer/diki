@@ -207,7 +207,8 @@ public class Client extends JFrame{
 				case 1: subTitle = "youdao";break;
 				case 2: subTitle = "bing";break;
 			}
-			//showThreePanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
+			showThreePanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
+			showSelectPanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
 		}
 		
 		showResultPanel.setLayout(new GridLayout(3,1));
