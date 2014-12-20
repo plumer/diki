@@ -222,6 +222,7 @@ class ClientBackground {
 					logout.setEnabled(false);
 					//display buttons "login" and "register"
 					login.setEnabled(true);
+					login.setText("login");
 					register.setEnabled(true);
 					//lfLogin.setEnabled(true);
 					//clear onlineUserList
