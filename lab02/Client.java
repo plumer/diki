@@ -12,11 +12,11 @@ import javax.swing.JOptionPane;
 
 public class Client extends JFrame{
 	private static final long serialVersionUID = 1L;
-	private JButton login = new JButton("login");			//登陆按钮
+	private JButton login = new JButton("  login ");			//登陆按钮
 	private JButton register = new JButton("register");	//注册按钮
-	private JLabel title = new JLabel("My Diki");			//词典名字
-	private JButton note = new JButton("note");			//单词本按钮
-	private JButton logout = new JButton("logout");
+	private JLabel title = new JLabel("                                                                    My  Diki                                                                    ");			//词典名字
+	private JButton note = new JButton("  note  ");			//单词本按钮
+	private JButton logout = new JButton(" logout ");
 	 
 	private JTextField input = new JTextField(); 			//输入文本框
 	private JButton search = new JButton("search");		//search 按钮
@@ -164,7 +164,7 @@ public class Client extends JFrame{
 		
 		logPanel.setOpaque(false);
 		
-		logPanel.setLayout(new GridLayout(1,5,5,5));
+		//logPanel.setLayout(new GridLayout(1,5,5,5));
 		logPanel.add(login);
 		//logPanel.add(login);
 		logPanel.add(logout);

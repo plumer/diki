@@ -55,13 +55,13 @@ class Database {
 				// zanlog表: keyword | username | source
 				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='zanlog';");
 				if (!rs.next()) {
-					stm.execute("create table zanlog(keyword char(100) references entry(keyword), username char(20) references user(username), source char(100) references information(source))default charset=utf8;");
+					stm.execute("create table zanlog(keyword char(100) references entry(keyword), username char(20) references user(username), source char(100) references information(source), primary key(keyword, username, source))default charset=utf8;");
 				}
 				// 检查unzanlog表是否存在
 				// unzanlog表: keyword | username | source
 				rs = stm.executeQuery("select `table_name` from `information_schema`.`tables` where `table_schema`='" + database + "' and `TABLE_NAME`='unzanlog';");
 				if (!rs.next()) {
-					stm.execute("create table unzanlog(keyword char(100) references entry(keyword), username char(20) references user(username), source char(100) references information(source))default charset=utf8;");
+					stm.execute("create table unzanlog(keyword char(100) references entry(keyword), username char(20) references user(username), source char(100) references information(source), primary key(keyword, username, source))default charset=utf8;");
 				}
 				// 检查card表是否存在
 				// card表: sender | owner | keyword | source
