@@ -201,11 +201,10 @@ public class Client extends JFrame{
 			showThreePanel[i].setLayout(new BorderLayout());
 			showThreePanel[i].add(scrollpane[i],BorderLayout.CENTER);
 			showThreePanel[i].add(showSelectPanel[i],BorderLayout.EAST);
-			String subTitle = "";
 			switch(i){
-				case 0: subTitle = "baidu"; break;
-				case 1: subTitle = "youdao";break;
-				case 2: subTitle = "bing";break;
+				case 0: break;
+				case 1: break;
+				case 2: break;
 			}
 			//showThreePanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
 		}
