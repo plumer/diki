@@ -45,6 +45,7 @@ public class Client extends JFrame{
   
 	public static void main(String[] args) {
 		Client frame = new Client();
+		
 		frame.getLayeredPane().add(setbg, new Integer(Integer.MIN_VALUE));
 		((JPanel)frame.getContentPane()).setOpaque(false);
 		
@@ -115,6 +116,7 @@ public class Client extends JFrame{
 		 * BorderLayout
 		 */
 		JPanel searchPanel = new JPanel();
+		searchPanel.setOpaque(false);
 		
 		/* 控件有： 在线用户列表，三个网站的搜索结果，其中有单词的解释选择给谁发送单词卡、赞按钮、不赞按钮和发送单词卡按钮
 		 * 三个网站的搜索结构(showResultPanel (使用 BorderLayout))       
@@ -123,24 +125,29 @@ public class Client extends JFrame{
 		 * BorderLayout
 		 */
 		JPanel showPanel = new JPanel();
+		showPanel.setOpaque(false);
 		
 		/* 以下是更小的panel的定义，在上面已经解释过
 		 * 控件有：百度、有道和必应三个复选框
 		 */ 
 		JPanel selectSourcePanel = new JPanel();
+		selectSourcePanel.setOpaque(false);
 		JPanel showResultPanel = new JPanel();
+		showResultPanel.setOpaque(false);
 		
 		//JPanel [] showThreePanel = new JPanel[3];
 		JPanel [] showSelectPanel = new JPanel[3];
 		for(int i = 0; i < 3; i++){
 			showThreePanel[i] = new JPanel();
 			showSelectPanel[i] = new JPanel();
+			showThreePanel[i].setOpaque(false);
+			showSelectPanel[i].setOpaque(false);
 		}
 		
 		logPanel.setOpaque(false);
 		
 		logPanel.setLayout(new GridLayout(1,5,5,5));
-		logPanel.add(login, 1);
+		logPanel.add(login);
 		//logPanel.add(login);
 		logPanel.add(logout);
 		logout.setEnabled(false);//未登陆时不能使用logout
@@ -190,6 +197,7 @@ public class Client extends JFrame{
 		onlineUserList.setFixedCellHeight(50);
 		onlineUserList.setModel(defaultListModel);
 		scrollPane.setBorder(BorderFactory.createTitledBorder ("OnlineUserList"));
+		scrollPane.setOpaque(false);
 		showPanel.add(scrollPane,BorderLayout.WEST);
 		showPanel.add(showResultPanel,BorderLayout.CENTER);
 		
