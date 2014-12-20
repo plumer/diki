@@ -46,6 +46,20 @@ public class Client extends JFrame{
 	public static void main(String[] args) {
 		Client frame = new Client();
 		
+		// 参考陈冬杰的代码
+		Client.setDefaultLookAndFeelDecorated(true);
+		//* 想要修改皮肤的话，只需要更改，下面这个函数的参数，具体改成什么样，
+		// * 可以打开substance.jar, 找到org.jvnet.substance.skin这个包
+		// * 将下面的SubstanceDustCoffeeLookAndFeel替换成刚刚打开的包下的任意一个“Substance....LookAndFeel”即可 
+		try {
+			UIManager.setLookAndFeel(new org.jvnet.substance.skin.SubstanceMistSilverLookAndFeel());
+		} catch (UnsupportedLookAndFeelException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		frame.setFont(new Font("微软雅黑", 1, 15));
+		
 		frame.getLayeredPane().add(setbg, new Integer(Integer.MIN_VALUE));
 		((JPanel)frame.getContentPane()).setOpaque(false);
 		
