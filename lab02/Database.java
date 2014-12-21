@@ -3,6 +3,14 @@ package lab02;
 import java.net.*;
 import java.sql.*;
 
+/**
+ * 数据库类，提供所有的数据库操作
+ * 
+ * 注意
+ * 1. 数据库地址默认为本地的127.0.0.1:3306, 但是可以通过构造函数设置为其他的
+ * 2. 默认使用数据库test, user为root, 密码为空[mysql的默认设置]，同时提供可以指定这些参数的构造函数
+ * 3. 数据库编码为utf8
+ * */
 class Database {
 	private Connection connect;
 

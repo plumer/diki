@@ -1,7 +1,4 @@
 package lab02;
-/**
- * client中具体功能函数实现
- */
 import java.io.*; 
 import java.net.*;
 
@@ -13,6 +10,9 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.*;
 
+/**
+ * client后台，client具体功能函数实现
+ */
 class ClientBackground {
 	private Socket socket;
 	//net IO stream
@@ -35,7 +35,7 @@ class ClientBackground {
 	/**
 	 * 主界面的login按键触发的事件
 	 */
-	public void login(DefaultListModel defaultListModel,JButton logout,JButton register,JButton note,JButton refreshOnlineUserList,
+	public void login(DefaultListModel<String> defaultListModel,JButton logout,JButton register,JButton note,JButton refreshOnlineUserList,
 			JButton login,JButton []sendCard) {//从主界面传来的参数
 		//登陆窗口
 		JFrame loginFrame = new JFrame();//登陆窗口
@@ -99,7 +99,7 @@ class ClientBackground {
 	/**
 	 * 按下登陆界面的确认键引发的事件
 	 */
-	public void loginConfirm(String userName,String userPassword,DefaultListModel defaultListModel,
+	public void loginConfirm(String userName,String userPassword,DefaultListModel<String> defaultListModel,
 			JButton logout,JButton register,JButton note,JButton refreshOnlineUserList,JButton login,
 			JButton []sendCard,JButton lfLogin,JFrame loginFrame,JTextField jtfLoginUserName,JPasswordField jtfLoginPassword){
 		//发送请求登陆数据包
@@ -197,7 +197,7 @@ class ClientBackground {
 	 */
 	public void logout(JButton login,JButton logout,JButton register,JButton note,
 			JButton []zan,JButton[] unzan,JButton[] sendCard,JTextField[] whoToSend,JButton refreshOnlineUserList, 
-			DefaultListModel defaultListModel) {
+			DefaultListModel<?> defaultListModel) {
 		if(currentUser != null &&currentUser.isOnline()){//判断有用户在线
 		System.out.println("start logout!");
 		String userNameString = currentUser.getName();
@@ -616,7 +616,7 @@ class ClientBackground {
 		//shownote面板
 		JFrame showNoteFrame = new JFrame();
 		JLabel noteTitle = new JLabel("My notebook");
-		JList noteList = new JList();
+		JList<String> noteList = new JList<String>();
 		DefaultListModel<String> defaultListModel = new DefaultListModel<String>();
 		noteList.setModel(defaultListModel);
 		JScrollPane scrollPaneOfNoteList = new JScrollPane(noteList);	//滚轮
@@ -650,7 +650,7 @@ class ClientBackground {
 		showNoteFrame.setVisible(true);
 	}
 
-	public void selectWord(JList noteList, JTextArea wordExplaination){
+	public void selectWord(JList<String> noteList, JTextArea wordExplaination){
 		//选中要发送的用户之后，显示在左边三个textfield中
 		wordExplaination.setText("");
     	int selectedIndex = noteList.getSelectedIndex();//返回选中多少行
@@ -817,7 +817,7 @@ class ClientBackground {
 		}
 	}
 	
-	public void refreshOnlineUserList(DefaultListModel defaultListModel){
+	public void refreshOnlineUserList(DefaultListModel<String> defaultListModel){
 		//刷新当前在线用户列表
 		
 		try {//send

@@ -4,6 +4,9 @@ import java.net.*;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * 服务器端
+ * */
 public class Server implements Runnable {
 	private static Database db = new Database("127.0.0.1:3306", "diki", "root", "21844576");
 

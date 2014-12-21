@@ -1,13 +1,10 @@
-/**
- * 
- */
 package lab02;
 
 import java.net.*;
 /**
- * @author Diki
- * removed user id field [since it seems useless]
- * changed constructor
+ * 存储一个用户（name，password，ip，port，status）
+ * 并提供get方法
+ * 
  */
 class User {
 	public static boolean ONLINE = true;

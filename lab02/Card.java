@@ -1,12 +1,9 @@
-/**
- *
- */
 package lab02;
 
 import java.lang.String;
 
 /**
- * @author Diki
+ * 单词卡类，已经废弃
  *
  */
 class Card {
