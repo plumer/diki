@@ -1,7 +1,4 @@
 package lab02;
-/**
- * client中具体功能函数实现
- */
 import java.io.*; 
 import java.net.*;
 
@@ -13,6 +10,9 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.*;
 
+/**
+ * client后台，client具体功能函数实现
+ */
 class ClientBackground {
 	private Socket socket;
 	//net IO stream
@@ -27,28 +27,16 @@ class ClientBackground {
 	private int [] displayOrder = {0,1,2};//初始的显示顺序是0（baidu）1（youdao）2（bing）
 	private int [] zanSum = {0,0,0};//每个显示面板的点赞数
 	private int [] unzanSum = {0,0,0};//不赞数
-	
+	private boolean [] enableZan = {false,false,false};
+	private boolean [] enableUnzan = {false,false,false};
 	ClientBackground(){
-		try{//create a socket to connect to the server
 			
-			socket = new Socket("114.212.129.39",23333);//yushen:114.212.129.39
-			//System.out.println(socket.getInetAddress().getAddress());
-			
-			//create an input stream to receive data from the server
-			fromServer = new DataInputStream(socket.getInputStream());
-			
-			//create an output stream to send data to the server
-			toServer = new DataOutputStream(socket.getOutputStream());
-		}
-		catch(Exception ex){
-			ex.printStackTrace();
-		}		
 	}
 	
 	/**
 	 * 主界面的login按键触发的事件
 	 */
-	public void login(DefaultListModel defaultListModel,JButton logout,JButton register,JButton note,JButton refreshOnlineUserList,
+	public void login(DefaultListModel<String> defaultListModel,JButton logout,JButton register,JButton note,JButton refreshOnlineUserList,
 			JButton login,JButton []sendCard) {//从主界面传来的参数
 		//登陆窗口
 		JFrame loginFrame = new JFrame();//登陆窗口
@@ -112,12 +100,26 @@ class ClientBackground {
 	/**
 	 * 按下登陆界面的确认键引发的事件
 	 */
-	public void loginConfirm(String userName,String userPassword,DefaultListModel defaultListModel,
+	public void loginConfirm(String userName,String userPassword,DefaultListModel<String> defaultListModel,
 			JButton logout,JButton register,JButton note,JButton refreshOnlineUserList,JButton login,
 			JButton []sendCard,JButton lfLogin,JFrame loginFrame,JTextField jtfLoginUserName,JPasswordField jtfLoginPassword){
 		//发送请求登陆数据包
 		String replyLoginPackage;
 		try {
+			try{//create a socket to connect to the server
+				
+				socket = new Socket("114.212.129.39",23333);//yushen:114.212.129.39
+				//System.out.println(socket.getInetAddress().getAddress());
+				
+				//create an input stream to receive data from the server
+				fromServer = new DataInputStream(socket.getInputStream());
+				
+				//create an output stream to send data to the server
+				toServer = new DataOutputStream(socket.getOutputStream());
+			}
+			catch(Exception ex){
+				ex.printStackTrace();
+			}	
 			//send package to server
 			toServer.writeUTF("qli" + userName + "^" + userPassword);
 			toServer.flush();
@@ -171,7 +173,7 @@ class ClientBackground {
 					//jtfLoginUserName.setText("");
 					//jtfLoginPassword.setText("");
 					loginFrame.setVisible(false);
-					JOptionPane.showMessageDialog(null,"登陆成功，欢迎您！","登录",JOptionPane.OK_OPTION);
+					JOptionPane.showMessageDialog(null,"登陆成功，欢迎您！");
 					
 					//return currentUser;
 					
@@ -180,7 +182,7 @@ class ClientBackground {
 					jtfLoginUserName.setText("");
 					jtfLoginPassword.setText("");
 					//弹出提示框
-					JOptionPane.showMessageDialog(null,"登陆失败，请重新输入！","登录",JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null,"登陆失败，请重新输入！");
 					
 				}
 			}
@@ -196,7 +198,7 @@ class ClientBackground {
 	 */
 	public void logout(JButton login,JButton logout,JButton register,JButton note,
 			JButton []zan,JButton[] unzan,JButton[] sendCard,JTextField[] whoToSend,JButton refreshOnlineUserList, 
-			DefaultListModel defaultListModel) {
+			DefaultListModel<?> defaultListModel) {
 		if(currentUser != null &&currentUser.isOnline()){//判断有用户在线
 		System.out.println("start logout!");
 		String userNameString = currentUser.getName();
@@ -239,7 +241,7 @@ class ClientBackground {
 						//input.setText("");;
 					}
 					refreshOnlineUserList.setEnabled(false);
-					JOptionPane.showMessageDialog(null,"注销成功，goodbye~","注销",JOptionPane.OK_OPTION);
+					JOptionPane.showMessageDialog(null,"注销成功，goodbye~");
 				}
 			}
 			
@@ -325,7 +327,7 @@ class ClientBackground {
         	//不一致，就提示说重新输入密码
         	jtfRegPassword.setText("");
         	jtfRegPasswordConfirm.setText("");
-        	JOptionPane.showMessageDialog(null, "注册失败，请重新确认密码！","注册",  JOptionPane.ERROR_MESSAGE);
+        	JOptionPane.showMessageDialog(null, "注册失败，请重新确认密码！");
         }
         else{
         	if(userName.length() <= 20 && password.length() <= 20){//用户名和密码不超过20个字符)
@@ -338,6 +340,20 @@ class ClientBackground {
         	System.out.println("send package: " + requestRegPackage.toString());
         
         	try {//send
+        		try{//create a socket to connect to the server
+        			
+        			socket = new Socket("114.212.129.39",23333);//yushen:114.212.129.39
+        			//System.out.println(socket.getInetAddress().getAddress());
+        			
+        			//create an input stream to receive data from the server
+        			fromServer = new DataInputStream(socket.getInputStream());
+        			
+        			//create an output stream to send data to the server
+        			toServer = new DataOutputStream(socket.getOutputStream());
+        		}
+        		catch(Exception ex){
+        			ex.printStackTrace();
+        		}	
         		toServer.writeUTF(requestRegPackage.toString());
         		toServer.flush();
         		//receive
@@ -351,14 +367,14 @@ class ClientBackground {
         				registerFrame.setVisible(false);
         				//弹出提示框，已经注册成功
         				
-        				JOptionPane.showMessageDialog(null,"注册成功，欢迎您加入diki！","注册",JOptionPane.OK_OPTION);
+        				JOptionPane.showMessageDialog(null,"注册成功，欢迎您加入diki！");
         			}
         			else{//没有成功
         				//clear password fieldS
         				jtfRegUserName.setText("");
         				jtfRegPassword.setText("");
         				jtfRegPasswordConfirm.setText("");
-        				JOptionPane.showMessageDialog(null,"注册失败，请重新注册！","注册", JOptionPane.ERROR_MESSAGE);
+        				JOptionPane.showMessageDialog(null,"注册失败，请重新注册！");
         				
         			}
         		}
@@ -436,18 +452,18 @@ class ClientBackground {
 					displayOrder[2] = 2;
 					displayOrderSort();
 					//下面控制zan和unzan按钮是否能够使用，就是用户是否已经点过这个单词的zan或者unzan
-					if(tempStr[4].equalsIgnoreCase("true"))  zan[displayOrder[0]].setEnabled(false);
-					else									  zan[displayOrder[0]].setEnabled(true);
-					if(tempStr[5].equalsIgnoreCase("true"))  zan[displayOrder[1]].setEnabled(false); 
-					else									  zan[displayOrder[1]].setEnabled(true);
-					if(tempStr[6].equalsIgnoreCase("true"))  zan[displayOrder[2]].setEnabled(false);
-					else									  zan[displayOrder[2]].setEnabled(true);
-					if(tempStr[7].equalsIgnoreCase("true"))  unzan[displayOrder[0]].setEnabled(false);
-					else									  unzan[displayOrder[0]].setEnabled(true);
-					if(tempStr[8].equalsIgnoreCase("true"))  unzan[displayOrder[1]].setEnabled(false);
-					else									  unzan[displayOrder[1]].setEnabled(true);
-					if(tempStr[9].equalsIgnoreCase("true"))  unzan[displayOrder[2]].setEnabled(false);
-					else									  unzan[displayOrder[2]].setEnabled(true);
+					if(tempStr[4].equalsIgnoreCase("true"))  {zan[displayOrder[0]].setEnabled(false);enableZan[displayOrder[0]] = false;}
+					else									  {zan[displayOrder[0]].setEnabled(true);enableZan[displayOrder[0]] = true;}
+					if(tempStr[5].equalsIgnoreCase("true"))  {zan[displayOrder[1]].setEnabled(false);enableZan[displayOrder[1]] = false;} 
+					else									  {zan[displayOrder[1]].setEnabled(true);enableZan[displayOrder[1]] = true;}
+					if(tempStr[6].equalsIgnoreCase("true"))  {zan[displayOrder[2]].setEnabled(false);enableZan[displayOrder[2]] = false;}
+					else									  {zan[displayOrder[2]].setEnabled(true);enableZan[displayOrder[2]] = true;}
+					if(tempStr[7].equalsIgnoreCase("true"))  {unzan[displayOrder[0]].setEnabled(false);enableUnzan[displayOrder[0]] = false;}
+					else									  {unzan[displayOrder[0]].setEnabled(true);enableUnzan[displayOrder[0]] = true;}
+					if(tempStr[8].equalsIgnoreCase("true"))  {unzan[displayOrder[1]].setEnabled(false);enableUnzan[displayOrder[1]] = false;}
+					else									  {unzan[displayOrder[1]].setEnabled(true);enableUnzan[displayOrder[1]] = true;}
+					if(tempStr[9].equalsIgnoreCase("true"))  {unzan[displayOrder[2]].setEnabled(false);enableUnzan[displayOrder[2]] = false;}
+					else									  {unzan[displayOrder[2]].setEnabled(true);enableUnzan[displayOrder[2]] = true;}
 					//解释显示在面板上
 					displayThreePanel(result, baidu, youdao, bing,
 							showThreePanel, showSelectPanel,
@@ -488,20 +504,23 @@ class ClientBackground {
 			//用户在线就显示赞和不赞的数目，否则不显示
 			//获取0（baidu）1（youdao）2（bing）显示的面板标号
 			int panelIndex = displayOrder[i];
-			
 			boolean isSelected = true;
 			String [] ex = currentEntry.getInformation(i).toString().split("\\$");
-			System.out.println(currentEntry.getInformation(i).toString());
+			//System.out.println(currentEntry.getInformation(i).toString());
+			System.out.println("ex[0]: " + ex[0]);
 			switch(ex[0]){
 				case "baidu": if(!baidu.isSelected())  isSelected = false;break;
 				case "youdao": if(!youdao.isSelected())  isSelected = false;break;
 				case "bing": if(!bing.isSelected())  isSelected = false;break;
 			}
-			System.out.println("panelindex: " + panelIndex);
-			System.out.println("xianshi: " + ex[0]);
+			//System.out.println("panelindex: " + panelIndex);
+			//System.out.println("xianshi: " + ex[0]);
 			showThreePanel[panelIndex].setBorder(BorderFactory.createTitledBorder (ex[0]));
 			showSelectPanel[panelIndex].setBorder(BorderFactory.createTitledBorder (ex[0]));
 			if(isSelected){
+				if(enableZan[panelIndex])zan[panelIndex].setEnabled(true);
+				if(enableUnzan[panelIndex])unzan[panelIndex].setEnabled(true);
+				sendCard[panelIndex].setEnabled(true);
 				//选中了就进行显示
 				//result[ panelIndex].append(ex[0] + '\n');
 				//keyword
@@ -540,6 +559,7 @@ class ClientBackground {
 				//index++;
 			}
 			else{
+				System.out.println("jinzhi: " + i);
 				zan[panelIndex].setEnabled(false);
 				unzan[panelIndex].setEnabled(false);
 				sendCard[panelIndex].setEnabled(false);
@@ -601,7 +621,7 @@ class ClientBackground {
 		//shownote面板
 		JFrame showNoteFrame = new JFrame();
 		JLabel noteTitle = new JLabel("My notebook");
-		JList noteList = new JList();
+		JList<String> noteList = new JList<String>();
 		DefaultListModel<String> defaultListModel = new DefaultListModel<String>();
 		noteList.setModel(defaultListModel);
 		JScrollPane scrollPaneOfNoteList = new JScrollPane(noteList);	//滚轮
@@ -635,7 +655,7 @@ class ClientBackground {
 		showNoteFrame.setVisible(true);
 	}
 
-	public void selectWord(JList noteList, JTextArea wordExplaination){
+	public void selectWord(JList<String> noteList, JTextArea wordExplaination){
 		//选中要发送的用户之后，显示在左边三个textfield中
 		wordExplaination.setText("");
     	int selectedIndex = noteList.getSelectedIndex();//返回选中多少行
@@ -699,6 +719,7 @@ class ClientBackground {
 			 String replyClickZan = fromServer.readUTF();
 			 System.out.println(replyClickZan);
 			 zan[panelID].setEnabled(false);//无法再点赞,出错再说？
+			 enableZan[panelID] = false;
 			 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -730,6 +751,7 @@ class ClientBackground {
 			 String replyClickUnzan = fromServer.readUTF();
 			 System.out.println(replyClickUnzan);
 			 unzan[panelID].setEnabled(false);//无法再点赞,出错再说？
+			 enableUnzan[panelID] = false;
 			 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -802,7 +824,7 @@ class ClientBackground {
 		}
 	}
 	
-	public void refreshOnlineUserList(DefaultListModel defaultListModel){
+	public void refreshOnlineUserList(DefaultListModel<String> defaultListModel){
 		//刷新当前在线用户列表
 		
 		try {//send

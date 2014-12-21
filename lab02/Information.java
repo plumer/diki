@@ -4,8 +4,7 @@
 package lab02;
 
 /**
- * @author diki
- * updated on 2014-12-13: added method isZannedBy(String) and isUnzannedBy(String)
+ * 每个Information里都保存了来自一个来源的音标、属性、解释、赞次数、不赞次数
  */
 public class Information {
 	private String source;		// 来源

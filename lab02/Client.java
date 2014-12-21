@@ -10,13 +10,17 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.JOptionPane;
 
+/**
+ * Client的图形界面实现和所有的ActionListener添加
+ * */
+
 public class Client extends JFrame{
 	private static final long serialVersionUID = 1L;
-	private JButton login = new JButton("login");			//登陆按钮
+	private JButton login = new JButton("  login ");			//登陆按钮
 	private JButton register = new JButton("register");	//注册按钮
-	private JLabel title = new JLabel("My Diki");			//词典名字
-	private JButton note = new JButton("note");			//单词本按钮
-	private JButton logout = new JButton("logout");
+	private JLabel title = new JLabel("                                                                    My  Diki                                                                    ");			//词典名字
+	private JButton note = new JButton("  note  ");			//单词本按钮
+	private JButton logout = new JButton(" logout ");
 	 
 	private JTextField input = new JTextField(); 			//输入文本框
 	private JButton search = new JButton("search");		//search 按钮
@@ -164,7 +168,7 @@ public class Client extends JFrame{
 		
 		logPanel.setOpaque(false);
 		
-		logPanel.setLayout(new GridLayout(1,5,5,5));
+		//logPanel.setLayout(new GridLayout(1,5,5,5));
 		logPanel.add(login);
 		//logPanel.add(login);
 		logPanel.add(logout);
@@ -201,14 +205,13 @@ public class Client extends JFrame{
 			showThreePanel[i].setLayout(new BorderLayout());
 			showThreePanel[i].add(scrollpane[i],BorderLayout.CENTER);
 			showThreePanel[i].add(showSelectPanel[i],BorderLayout.EAST);
-			String subTitle = "";
 			switch(i){
-				case 0: subTitle = "baidu"; break;
-				case 1: subTitle = "youdao";break;
-				case 2: subTitle = "bing";break;
+				case 0: break;
+				case 1: break;
+				case 2: break;
 			}
-			showThreePanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
-			showSelectPanel[i].setBorder(BorderFactory.createTitledBorder (subTitle));
+			showThreePanel[i].setBorder(BorderFactory.createTitledBorder (" "));
+			showSelectPanel[i].setBorder(BorderFactory.createTitledBorder (" "));
 		}
 		
 		showResultPanel.setLayout(new GridLayout(3,1));

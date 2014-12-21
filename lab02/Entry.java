@@ -1,22 +1,13 @@
-/**
- * 
- */
 package lab02;
 
 import java.lang.String;
 
 /**
- * @author Diki
- *
- */
-
-/**
- * 我做了下面这些改动:
- * 主要就是把函数使用的关键词换成了字符串
- * 例如: 
+ * 词条类
  * entry.setInformation("baidu", info)来设置百度的翻译结果, 类似的"youdao", "bing"
  * entry.getInformation("baidu")来获取百度的翻译结果, 类似的"youdao", "bing"
  * entry.clickZan("baidu", "Xiaohong")表示用户"xiaohong"对百度的翻译结果点赞
+ * 同时提供toString方法转换成String
  */
 
 class Entry {
@@ -65,19 +56,6 @@ class Entry {
 		else
 			return null;
 	}
-//	public boolean clickZan(String source, String user) {
-//		if (source.equals("baidu")) return informations[BAIDU].clickZan(user);
-//		if (source.equals("youdao")) return informations[YOUDAO].clickZan(user);
-//		if (source.equals("bing")) return informations[BING].clickZan(user);
-//		return false;
-//	}
-//	
-//	public boolean clickUnzan(String source, String user) {
-//		if (source.equals("baidu")) return informations[BAIDU].clickUnzan(user);
-//		if (source.equals("youdao")) return informations[YOUDAO].clickUnzan(user);
-//		if (source.equals("bing")) return informations[BING].clickUnzan(user);
-//		return false;
-//	}
 
 	public String toString() {
 		return 
