@@ -505,9 +505,12 @@ class ClientBackground {
 			showThreePanel[panelIndex].setBorder(BorderFactory.createTitledBorder (ex[0]));
 			showSelectPanel[panelIndex].setBorder(BorderFactory.createTitledBorder (ex[0]));
 			if(isSelected){
-				if(enableZan[panelIndex])zan[panelIndex].setEnabled(true);
-				if(enableUnzan[panelIndex])unzan[panelIndex].setEnabled(true);
-				sendCard[panelIndex].setEnabled(true);
+				if(enableZan[panelIndex] && currentUser != null && currentUser.isOnline())
+					zan[panelIndex].setEnabled(true);
+				if(enableUnzan[panelIndex] && currentUser != null && currentUser.isOnline())
+					unzan[panelIndex].setEnabled(true);
+				if(currentUser != null && currentUser.isOnline()) 
+					sendCard[panelIndex].setEnabled(true);
 				//选中了就进行显示
 				//keyword
 				result[ panelIndex].append(currentEntry.getKeyword() + '\n');
@@ -574,7 +577,7 @@ class ClientBackground {
 		displayOrder[secondMaxIndex] = 1;
 		
 		for(int i = 0; i < 3; i++){
-			if(i != maxIndex && i != secondMaxIndex)  {index[2] = i;displayOrder[i] = 2;System.out.println("last: " + i);}
+			if(i != maxIndex && i != secondMaxIndex)  {index[2] = i;displayOrder[i] = 2;}
 		}
 	    
 	   /* for(int i = 0; i < 3; i++){
