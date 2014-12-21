@@ -1,5 +1,11 @@
 package lab02;
-
+/**
+ * 主要功能：
+ * 		实现客户端GUI
+ * 函数：
+ * 		1.main函数中，进行主界面的初始化显示，其中更改界面皮肤的部分是参考陈冬杰的代码
+ * 		2.构造函数中，对界面上各种组件进行初始化设置，并给组件加上响应事件，调用ClientBackground类中实现的功能函数
+ */
 import java.awt.*; 
 
 import javax.swing.*;
