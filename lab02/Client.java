@@ -16,6 +16,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.JOptionPane;
 
+/**
+ * Client的图形界面实现和所有的ActionListener添加
+ * */
+
 public class Client extends JFrame{
 	private static final long serialVersionUID = 1L;
 	private JButton login = new JButton("  login ");			//登陆按钮

@@ -10,7 +10,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
- * get到神器jsoup 可以百度到jar包然后import一下嗯
+ * 用jsoup实现网页解析，search函数返回一个Entry对象，如果网页连接失败，返回的对象中的information除source外其他都为空，
+ * 如果没有找到这个词，除source外其他都为“NotFound”
  * 
  * 注意： '#'来分开两种发音、词性和解释 例如：查 hello 音标: 美 [heˈləʊ]#英 [hə'ləʊ] 词性: int.#n. 解释:
  * 你好；喂；您好；哈喽#你好；嘿；（表示惊讶）嘿 保证词性个数和解释个数一一对应
