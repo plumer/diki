@@ -151,6 +151,7 @@ public class Server implements Runnable {
 										osToClient.writeUTF("rrgfalse");
 									} else {
 										osToClient.writeUTF("rrgtrue");
+										result = true;
 									}
 								}
 							} else {

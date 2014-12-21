@@ -55,7 +55,22 @@
 服务器监听服务器套接字，每次客户端运行时就与服务器建立连接，在连接上相互传送报文来交互。
 本项目使用的报文形式是简单的字符串形式，有一个简单的格式：前三个字符为操作码，后面的内容根据操作码而异：
 
-* qrg (Quest on ReGister): 注册请求操作，
+* qrg (Query on ReGister): 注册请求操作，后面跟着用户名和密码。
+* rrg (Reply on ReGister)：回复注册请求，后面跟着注册成功('true')或者失败('false')。
+* qli (Query on Log In): 登录请求操作，后面跟着用户名和密码。
+* rli (Reply on Log In): 登录回复操作，后面跟着登录成功('true')或者失败。
+						 成功的场合，后面再跟上当前在线用户的列表。
+* qlo (Query on Log Out): 下线请求操作，后面跟着用户名。
+* rlo (Reply on Log Out): 回复下线操作，后面跟着下线成功('true')或失败('false')。
+* qza (Query on ZAn): 点赞请求操作，后面跟着用户名、单词和解释来源。
+* rza (Reply on ZAn): 回复点赞操作，后面跟着成功或失败。
+* quz (Query on UnZan): 拍砖请求操作，类似qza操作。
+* ruz (Reply on UnZan): 回复拍砖操作，类似rza操作。
+* qsc (Query on Send Card): 发卡请求操作，后面跟着发送方、接收方、单词和解释来源。
+* rsc (Reply on Send Card): 回复发卡操作，附加成功或失败信息。
+* qgc (Query on Get Card): 获取卡片请求操作，附加用户名。
+* rgc (Reply on Get Card): 回复获取卡片操作，后面跟上某个用户的所有单词卡。
+						   单词卡由[发送方][单词][Info]构成，中间由'^'分隔。
 
 ##具体实现
 
