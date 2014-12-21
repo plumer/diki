@@ -8,20 +8,29 @@ import java.awt.*;
  * 服务器端
  * */
 public class Server implements Runnable {
-	private static Database db = new Database("127.0.0.1:3306", "diki", "root", "21844576");
-
+	private static Database db = new Database("127.0.0.1:3306", "diki", "root", "");
+	/**
+	 * 服务器端的入口函数
+	 * */
 	public static void main( String[] args ) throws InterruptedException {
 		Server s = new Server();
 		Thread serverThread = new Thread(s);
 		serverThread.run();
 		serverThread.join();
 	}
-	
+	/**
+	 * 服务器的构造函数
+	 * 添加了一个相应终端Ctrl+C终端的处理线程
+	 * 初始化图形化界面
+	 * */
 	public Server() {
 		Runtime.getRuntime().addShutdownHook(new LogoutAllUsers());
 		initializeUI();
 	}
-	
+	/**
+	 * 服务器意外终止时的处理线程类
+	 * 将所有数据库中存在的在线用户下线
+	 * */
 	private class LogoutAllUsers extends Thread {
 		public LogoutAllUsers() {
 			super("logout all users");
@@ -36,7 +45,13 @@ public class Server implements Runnable {
 			System.out.println("All users logged out");
 		}
 	}
-	
+	/**
+	 * 服务器的主运行逻辑：
+	 * 侦听本机的23333号端口，
+	 * 每一次连接就创建一个Socket并传给一个新的HandleTask对象，
+	 * 具体服务逻辑交给HandleTask完成。
+	 * @see HandleTask
+	 * */
 	public void run() {
 		System.out.println("你服务器大爷开啦！");
 		try {
@@ -66,22 +81,47 @@ public class Server implements Runnable {
 		}
 	}
 	
+	/**
+	 * 服务器日志打印函数：
+	 * 既打印在终端，也打印在图形化界面上。
+	 * @param message 需要输出的日志消息
+	 * */
 	public void mainLog(String message) {
 		Server.appendMessage(message+"\n");
 		System.out.println(message);
 	}
 	
+	/** 服务器端的内部类 - HandleTask：
+	 * 每一个HandleTask对象对应一个和客户端的服务操作。
+	 * */
 	public static class HandleTask implements Runnable {
 		private Socket connectionSocket;
 		private String currentUserName;
 		int clientNo;
 		private int transactionCounter = 0;
-
+		/**
+		 * 构造器：
+		 * @param socket 和客户连接所使用的套接字
+		 * @param clientNo 会话编号
+		 * */
 		public HandleTask(Socket socket, int clientNo) {
 			this.connectionSocket = socket;
 			this.clientNo = clientNo;
 		}
 		
+		/**
+		 * 服务程序：
+		 * 从客户端接收消息，根据消息头三个字符判断服务类型。
+		 * 注册请求 - 检查是否存在相同用户名的帐号，如果是则向客户发送失败回应，否则将新用户加入数据库。
+		 * 登录请求 - 检查该用户是否存在、当前是否离线、密码是否正确，全是则回应成功并且发送所有在线用户列表，否则回应失败。
+		 * 下线请求 - 检查该用户是否存在、当前是否在线，全是则回应成功并且修改数据库中对应用户的状态，否则回应失败。
+		 * 搜索请求 - 检查该词条是否在本机数据库存在，是则回应该单词，否则调用OnlineSearcher的搜索功能，搜到这个单词再回应，并且写入本机数据库。
+		 * 点赞请求 - 检查用户是否存在、单词是否存在，是则返回写入点赞记录的结果，否则返回失败。
+		 * 拍砖请求 - 类似点赞请求。
+		 * 发卡请求 - 检查发送方用户和接收方用户是否存在，是则返回写入发卡记录的结果，否则返回失败。
+		 * 获取卡片请求 - 返回该用户所有的单词卡。
+		 * @see OnlineSearcher#search(String)
+		 * */
 		public void run() {
 			try {
 				DataInputStream isFromClient = new DataInputStream(
@@ -304,23 +344,36 @@ public class Server implements Runnable {
 			}
 		} // end of function run()
 
+		/**
+		 * 在服务器端的终端和图形界面上输出一个字符串数组，
+		 * 用途为打印参数列表等，方便调试。
+		 * @param s 待打印的字符串数组
+		 * */
 		void printStringArray( String[] s) {
 			for (int i = 0; i < s.length; ++i) {
 				Server.appendMessage("\t" + s[i]);
 			}
 			Server.appendMessage("\n");
 		}
-
+		
+		/**
+		 * 输出日志信息最终调用的函数：
+		 * 打印格式为[server] client #+会话编号+trans #+服务编号+type+message
+		 * @param type 日志类型，一般为info或error
+		 * @param message 信息内容
+		 * */
 		void log(String type, String message) {
 			System.out.println("[Server] Client #" + clientNo +
 			" trans #" + transactionCounter+", " + type + ": " + message);
 			Server.appendMessage("[Server] Client #" + clientNo +
 			" trans #" + transactionCounter+", " + type + ": \n\t" + message+"\n");
 		}
-		
-		
 	} // end of class HandleTask
 	
+	/**
+	 * 初始化图形界面：
+	 * 左侧为在线用户列表，右侧为日志信息。
+	 * */
 	public void initializeUI() {
 		jfMainPanel = new JFrame();
 		jfMainPanel.setLayout(new BorderLayout());
@@ -339,12 +392,6 @@ public class Server implements Runnable {
 		jfMainPanel.setSize(600, 400);
 		jfMainPanel.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		jfMainPanel.setVisible(true);
-		
-/**		jbtKick.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String userName = 
-			}
-		});*/
 	}
 	
 	private static DefaultListModel model = new DefaultListModel();
@@ -354,14 +401,25 @@ public class Server implements Runnable {
 	private static JButton jbtKick;
 	private static JPanel jpTopBar;
 	
+	/**
+	 * 往用户界面的日志信息里添加信息
+	 * @param m 信息内容
+	 * */
 	public static void appendMessage(String m) {
 		jtaLog.append(m);
 	}
 	
+	/**
+	 * 往用户界面的在线用户列表里添加新用户，以表明该用户上线。
+	 * @param userName 待添加用户的用户名
+	 * */
 	public static void newOnlineUser(String userName) {
 		model.addElement(userName);
 	}
 	
+	/** 从用户界面的在线用户列表里删除某个用户，以表明该用户下线。
+	 * @param userName 待删除用户的用户名
+	 * */
 	public static void newOfflineUser(String userName) {
 		model.removeElement(userName);
 	}
