@@ -3,6 +3,9 @@
 *.war
 .classpath
 /.classpath
+/doc/
+*.md~
+*.un~
 
 # eclipse specific git ignore
 *.pydevproject
