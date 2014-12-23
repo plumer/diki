@@ -489,6 +489,9 @@ class ClientBackground {
 		for(int i = 0; i < 3; i++){
 			result[i].setText("");
 		}
+		boolean selectNone = false;
+		if(!baidu.isSelected() && !youdao.isSelected() && !bing.isSelected())
+			selectNone = true;
 		//int index = 0;//标记现在应该在哪一块面板上面显示了
 		for(int i = 0; i < 3; i++){
 			//先判断是否勾选了该来源(顺序是baidu,youdao,bing)
@@ -504,7 +507,8 @@ class ClientBackground {
 			}
 			showThreePanel[panelIndex].setBorder(BorderFactory.createTitledBorder (ex[0]));
 			showSelectPanel[panelIndex].setBorder(BorderFactory.createTitledBorder (ex[0]));
-			if(isSelected){
+			//全部不选择，显示全部
+			if(isSelected || selectNone){
 				if(enableZan[panelIndex] && currentUser != null && currentUser.isOnline())
 					zan[panelIndex].setEnabled(true);
 				if(enableUnzan[panelIndex] && currentUser != null && currentUser.isOnline())
